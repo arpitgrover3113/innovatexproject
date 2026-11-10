@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { roadmapApi } from '../services/api';
 import { MasteryBadge } from '../components/MasteryBadge';
+import { ConceptFlashcards } from '../components/ConceptFlashcards';
 
 export const RoadmapPage = ({ onNavigate }) => {
   const [roadmap, setRoadmap] = useState(null);
@@ -223,6 +224,11 @@ export const RoadmapPage = ({ onNavigate }) => {
             );
           })}
         </div>
+      </div>
+
+      {/* Interactive Invariant Revision Cards */}
+      <div className="pt-2">
+        <ConceptFlashcards />
       </div>
 
     </div>

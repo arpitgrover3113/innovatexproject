@@ -5,8 +5,8 @@ export const getTutorStatus = () => {
   const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '');
   return {
     isConfigured: hasKey,
-    mode: hasKey ? 'Gemini 1.5 Flash (Cloud AI)' : 'Pedagogical Adaptive Fallback Engine',
-    modelName: hasKey ? 'gemini-1.5-flash' : 'LearnLoop-Local-Heuristic-V1'
+    mode: hasKey ? 'Gemini 3.5 Flash / AI Studio (Active)' : 'Pedagogical Adaptive Fallback Engine',
+    modelName: hasKey ? 'gemini-3.5-flash-lite' : 'LearnLoop-Local-Heuristic-V1'
   };
 };
 
@@ -29,9 +29,6 @@ export const generateTutorResponse = async ({
 
   if (apiKey && apiKey.trim() !== '' && apiKey !== 'YOUR_GEMINI_API_KEY') {
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
       const systemInstruction = `You are LearnLoop AI, a world-class adaptive personal tutor for Data Structures and Algorithms.
 Your student's real-time cognitive profile:
 - Active Topic Focus: ${topicContext} (Current Mastery: ${currentTopicProgress.masteryScore}%)
@@ -60,7 +57,28 @@ Prompt 3`;
       }
       promptText += `\nStudent: ${message}\nTutor:`;
 
-      const result = await model.generateContent(promptText);
+      const genAI = new GoogleGenerativeAI(apiKey);
+      const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest', 'gemini-1.5-flash'];
+      let result = null;
+      let usedModel = 'gemini-3.5-flash-lite';
+
+      for (const modelCandidate of candidateModels) {
+        try {
+          const model = genAI.getGenerativeModel({ model: modelCandidate });
+          result = await model.generateContent(promptText);
+          if (result) {
+            usedModel = modelCandidate;
+            break;
+          }
+        } catch (mErr) {
+          console.warn(`[Gemini API] Model ${modelCandidate} unavailable, trying next...`);
+        }
+      }
+
+      if (!result) {
+        throw new Error('All cloud Gemini model candidates were busy or unavailable');
+      }
+
       const response = await result.response;
       const fullText = response.text();
 
@@ -88,7 +106,7 @@ Prompt 3`;
         content,
         suggestedPrompts,
         provider: 'gemini',
-        model: 'gemini-1.5-flash',
+        model: usedModel,
         isFallback: false,
         topicContext,
         studentMastery: currentTopicProgress.masteryScore
