@@ -2,13 +2,78 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { dbStore } from './storage.js';
 
 export const getTutorStatus = () => {
-  const hasKey = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '');
+  const hasGroq = Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim() !== '');
+  const hasGemini = Boolean(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '');
+
+  if (hasGroq) {
+    return {
+      isConfigured: true,
+      provider: 'groq',
+      mode: 'Groq Cloud LPU (openai/gpt-oss-120b)',
+      modelName: 'openai/gpt-oss-120b'
+    };
+  }
+
+  if (hasGemini) {
+    return {
+      isConfigured: true,
+      provider: 'gemini',
+      mode: 'Google Gemini 3.5 AI Studio',
+      modelName: 'gemini-3.5-flash-lite'
+    };
+  }
+
   return {
-    isConfigured: hasKey,
-    mode: hasKey ? 'Gemini 3.5 Flash / AI Studio (Active)' : 'Pedagogical Adaptive Fallback Engine',
-    modelName: hasKey ? 'gemini-3.5-flash-lite' : 'LearnLoop-Local-Heuristic-V1'
+    isConfigured: false,
+    provider: 'local',
+    mode: 'Pedagogical Adaptive Fallback Engine',
+    modelName: 'LearnLoop-Local-Heuristic-V1'
   };
 };
+
+async function callGroqChat({ apiKey, messages }) {
+  const candidateModels = [
+    'openai/gpt-oss-120b',
+    'openai/gpt-oss-20b',
+    'qwen/qwen3.8-27b'
+  ];
+
+  let lastError = null;
+
+  for (const model of candidateModels) {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey.trim()}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: 0.7,
+          max_tokens: 1024
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Groq HTTP ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (content && content.trim() !== '') {
+        return { content, model };
+      }
+    } catch (err) {
+      lastError = err;
+      console.warn(`[Groq API] Model ${model} failed:`, err.message);
+    }
+  }
+
+  throw lastError || new Error('All Groq candidate models failed');
+}
 
 export const generateTutorResponse = async ({
   userId,
@@ -25,29 +90,67 @@ export const generateTutorResponse = async ({
   const strongestTopics = sortedByMastery.slice(-3).reverse().map(t => `${t.topicName} (${t.masteryScore}%)`);
   const recentMisconceptions = currentTopicProgress.recentMisconceptions || [];
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
+  const geminiKey = process.env.GEMINI_API_KEY;
 
-  if (apiKey && apiKey.trim() !== '' && apiKey !== 'YOUR_GEMINI_API_KEY') {
-    try {
-      const systemInstruction = `You are LearnLoop AI, a world-class adaptive personal tutor for Data Structures and Algorithms.
-Your student's real-time cognitive profile:
+  const systemInstruction = `You are LearnLoop AI, a world-class adaptive personal Socratic tutor for Computer Science and Data Structures & Algorithms.
+Student's real-time cognitive profile:
 - Active Topic Focus: ${topicContext} (Current Mastery: ${currentTopicProgress.masteryScore}%)
 - Weakest Knowledge Areas: ${weakestTopics.join(', ')}
 - Strongest Knowledge Areas: ${strongestTopics.join(', ')}
 - Recent Identified Misconceptions: ${recentMisconceptions.length ? recentMisconceptions.join('; ') : 'None logged yet'}
 
-PEDAGOGICAL RULES:
-1. Adapt depth strictly to mastery: If mastery < 50%, start with foundational intuition, visual stack-frame traces, and base case mechanics. Avoid premature complex optimizations.
-2. If mastery > 75%, encourage discussions of asymptotic tight bounds, amortized analysis, and tricky edge cases.
-3. When teaching ${topicContext}, reference their strong foundational topics (e.g. Arrays) if helpful as an analogy.
-4. Keep explanations crisp, structured with markdown bolding, code snippets (clean Python or JS), and bullet points.
-5. End your response with a designated section strictly formatted as:
+CORE BEHAVIOR & PEDAGOGY:
+1. CONVERSATIONAL & ENGAGING: If the student says "hi", "how are you?", "who are you?", or asks casual greetings, respond warmly, naturally, and conversationally in a friendly first-person voice. Always be supportive, encouraging, and invite them into whatever they want to learn.
+2. ADAPTIVE DEPTH:
+   - If mastery < 50%: Use concrete real-world analogies, step-by-step visual stack traces, and emphasize base cases. Avoid premature complex optimizations.
+   - If mastery > 75%: Encourage discussions of asymptotic tight bounds, invariants, and tricky edge cases.
+3. CODE & STRUCTURE: Use clean markdown, bolding, bullet points, and short readable code snippets (Python/JavaScript).
+4. SUGGESTED PROMPTS: Conclude your ENTIRE response with exactly 3 relevant follow-up prompts formatted strictly as:
 ---SUGGESTED_PROMPTS---
 Prompt 1
 Prompt 2
 Prompt 3`;
 
-      // Construct prompt with history
+  // --- TIER 1: GROQ LPU (Ultra-Low Latency & High Conversational Quality) ---
+  if (groqKey && groqKey.trim() !== '' && groqKey !== 'YOUR_GROQ_API_KEY') {
+    try {
+      const groqMessages = [
+        { role: 'system', content: systemInstruction }
+      ];
+
+      if (conversationHistory.length > 0) {
+        conversationHistory.slice(-6).forEach(msg => {
+          groqMessages.push({
+            role: msg.role === 'user' ? 'user' : 'assistant',
+            content: msg.content
+          });
+        });
+      }
+
+      groqMessages.push({ role: 'user', content: message });
+
+      const groqRes = await callGroqChat({ apiKey: groqKey, messages: groqMessages });
+      const parsed = parsePromptsAndContent(groqRes.content, topicContext);
+
+      return {
+        content: parsed.content,
+        suggestedPrompts: parsed.suggestedPrompts,
+        provider: 'groq',
+        model: groqRes.model,
+        isFallback: false,
+        topicContext,
+        studentMastery: currentTopicProgress.masteryScore
+      };
+    } catch (groqError) {
+      console.warn('[Groq API] Call failed:', groqError.message);
+      console.log('[Groq API] Falling back to Gemini / Pedagogical Engine.');
+    }
+  }
+
+  // --- TIER 2: GEMINI API ---
+  if (geminiKey && geminiKey.trim() !== '' && geminiKey !== 'YOUR_GEMINI_API_KEY') {
+    try {
       let promptText = `${systemInstruction}\n\n`;
       if (conversationHistory.length > 0) {
         promptText += `Recent Conversation History:\n`;
@@ -57,7 +160,7 @@ Prompt 3`;
       }
       promptText += `\nStudent: ${message}\nTutor:`;
 
-      const genAI = new GoogleGenerativeAI(apiKey);
+      const genAI = new GoogleGenerativeAI(geminiKey);
       const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest', 'gemini-1.5-flash'];
       let result = null;
       let usedModel = 'gemini-3.5-flash-lite';
@@ -71,54 +174,32 @@ Prompt 3`;
             break;
           }
         } catch (mErr) {
-          console.warn(`[Gemini API] Model ${modelCandidate} unavailable, trying next...`);
+          console.warn(`[Gemini API] Model ${modelCandidate} unavailable:`, mErr.message);
         }
       }
 
-      if (!result) {
-        throw new Error('All cloud Gemini model candidates were busy or unavailable');
+      if (result) {
+        const response = await result.response;
+        const fullText = response.text();
+        const parsed = parsePromptsAndContent(fullText, topicContext);
+
+        return {
+          content: parsed.content,
+          suggestedPrompts: parsed.suggestedPrompts,
+          provider: 'gemini',
+          model: usedModel,
+          isFallback: false,
+          topicContext,
+          studentMastery: currentTopicProgress.masteryScore
+        };
       }
-
-      const response = await result.response;
-      const fullText = response.text();
-
-      // Parse suggested prompts
-      let content = fullText;
-      let suggestedPrompts = [
-        `Give me a practice question on ${topicContext}`,
-        `Show a visual dry-run of this concept`,
-        `How does this connect to my learning roadmap?`
-      ];
-
-      if (fullText.includes('---SUGGESTED_PROMPTS---')) {
-        const parts = fullText.split('---SUGGESTED_PROMPTS---');
-        content = parts[0].trim();
-        const extracted = parts[1]
-          .split('\n')
-          .map(s => s.trim().replace(/^[-*0-9.]+\s*/, ''))
-          .filter(Boolean);
-        if (extracted.length > 0) {
-          suggestedPrompts = extracted.slice(0, 3);
-        }
-      }
-
-      return {
-        content,
-        suggestedPrompts,
-        provider: 'gemini',
-        model: usedModel,
-        isFallback: false,
-        topicContext,
-        studentMastery: currentTopicProgress.masteryScore
-      };
     } catch (apiError) {
-      console.warn('[Gemini API] Call failed or quota exceeded:', apiError.message);
-      console.log('[Gemini API] Seamlessly switching to Pedagogical Fallback Engine.');
-      // Fall through to fallback engine
+      console.warn('[Gemini API] Call failed:', apiError.message);
     }
   }
 
-  // High-Fidelity Pedagogical Fallback Engine
+  // --- TIER 3: HIGH-FIDELITY PEDAGOGICAL FALLBACK ENGINE ---
+  console.log('[AI Tutor] Using Resilient Pedagogical Fallback Engine.');
   return generatePedagogicalFallback({
     message,
     topicContext,
@@ -128,6 +209,29 @@ Prompt 3`;
     recentMisconceptions
   });
 };
+
+function parsePromptsAndContent(fullText, topicContext) {
+  let content = fullText;
+  let suggestedPrompts = [
+    `Give me a practice question on ${topicContext}`,
+    `Show a visual dry-run of this concept`,
+    `How does this connect to my learning roadmap?`
+  ];
+
+  if (fullText.includes('---SUGGESTED_PROMPTS---')) {
+    const parts = fullText.split('---SUGGESTED_PROMPTS---');
+    content = parts[0].trim();
+    const extracted = parts[1]
+      .split('\n')
+      .map(s => s.trim().replace(/^[-*0-9.]+\s*/, ''))
+      .filter(Boolean);
+    if (extracted.length > 0) {
+      suggestedPrompts = extracted.slice(0, 3);
+    }
+  }
+
+  return { content, suggestedPrompts };
+}
 
 function topicSlugify(text) {
   if (!text) return 'recursion';

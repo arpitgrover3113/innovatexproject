@@ -217,8 +217,8 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
           <div className="flex items-center gap-2 text-navy-500 font-mono text-[11px]">
             {tutorStatus?.isConfigured ? (
               <span className="flex items-center gap-1 text-brand-purple font-semibold">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Gemini 1.5 Flash Active</span>
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                <span>{tutorStatus.provider === 'groq' ? 'Groq LPU (GPT-OSS 120B)' : tutorStatus.mode}</span>
               </span>
             ) : (
               <span className="flex items-center gap-1 text-brand-blue font-semibold">

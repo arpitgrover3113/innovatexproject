@@ -26,8 +26,8 @@ export const AIStatusBadge = () => {
       {status.isConfigured ? (
         <>
           <Sparkles className="w-3.5 h-3.5 text-brand-purple animate-pulse" />
-          <span className="font-semibold">Gemini 1.5 Flash</span>
-          <span className="text-[10px] bg-brand-purple/20 text-brand-purple-dark px-1.5 py-0.2 rounded font-mono">ACTIVE</span>
+          <span className="font-semibold">{status.provider === 'groq' ? 'Groq LPU (120B)' : (status.modelName || 'Cloud LLM')}</span>
+          <span className="text-[10px] bg-brand-purple/20 text-brand-purple-dark px-1.5 py-0.2 rounded font-mono">LIVE AI</span>
         </>
       ) : (
         <>
