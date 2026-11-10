@@ -29,8 +29,12 @@ Unlike traditional EdTech platforms that force students through rigid linear pla
 - **Node.js & Express.js** – RESTful API architecture with modular routers
 - **MongoDB & Mongoose** – Relational schema models for Users, Topics, Questions, Progress, Assessments, and Chat Histories
 - **High-Fidelity Resilient Fallback Engine** – Automatically activates in-memory storage if a local MongoDB daemon is not running, ensuring a 100% crash-proof local evaluation!
-- **Google Gemini API** – Integration for contextual Socratic tutoring with dynamic cognitive profile injection
-- **Pedagogical Rule Fallback** – Provides comprehensive, tailored algorithmic breakdowns when Gemini API keys are unconfigured
+- **Groq Cloud LPU Integration** – Ultra-low-latency (~0.3s) conversational Socratic tutoring powered by `openai/gpt-oss-120b` and `qwen/qwen3.8-27b`
+- **Google Gemini API** – Secondary cloud model fallback (`gemini-3.5-flash-lite`, `gemini-3.8-flash`)
+- **Pedagogical Rule Fallback** – Multi-tier resilience providing tailored algorithmic breakdowns when cloud API keys are unconfigured
+- **Interactive Call Stack Visualizer** – Live frame-by-frame recursion tracer simulating execution state
+- **3D Concept Invariant Flashcards** – Flipping revision cards reinforcing algorithmic invariants on the topological roadmap
+- **Web Speech Audio Engine** – Socratic voice read-aloud for auditory learners
 
 ---
 
