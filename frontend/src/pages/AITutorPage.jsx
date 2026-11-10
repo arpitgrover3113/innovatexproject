@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
   Send, 
@@ -12,10 +12,15 @@ import {
   HelpCircle,
   Lightbulb,
   CheckCircle,
-  ChevronDown
+  ChevronDown,
+  Volume2,
+  VolumeX,
+  Layers,
+  BrainCircuit
 } from 'lucide-react';
 import { tutorApi, topicsApi } from '../services/api';
 import { MasteryBadge } from '../components/MasteryBadge';
+import { RecursionVisualizer } from '../components/RecursionVisualizer';
 
 export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) => {
   const [messages, setMessages] = useState([]);
@@ -24,6 +29,8 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [showVisualizer, setShowVisualizer] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
   const [suggestedPrompts, setSuggestedPrompts] = useState([
     'Explain the fundamentals of Recursion',
     'Why is Recursion a prerequisite for Trees?',
@@ -32,6 +39,23 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
   const [tutorStatus, setTutorStatus] = useState(null);
 
   const messagesEndRef = useRef(null);
+
+  const toggleSpeak = (text, idx) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    if (speakingIndex === idx) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/```[\s\S]*?```/g, 'Code block omitted.').replace(/[#*_`]/g, '');
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.05;
+    utterance.onend = () => setSpeakingIndex(null);
+    utterance.onerror = () => setSpeakingIndex(null);
+    setSpeakingIndex(idx);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -181,20 +205,45 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
           <MasteryBadge score={activeTopicObj.masteryScore || 35} size="sm" />
         </div>
 
-        <div className="flex items-center gap-2 text-navy-500 font-mono text-[11px]">
-          {tutorStatus?.isConfigured ? (
-            <span className="flex items-center gap-1 text-brand-purple font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Gemini 1.5 Flash Active</span>
-            </span>
-          ) : (
-            <span className="flex items-center gap-1 text-brand-blue font-semibold">
-              <Cpu className="w-3.5 h-3.5" />
-              <span>Pedagogical Heuristic Engine</span>
-            </span>
-          )}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowVisualizer(prev => !prev)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-brand-purple/30 text-brand-purple font-bold text-xs hover:bg-brand-purple/5 shadow-soft-xs transition-all"
+          >
+            <Layers className="w-3.5 h-3.5 text-brand-purple" />
+            <span>{showVisualizer ? 'Hide Call-Stack Tracer' : '🧠 Trace Call-Stack Visually'}</span>
+          </button>
+
+          <div className="flex items-center gap-2 text-navy-500 font-mono text-[11px]">
+            {tutorStatus?.isConfigured ? (
+              <span className="flex items-center gap-1 text-brand-purple font-semibold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Gemini 1.5 Flash Active</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-brand-blue font-semibold">
+                <Cpu className="w-3.5 h-3.5" />
+                <span>Pedagogical Heuristic Engine</span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Collapsible Interactive Call Stack Visualizer */}
+      <AnimatePresence>
+        {showVisualizer && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <RecursionVisualizer />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Chat Messages Container */}
       <div className="bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm overflow-hidden flex flex-col h-[520px]">
@@ -222,11 +271,33 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
                     </div>
                   )}
 
-                  <div className={`p-4 rounded-2xl max-w-xl text-xs sm:text-sm leading-relaxed space-y-2 ${
+                  <div className={`p-4 rounded-2xl max-w-xl text-xs sm:text-sm leading-relaxed space-y-2 relative ${
                     isUser
                       ? 'bg-navy-900 text-white rounded-tr-none'
                       : 'bg-navy-50/70 border border-navy-200/60 text-navy-900 rounded-tl-none'
                   }`}>
+                    {!isUser && (
+                      <div className="flex items-center justify-between pb-1.5 border-b border-navy-200/40 text-[11px] text-navy-500 font-medium">
+                        <span className="font-semibold text-brand-purple">LearnLoop Socratic Tutor</span>
+                        <button
+                          onClick={() => toggleSpeak(msg.content, idx)}
+                          title="Read explanation aloud"
+                          className="p-1 hover:bg-navy-200/60 rounded-md transition-colors text-navy-400 hover:text-brand-purple flex items-center gap-1 text-[10px]"
+                        >
+                          {speakingIndex === idx ? (
+                            <>
+                              <VolumeX className="w-3.5 h-3.5 text-brand-rose animate-pulse" />
+                              <span className="text-brand-rose font-bold">Stop Voice</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="w-3.5 h-3.5" />
+                              <span>Listen</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
                     {/* Render plain text with basic markdown formatting */}
                     <div className="prose prose-sm max-w-none space-y-2">
                       {msg.content.split('\n\n').map((paragraph, pIdx) => {
