@@ -1,0 +1,82 @@
+import React, { useState } from 'react';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { Navbar } from './components/Navbar';
+import { Footer } from './components/Footer';
+
+// Pages
+import { LandingPage } from './pages/LandingPage';
+import { AuthPage } from './pages/AuthPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { DiagnosticAssessmentPage } from './pages/DiagnosticAssessmentPage';
+import { AdaptivePracticePage } from './pages/AdaptivePracticePage';
+import { AITutorPage } from './pages/AITutorPage';
+import { RoadmapPage } from './pages/RoadmapPage';
+import { AnalyticsPage } from './pages/AnalyticsPage';
+
+const AppContent = () => {
+  const { isAuthenticated, loading } = useAuth();
+  const [activeTab, setActiveTab] = useState('landing');
+  const [tabParams, setTabParams] = useState({});
+
+  // Navigate to dashboard upon initial login only if explicitly coming from auth
+  React.useEffect(() => {
+    if (isAuthenticated && activeTab === 'auth') {
+      setActiveTab('dashboard');
+    }
+  }, [isAuthenticated, activeTab]);
+
+  const handleNavigate = (tab, params = {}) => {
+    setTabParams(params);
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center gap-3 text-navy-800">
+          <div className="w-4 h-4 rounded-full bg-brand-purple animate-ping" />
+          <span className="text-xs font-bold tracking-wider uppercase">Initializing LearnLoop AI...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background text-navy-900 selection:bg-brand-purple-light selection:text-brand-purple-dark">
+      <Navbar activeTab={activeTab} onTabChange={handleNavigate} />
+
+      <main className="flex-1">
+        {activeTab === 'landing' && <LandingPage onNavigate={handleNavigate} />}
+        {activeTab === 'auth' && <AuthPage onAuthSuccess={() => handleNavigate('dashboard')} />}
+        {activeTab === 'dashboard' && <DashboardPage onNavigate={handleNavigate} />}
+        {activeTab === 'diagnostic' && <DiagnosticAssessmentPage onNavigate={handleNavigate} />}
+        {activeTab === 'adaptive' && (
+          <AdaptivePracticePage 
+            initialTopic={tabParams.topic || 'recursion'} 
+            onNavigate={handleNavigate} 
+          />
+        )}
+        {activeTab === 'tutor' && (
+          <AITutorPage 
+            initialTopicContext={tabParams.topicContext || 'Recursion'} 
+            onNavigate={handleNavigate} 
+          />
+        )}
+        {activeTab === 'roadmap' && <RoadmapPage onNavigate={handleNavigate} />}
+        {activeTab === 'analytics' && <AnalyticsPage onNavigate={handleNavigate} />}
+      </main>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+

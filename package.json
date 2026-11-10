@@ -1,0 +1,15 @@
+{
+  "name": "learnloop-ai",
+  "version": "1.0.0",
+  "description": "LearnLoop AI – Intelligent Adaptive Learning Platform (PS 03)",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "seed": "cd backend && npm run seed",
+    "build": "cd frontend && npm run build"
+  },
+  "author": "LearnLoop AI Team",
+  "license": "ISC"
+}
+
