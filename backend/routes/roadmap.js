@@ -1,13 +1,14 @@
 import express from 'express';
 import { generatePersonalizedRoadmap } from '../services/roadmapEngine.js';
-import { requireAuth } from '../middleware/auth.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Get personalized dynamic roadmap
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
-    const roadmap = await generatePersonalizedRoadmap(req.user._id);
+    const userId = req.user ? req.user._id : 'guest_preview';
+    const roadmap = await generatePersonalizedRoadmap(userId);
     res.json(roadmap);
   } catch (err) {
     res.status(500).json({ error: err.message });

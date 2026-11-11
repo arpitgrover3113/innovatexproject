@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { AchievementsModal } from './components/AchievementsModal';
 
 // Pages
 import { LandingPage } from './pages/LandingPage';
@@ -10,13 +11,15 @@ import { DashboardPage } from './pages/DashboardPage';
 import { DiagnosticAssessmentPage } from './pages/DiagnosticAssessmentPage';
 import { AdaptivePracticePage } from './pages/AdaptivePracticePage';
 import { AITutorPage } from './pages/AITutorPage';
+import { VisualizerPage } from './pages/VisualizerPage';
 import { RoadmapPage } from './pages/RoadmapPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
 
 const AppContent = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('landing');
   const [tabParams, setTabParams] = useState({});
+  const [showAchievements, setShowAchievements] = useState(false);
 
   // Navigate to dashboard upon initial login only if explicitly coming from auth
   React.useEffect(() => {
@@ -26,6 +29,10 @@ const AppContent = () => {
   }, [isAuthenticated, activeTab]);
 
   const handleNavigate = (tab, params = {}) => {
+    // Clear guest session when returning to landing page
+    if (tab === 'landing' && user?.email?.includes('@guest')) {
+      logout();
+    }
     setTabParams(params);
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -44,7 +51,7 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-navy-900 selection:bg-brand-purple-light selection:text-brand-purple-dark">
-      <Navbar activeTab={activeTab} onTabChange={handleNavigate} />
+      <Navbar activeTab={activeTab} onTabChange={handleNavigate} onShowAchievements={() => setShowAchievements(true)} />
 
       <main className="flex-1">
         {activeTab === 'landing' && <LandingPage onNavigate={handleNavigate} />}
@@ -63,11 +70,21 @@ const AppContent = () => {
             onNavigate={handleNavigate} 
           />
         )}
+        {activeTab === 'visualizer' && (
+          <VisualizerPage onNavigate={handleNavigate} />
+        )}
         {activeTab === 'roadmap' && <RoadmapPage onNavigate={handleNavigate} />}
         {activeTab === 'analytics' && <AnalyticsPage onNavigate={handleNavigate} />}
       </main>
 
       <Footer />
+
+      {/* Achievements modal rendered at root level — escapes header stacking context */}
+      <AchievementsModal
+        isOpen={showAchievements}
+        onClose={() => setShowAchievements(false)}
+        user={user}
+      />
     </div>
   );
 };

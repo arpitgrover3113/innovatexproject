@@ -32,39 +32,31 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    setLoading(true);
-    try {
-      const data = await authApi.login(email, password);
-      setAuthToken(data.token);
-      setUser(data.user);
-      return data.user;
-    } finally {
-      setLoading(false);
-    }
+    const data = await authApi.login(email, password);
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const register = async (userData) => {
-    setLoading(true);
-    try {
-      const data = await authApi.register(userData);
-      setAuthToken(data.token);
-      setUser(data.user);
-      return data.user;
-    } finally {
-      setLoading(false);
-    }
+    const data = await authApi.register(userData);
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const demoLogin = async () => {
-    setLoading(true);
-    try {
-      const data = await authApi.demoLogin();
-      setAuthToken(data.token);
-      setUser(data.user);
-      return data.user;
-    } finally {
-      setLoading(false);
-    }
+    const data = await authApi.demoLogin();
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
+  };
+
+  const guestLogin = async () => {
+    const data = await authApi.guestLogin();
+    setAuthToken(data.token);
+    setUser(data.user);
+    return data.user;
   };
 
   const logout = () => {
@@ -86,10 +78,12 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       user,
+      setUser,
       loading,
       login,
       register,
       demoLogin,
+      guestLogin,
       logout,
       updateProfile,
       isAuthenticated: Boolean(user)

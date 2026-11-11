@@ -16,6 +16,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { adaptiveApi, topicsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { MasteryBadge } from '../components/MasteryBadge';
 
 const defaultAdaptiveQuestion = {
@@ -36,6 +37,7 @@ const defaultAdaptiveQuestion = {
 };
 
 export const AdaptivePracticePage = ({ initialTopic = 'recursion', onNavigate }) => {
+  const { isAuthenticated } = useAuth();
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(initialTopic);
   const [currentQuestion, setCurrentQuestion] = useState(defaultAdaptiveQuestion);
@@ -164,6 +166,24 @@ export const AdaptivePracticePage = ({ initialTopic = 'recursion', onNavigate })
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+
+      {/* Guest Notice Banner */}
+      {!isAuthenticated && (
+        <div className="p-4 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-brand-purple shrink-0" />
+            <span className="text-navy-700">
+              <strong>Guest Session:</strong> Practicing anonymously. Questions adapt in real-time. Create an account to permanently save your mastery & streak.
+            </span>
+          </div>
+          <button
+            onClick={() => onNavigate('auth')}
+            className="px-3.5 py-1.5 rounded-lg bg-brand-purple text-white font-bold hover:bg-brand-purple-dark shrink-0 transition-all"
+          >
+            Sign In / Register
+          </button>
+        </div>
+      )}
       
       {/* Header Strip with Topic Selector */}
       <div className="p-6 bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">

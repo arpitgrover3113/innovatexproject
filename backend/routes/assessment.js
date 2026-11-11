@@ -2,7 +2,7 @@ import express from 'express';
 import { dbStore } from '../services/storage.js';
 import { calculateMasteryUpdate } from '../services/masteryEngine.js';
 import { generatePersonalizedRoadmap } from '../services/roadmapEngine.js';
-import { requireAuth } from '../middleware/auth.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -106,7 +106,10 @@ router.post('/submit', requireAuth, async (req, res) => {
       });
     }
 
-    const overallScore = Math.round((correctCount / detailedAnswers.length) * 100);
+    const totalSubmitted = answers.length;
+    const overallScore = detailedAnswers.length > 0
+      ? Math.round((correctCount / detailedAnswers.length) * 100)
+      : 0;
 
     // Save Assessment record
     const savedAssessment = await dbStore.saveAssessment({
@@ -138,9 +141,10 @@ router.post('/submit', requireAuth, async (req, res) => {
 });
 
 // Get user assessment history
-router.get('/history', requireAuth, async (req, res) => {
+router.get('/history', optionalAuth, async (req, res) => {
   try {
-    const assessments = await dbStore.getUserAssessments(req.user._id);
+    const userId = req.user ? req.user._id : 'guest_preview';
+    const assessments = await dbStore.getUserAssessments(userId);
     res.json({ assessments });
   } catch (err) {
     res.status(500).json({ error: err.message });

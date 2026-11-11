@@ -15,9 +15,8 @@ export const requireAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      // For a smooth demo experience, fallback to demo student if no token provided
-      req.user = await dbStore.findUserById('demo_student_01');
-      return next();
+      // No token: return 401 so the frontend knows it needs to provision a session
+      return res.status(401).json({ error: 'Authentication required. Please sign in or start a guest session.' });
     }
 
     const token = authHeader.split(' ')[1];
@@ -25,16 +24,30 @@ export const requireAuth = async (req, res, next) => {
     const user = await dbStore.findUserById(decoded.id);
 
     if (!user) {
-      req.user = await dbStore.findUserById('demo_student_01');
-      return next();
+      return res.status(401).json({ error: 'User account not found. Please sign in again.' });
     }
 
     req.user = user;
     next();
   } catch (err) {
-    // Graceful fallback to demo user so requests don't abruptly crash during local demos
-    req.user = await dbStore.findUserById('demo_student_01');
-    next();
+    return res.status(401).json({ error: 'Invalid or expired session. Please sign in again.' });
   }
+};
+
+export const optionalAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const user = await dbStore.findUserById(decoded.id);
+      if (user) {
+        req.user = user;
+      }
+    }
+  } catch (err) {
+    // Continue unauthenticated
+  }
+  next();
 };
 

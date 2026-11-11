@@ -1,15 +1,55 @@
 import express from 'express';
 import { dbStore } from '../services/storage.js';
 import { generatePersonalizedRoadmap } from '../services/roadmapEngine.js';
-import { requireAuth } from '../middleware/auth.js';
+import { optionalAuth } from '../middleware/auth.js';
+import { dsaTopics } from '../seed/dsaData.js';
 
 const router = express.Router();
 
 // Get rich dashboard analytics
-router.get('/dashboard', requireAuth, async (req, res) => {
+router.get('/dashboard', optionalAuth, async (req, res) => {
   try {
-    const userId = req.user._id;
     const user = req.user;
+    const orderedDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Unauthenticated preview baseline
+    if (!user) {
+      return res.json({
+        summary: {
+          overallMastery: 0,
+          questionsAttempted: 0,
+          accuracy: 0,
+          streakDays: 0,
+          skillLevel: 'Beginner'
+        },
+        strongestTopics: [],
+        weakestTopics: [],
+        recommendedNextTopic: {
+          topicSlug: 'recursion',
+          topicName: 'Recursion Fundamentals',
+          reason: 'Take the diagnostic assessment to calibrate your personalized knowledge frontier.'
+        },
+        recentAssessments: [],
+        charts: {
+          topicMastery: dsaTopics.map(t => ({
+            topic: t.name.replace(' and ', ' & '),
+            score: 0,
+            accuracy: 0,
+            benchmark: 75
+          })),
+          weeklyActivity: orderedDays.map(d => ({ day: d, questions: 0, accuracy: 0, studyTimeMin: 0 })),
+          accuracyTrends: []
+        },
+        roadmapSummary: {
+          mastered: 0,
+          inProgress: 0,
+          locked: 10,
+          total: 10
+        }
+      });
+    }
+
+    const userId = user._id;
     const progressList = await dbStore.getStudentProgress(userId);
     const assessments = await dbStore.getUserAssessments(userId);
     const roadmap = await generatePersonalizedRoadmap(userId);
@@ -40,24 +80,42 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       misconception: p.recentMisconceptions ? p.recentMisconceptions[0] : null
     }));
 
-    // Chart Data 1: Topic-wise Mastery
-    const topicMasteryChart = progressList.map(p => ({
-      topic: p.topicName.replace(' and ', ' & '),
-      score: p.masteryScore,
-      accuracy: p.recentAccuracy,
-      benchmark: 75
-    }));
+    // Chart Data 1: Topic-wise Mastery (guarantee all 10 topics appear on X-axis)
+    const progressMap = new Map(progressList.map(p => [p.topicSlug, p]));
+    const topicMasteryChart = dsaTopics.map(t => {
+      const p = progressMap.get(t.slug);
+      return {
+        topic: t.name.replace(' and ', ' & '),
+        score: p ? p.masteryScore : 0,
+        accuracy: p ? p.recentAccuracy : 0,
+        benchmark: 75
+      };
+    });
 
-    // Chart Data 2: Weekly Activity (seeded based on user activity)
-    const weeklyActivity = [
-      { day: 'Mon', questions: 12, accuracy: 75, studyTimeMin: 45 },
-      { day: 'Tue', questions: 18, accuracy: 82, studyTimeMin: 60 },
-      { day: 'Wed', questions: 8, accuracy: 65, studyTimeMin: 30 },
-      { day: 'Thu', questions: 22, accuracy: 88, studyTimeMin: 75 },
-      { day: 'Fri', questions: 15, accuracy: 70, studyTimeMin: 50 },
-      { day: 'Sat', questions: 26, accuracy: 92, studyTimeMin: 90 },
-      { day: 'Sun', questions: 14, accuracy: 78, studyTimeMin: 40 }
-    ];
+    // Chart Data 2: Weekly Activity — built from real assessment history
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weeklyMap = {};
+    days.forEach(d => { weeklyMap[d] = { day: d, questions: 0, accuracy: 0, studyTimeMin: 0, _correct: 0, _total: 0 }; });
+
+    const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    for (const a of assessments) {
+      const date = new Date(a.completedAt);
+      if (date.getTime() < oneWeekAgo) continue;
+      const dayLabel = days[date.getDay()];
+      weeklyMap[dayLabel].questions += a.totalQuestions || 0;
+      weeklyMap[dayLabel]._correct += a.correctCount || 0;
+      weeklyMap[dayLabel]._total += a.totalQuestions || 0;
+      weeklyMap[dayLabel].studyTimeMin += Math.round((a.totalQuestions || 0) * 2.5);
+    }
+    // Calculate accuracy per day
+    days.forEach(d => {
+      const entry = weeklyMap[d];
+      entry.accuracy = entry._total > 0 ? Math.round((entry._correct / entry._total) * 100) : 0;
+      delete entry._correct;
+      delete entry._total;
+    });
+
+    const weeklyActivity = orderedDays.map(d => weeklyMap[d]);
 
     // Chart Data 3: Accuracy Trends over assessments
     let accuracyTrends = assessments.map((a, index) => ({
@@ -66,21 +124,13 @@ router.get('/dashboard', requireAuth, async (req, res) => {
       date: new Date(a.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     })).reverse();
 
-    if (accuracyTrends.length === 0) {
-      accuracyTrends = [
-        { session: 'Baseline', score: 55, date: 'Nov 6' },
-        { session: 'Session 2', score: 68, date: 'Nov 8' },
-        { session: 'Diagnostic', score: 74, date: 'Nov 10' }
-      ];
-    }
-
     res.json({
       summary: {
         overallMastery,
-        questionsAttempted: totalAttempts || user.totalQuestionsAnswered || 42,
-        accuracy: calculatedAccuracy || user.overallAccuracy || 74,
-        streakDays: user.streakDays || 4,
-        skillLevel: user.skillLevel || 'Intermediate'
+        questionsAttempted: totalAttempts || user.totalQuestionsAnswered || 0,
+        accuracy: calculatedAccuracy || user.overallAccuracy || 0,
+        streakDays: totalAttempts > 0 ? (user.streakDays || 1) : 0,
+        skillLevel: user.skillLevel || 'Beginner'
       },
       strongestTopics,
       weakestTopics,

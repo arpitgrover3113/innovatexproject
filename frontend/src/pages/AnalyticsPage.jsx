@@ -22,13 +22,16 @@ import {
   Calendar, 
   RefreshCw,
   Compass,
-  FileText
+  FileText,
+  Sparkles
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { analyticsApi, assessmentApi } from '../services/api';
 import { MasteryBadge } from '../components/MasteryBadge';
 import { MetricCard } from '../components/MetricCard';
 
 export const AnalyticsPage = ({ onNavigate }) => {
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState(null);
   const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +67,24 @@ export const AnalyticsPage = ({ onNavigate }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+      {/* Guest Notice Banner */}
+      {!isAuthenticated && (
+        <div className="p-4 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-brand-purple shrink-0" />
+            <span className="text-navy-700">
+              <strong>Guest Preview:</strong> Viewing baseline analytics. Complete assessments to generate personalized accuracy trends and velocity telemetry.
+            </span>
+          </div>
+          <button
+            onClick={() => onNavigate('auth')}
+            className="px-3.5 py-1.5 rounded-lg bg-brand-purple text-white font-bold hover:bg-brand-purple-dark shrink-0 transition-all"
+          >
+            Sign In / Register
+          </button>
+        </div>
+      )}
       
       {/* Header Strip */}
       <div className="p-6 bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -95,7 +116,8 @@ export const AnalyticsPage = ({ onNavigate }) => {
           value={`${summary?.overallMastery || 0}%`}
           subtext="Mean across 10 DSA topics"
           icon={Award}
-          trend="+8%"
+          trend={summary?.overallMastery > 0 ? `+${summary.overallMastery}%` : "Baseline"}
+          trendPositive={summary?.overallMastery > 0}
           color="purple"
         />
         <MetricCard
@@ -103,7 +125,8 @@ export const AnalyticsPage = ({ onNavigate }) => {
           value={summary?.questionsAttempted || 0}
           subtext="Questions evaluated"
           icon={Activity}
-          trend="Active"
+          trend={summary?.questionsAttempted > 0 ? `${summary.questionsAttempted} solved` : "Unattempted"}
+          trendPositive={summary?.questionsAttempted > 0}
           color="blue"
         />
         <MetricCard
@@ -111,15 +134,17 @@ export const AnalyticsPage = ({ onNavigate }) => {
           value={`${summary?.accuracy || 0}%`}
           subtext="Weighted response accuracy"
           icon={CheckCircle}
-          trend="Healthy"
+          trend={summary?.questionsAttempted > 0 ? `${summary.accuracy}% accuracy` : "No attempts"}
+          trendPositive={summary?.accuracy >= 60}
           color="emerald"
         />
         <MetricCard
           title="Study Velocity"
-          value={`${summary?.streakDays || 4} Days`}
+          value={`${summary?.streakDays || 0} Days`}
           subtext="Daily active practice"
           icon={TrendingUp}
-          trend="🔥 On Fire"
+          trend={summary?.streakDays > 0 ? "🔥 Active" : "Not started"}
+          trendPositive={summary?.streakDays > 0}
           color="amber"
         />
       </div>

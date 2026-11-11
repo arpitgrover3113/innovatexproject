@@ -27,14 +27,16 @@ import {
   BookOpen, 
   RefreshCw,
   BrainCircuit,
-  ArrowRight
+  ArrowRight,
+  Code2
 } from 'lucide-react';
 import { analyticsApi, topicsApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { MetricCard } from '../components/MetricCard';
 import { MasteryBadge } from '../components/MasteryBadge';
-import { RecursionVisualizer } from '../components/RecursionVisualizer';
 
 export const DashboardPage = ({ onNavigate }) => {
+  const { isAuthenticated } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,43 +71,93 @@ export const DashboardPage = ({ onNavigate }) => {
   }
 
   const { summary, strongestTopics, weakestTopics, recommendedNextTopic, recentAssessments, charts, roadmapSummary } = data || {};
+  const hasAttempted = (summary?.questionsAttempted || 0) > 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+      {/* Guest Notice Banner if unauthenticated */}
+      {!isAuthenticated && (
+        <div className="p-4 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-brand-purple shrink-0" />
+            <span className="text-navy-700">
+              <strong>Guest Preview:</strong> Take the Diagnostic Assessment to calibrate your personal knowledge graph and unlock real-time recommendations.
+            </span>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigate('diagnostic')}
+              className="px-3.5 py-1.5 rounded-lg bg-brand-purple text-white font-bold hover:bg-brand-purple-dark transition-all"
+            >
+              Take Diagnostic
+            </button>
+            <button
+              onClick={() => onNavigate('auth')}
+              className="px-3.5 py-1.5 rounded-lg border border-navy-200 text-navy-700 font-semibold hover:bg-navy-50 transition-all"
+            >
+              Sign In
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* Top Welcome & Recommended Topic Hero Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-navy-950 via-navy-900 to-navy-950 text-white relative overflow-hidden shadow-soft-xl border border-navy-800">
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="max-w-2xl space-y-2">
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-brand-purple/30 text-brand-purple-light border border-brand-purple/40">
-                Cognitive State: Calibrated
+              <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                hasAttempted 
+                  ? 'bg-brand-purple/30 text-brand-purple-light border-brand-purple/40' 
+                  : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+              }`}>
+                {hasAttempted ? 'Cognitive State: Calibrated' : 'Cognitive State: Uncalibrated'}
               </span>
               <span className="text-xs text-navy-400">DSA Subject Track</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Next Priority: <span className="text-brand-purple-light">{recommendedNextTopic?.topicName || 'Recursion Fundamentals'}</span>
+              {hasAttempted ? (
+                <>Next Priority: <span className="text-brand-purple-light">{recommendedNextTopic?.topicName || 'Recursion Fundamentals'}</span></>
+              ) : (
+                <>Baseline Assessment: <span className="text-brand-purple-light">Diagnostic Needed</span></>
+              )}
             </h1>
             <p className="text-xs sm:text-sm text-navy-300 leading-relaxed">
-              {recommendedNextTopic?.reason || 'Critical gateway topic identified. Strengthening this topic will immediately unlock downstream Tree and Dynamic Programming modules.'}
+              {hasAttempted
+                ? (recommendedNextTopic?.reason || 'Critical gateway topic identified. Strengthening this topic will immediately unlock downstream Tree and Dynamic Programming modules.')
+                : 'You have not completed the baseline diagnostic assessment yet. Take the 10-question assessment to calibrate your personalized knowledge frontier.'
+              }
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => onNavigate('adaptive', { topic: recommendedNextTopic?.topicSlug || 'recursion' })}
-              className="px-5 py-3 rounded-xl font-bold text-xs bg-brand-purple hover:bg-brand-purple-dark text-white shadow-soft-md hover:shadow-soft-lg flex items-center gap-2 transition-all"
-            >
-              <BrainCircuit className="w-4 h-4" />
-              <span>Practice This Topic</span>
-            </button>
-            <button
-              onClick={() => onNavigate('tutor', { topicContext: recommendedNextTopic?.topicName || 'Recursion' })}
-              className="px-5 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 flex items-center gap-2 transition-all"
-            >
-              <Sparkles className="w-4 h-4 text-brand-purple-light" />
-              <span>Ask AI Tutor</span>
-            </button>
+            {hasAttempted ? (
+              <>
+                <button
+                  onClick={() => onNavigate('adaptive', { topic: recommendedNextTopic?.topicSlug || 'recursion' })}
+                  className="px-5 py-3 rounded-xl font-bold text-xs bg-brand-purple hover:bg-brand-purple-dark text-white shadow-soft-md hover:shadow-soft-lg flex items-center gap-2 transition-all"
+                >
+                  <BrainCircuit className="w-4 h-4" />
+                  <span>Practice This Topic</span>
+                </button>
+                <button
+                  onClick={() => onNavigate('tutor', { topicContext: recommendedNextTopic?.topicName || 'Recursion' })}
+                  className="px-5 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 flex items-center gap-2 transition-all"
+                >
+                  <Sparkles className="w-4 h-4 text-brand-purple-light" />
+                  <span>Ask AI Tutor</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => onNavigate('diagnostic')}
+                className="px-6 py-3.5 rounded-xl font-bold text-xs bg-brand-purple hover:bg-brand-purple-dark text-white shadow-soft-md hover:shadow-soft-lg flex items-center gap-2 transition-all"
+              >
+                <Activity className="w-4 h-4" />
+                <span>Take Diagnostic Assessment</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -120,8 +172,8 @@ export const DashboardPage = ({ onNavigate }) => {
           value={`${summary?.overallMastery || 0}%`}
           subtext="Across 10 core topics"
           icon={Award}
-          trend="+8% this week"
-          trendPositive={true}
+          trend={summary?.overallMastery > 0 ? `+${summary.overallMastery}%` : "Baseline"}
+          trendPositive={summary?.overallMastery > 0}
           color="purple"
         />
         <MetricCard
@@ -129,8 +181,8 @@ export const DashboardPage = ({ onNavigate }) => {
           value={summary?.questionsAttempted || 0}
           subtext="In diagnostic & adaptive sessions"
           icon={BookOpen}
-          trend="Active"
-          trendPositive={true}
+          trend={hasAttempted ? `${summary.questionsAttempted} solved` : "Unattempted"}
+          trendPositive={hasAttempted}
           color="blue"
         />
         <MetricCard
@@ -138,17 +190,17 @@ export const DashboardPage = ({ onNavigate }) => {
           value={`${summary?.accuracy || 0}%`}
           subtext="Calibrated weighted performance"
           icon={Target}
-          trend="Solid"
-          trendPositive={true}
+          trend={hasAttempted ? `${summary.accuracy}% accuracy` : "No attempts"}
+          trendPositive={summary?.accuracy >= 60}
           color="emerald"
         />
         <MetricCard
           title="Learning Streak"
-          value={`${summary?.streakDays || 4} Days`}
+          value={`${summary?.streakDays || 0} Days`}
           subtext="Consistent daily practice"
           icon={Flame}
-          trend="🔥 Active"
-          trendPositive={true}
+          trend={summary?.streakDays > 0 ? "🔥 Active" : "Not started"}
+          trendPositive={summary?.streakDays > 0}
           color="amber"
         />
       </div>
@@ -233,7 +285,7 @@ export const DashboardPage = ({ onNavigate }) => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                 <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#64748B' }} />
-                <YAxis tick={{ fontSize: 11, fill: '#64748B' }} />
+                <YAxis domain={[0, 10]} allowDecimals={false} tick={{ fontSize: 11, fill: '#64748B' }} />
                 <Tooltip 
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
@@ -344,8 +396,26 @@ export const DashboardPage = ({ onNavigate }) => {
 
       </div>
 
-      {/* Interactive Call Stack Visualizer */}
-      <RecursionVisualizer />
+      {/* Interactive Visualizer Lab Action Banner */}
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-brand-purple/10 via-brand-blue/10 to-white border border-brand-purple/20 shadow-soft-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-brand-purple text-white flex items-center justify-center shrink-0 shadow-soft-xs">
+            <Code2 className="w-6 h-6" />
+          </div>
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple font-mono">Interactive Laboratory</span>
+            <h4 className="text-base font-bold text-navy-900 mt-0.5">Algorithm & Memory Visualizer Lab</h4>
+            <p className="text-xs text-navy-600 mt-0.5">Inspect physical RAM call stacks, AVL tree rebalance rotations, animated sorting steps, and BFS/DFS queues.</p>
+          </div>
+        </div>
+        <button
+          onClick={() => onNavigate('visualizer')}
+          className="px-5 py-2.5 rounded-xl font-bold text-xs bg-brand-purple hover:bg-brand-purple-dark text-white shadow-soft-xs flex items-center gap-2 transition-all shrink-0"
+        >
+          <span>Launch Visualizer Lab</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
 
       {/* Quick Action Navigation Strip */}
       <div className="p-6 rounded-3xl bg-white border border-navy-200/80 shadow-soft-sm flex flex-wrap items-center justify-between gap-4">

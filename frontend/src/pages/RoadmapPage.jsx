@@ -15,10 +15,12 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { roadmapApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { MasteryBadge } from '../components/MasteryBadge';
 import { ConceptFlashcards } from '../components/ConceptFlashcards';
 
 export const RoadmapPage = ({ onNavigate }) => {
+  const { isAuthenticated } = useAuth();
   const [roadmap, setRoadmap] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -54,6 +56,24 @@ export const RoadmapPage = ({ onNavigate }) => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+      {/* Guest Notice Banner */}
+      {!isAuthenticated && (
+        <div className="p-4 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-brand-purple shrink-0" />
+            <span className="text-navy-700">
+              <strong>Guest Preview:</strong> Viewing standard curriculum sequence. Complete the diagnostic to unlock personalized topological unlock conditions.
+            </span>
+          </div>
+          <button
+            onClick={() => onNavigate('diagnostic')}
+            className="px-3.5 py-1.5 rounded-lg bg-brand-purple text-white font-bold hover:bg-brand-purple-dark shrink-0 transition-all"
+          >
+            Take Diagnostic
+          </button>
+        </div>
+      )}
       
       {/* Top Overview Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-white border border-navy-200/80 shadow-soft-sm flex flex-col md:flex-row md:items-center justify-between gap-6">

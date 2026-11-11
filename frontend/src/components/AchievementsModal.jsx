@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, Flame, Search, Zap, RotateCcw, GitFork, X, CheckCircle2, Lock, Sparkles } from 'lucide-react';
 
@@ -12,6 +12,14 @@ const iconMap = {
 };
 
 export const AchievementsModal = ({ isOpen, onClose, user }) => {
+  // Close on Escape key (hook must always run before any return)
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const xp = user?.xp || 1450;
@@ -32,12 +40,16 @@ export const AchievementsModal = ({ isOpen, onClose, user }) => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm">
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/60 backdrop-blur-sm"
+        onClick={onClose}
+      >
         
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
+          onClick={(e) => e.stopPropagation()}
           className="bg-white w-full max-w-2xl rounded-3xl border border-navy-200/80 shadow-soft-xl overflow-hidden p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto"
         >
           {/* Header */}

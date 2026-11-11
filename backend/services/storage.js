@@ -1,6 +1,12 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { dsaTopics, dsaQuestions } from '../seed/dsaData.js';
 import { getDbStatus } from '../config/db.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const STORE_FILE_PATH = path.join(__dirname, '../data/store.json');
 
 // In-Memory Database Store (Always available, robust fallback)
 class DataStore {
@@ -127,8 +133,58 @@ class DataStore {
       updatedAt: new Date()
     });
 
+    // Load persisted changes from disk if available
+    this.loadFromFile();
+
     this.isInitialized = true;
-    console.log('[DataStore] Seeded in-memory store with 10 DSA topics, 30 questions, and demo student profile.');
+    console.log(`[DataStore] Seeded in-memory store with ${this.topics.size} DSA topics, ${this.questions.size} questions, and student profile.`);
+  }
+
+  saveToFile() {
+    try {
+      const dataDir = path.dirname(STORE_FILE_PATH);
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      const serialized = {
+        users: Array.from(this.users.entries()),
+        studentProgress: Array.from(this.studentProgress.entries()),
+        assessments: Array.from(this.assessments.entries()),
+        chatHistories: Array.from(this.chatHistories.entries())
+      };
+      fs.writeFileSync(STORE_FILE_PATH, JSON.stringify(serialized, null, 2), 'utf-8');
+    } catch (e) {
+      console.warn('[DataStore] Failed to write store to disk:', e.message);
+    }
+  }
+
+  debouncedSave() {
+    if (this._saveTimer) clearTimeout(this._saveTimer);
+    this._saveTimer = setTimeout(() => this.saveToFile(), 400);
+  }
+
+  loadFromFile() {
+    try {
+      if (fs.existsSync(STORE_FILE_PATH)) {
+        const raw = fs.readFileSync(STORE_FILE_PATH, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (parsed.users) {
+          for (const [k, v] of parsed.users) this.users.set(k, v);
+        }
+        if (parsed.studentProgress) {
+          for (const [k, v] of parsed.studentProgress) this.studentProgress.set(k, v);
+        }
+        if (parsed.assessments) {
+          for (const [k, v] of parsed.assessments) this.assessments.set(k, v);
+        }
+        if (parsed.chatHistories) {
+          for (const [k, v] of parsed.chatHistories) this.chatHistories.set(k, v);
+        }
+        console.log(`[DataStore] Restored persistent data from disk (${this.users.size} users, ${this.studentProgress.size} progress records).`);
+      }
+    } catch (e) {
+      console.warn('[DataStore] Could not load persisted store:', e.message);
+    }
   }
 
   // User Methods
@@ -171,6 +227,7 @@ class DataStore {
       });
     }
 
+    this.debouncedSave();
     return user;
   }
 
@@ -246,6 +303,7 @@ class DataStore {
       updatedAt: new Date()
     };
     this.studentProgress.set(key, updated);
+    this.debouncedSave();
     return updated;
   }
 
@@ -258,6 +316,7 @@ class DataStore {
       completedAt: new Date()
     };
     this.assessments.set(_id, record);
+    this.debouncedSave();
     return record;
   }
 
@@ -291,7 +350,7 @@ class DataStore {
     if (!this.chatHistories.has(userId)) {
       this.chatHistories.set(userId, {
         userId,
-        topicContext: 'General DSA',
+        topicContext: 'Recursion',
         messages: [
           {
             role: 'assistant',
@@ -317,11 +376,13 @@ class DataStore {
     }
     history.updatedAt = new Date();
     this.chatHistories.set(userId, history);
+    this.debouncedSave();
     return history;
   }
 
   async clearChatHistory(userId) {
     this.chatHistories.delete(userId);
+    this.debouncedSave();
     return this.getChatHistory(userId);
   }
 }

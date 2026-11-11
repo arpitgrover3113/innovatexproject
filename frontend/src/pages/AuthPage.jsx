@@ -4,7 +4,7 @@ import { Sparkles, Mail, Lock, User, ArrowRight, Compass, Target, CheckCircle2, 
 import { useAuth } from '../context/AuthContext';
 
 export const AuthPage = ({ onAuthSuccess }) => {
-  const { login, register, demoLogin } = useAuth();
+  const { login, register } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -45,19 +45,6 @@ export const AuthPage = ({ onAuthSuccess }) => {
     }
   };
 
-  const handleDemoClick = async () => {
-    setError(null);
-    setLoading(true);
-    try {
-      await demoLogin();
-      if (onAuthSuccess) onAuthSuccess();
-    } catch (err) {
-      setError(err.message || 'Demo login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
       <motion.div
@@ -77,39 +64,8 @@ export const AuthPage = ({ onAuthSuccess }) => {
           <p className="text-xs text-navy-500 mt-1">
             {isRegister 
               ? 'Join thousands mastering technical domains with adaptive AI'
-              : 'Enter your credentials or launch the instant demo'}
+              : 'Sign in to continue your learning journey'}
           </p>
-        </div>
-
-        {/* 1-Click Demo Highlight Banner */}
-        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-brand-purple-light/70 to-brand-blue-light/70 border border-brand-purple/20 text-left">
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple">
-                ⚡ Hackathon Evaluator Shortcut
-              </span>
-              <h4 className="text-sm font-bold text-navy-900">Preloaded Demo Profile</h4>
-              <p className="text-xs text-navy-600">
-                Log in as <strong>Alex Mercer</strong> with 10 DSA topics, 4-day streak, and calibrated knowledge gaps.
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={handleDemoClick}
-            disabled={loading}
-            className="mt-3 w-full py-2.5 px-4 bg-brand-purple hover:bg-brand-purple-dark text-white rounded-xl text-xs font-bold shadow-soft-xs hover:shadow-soft-sm transition-all flex items-center justify-center gap-2"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Launch 1-Click Demo Access</span>
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="relative flex py-2 items-center mb-6">
-          <div className="flex-grow border-t border-navy-200"></div>
-          <span className="flex-shrink mx-3 text-[11px] font-semibold text-navy-400 uppercase tracking-wider">or email access</span>
-          <div className="flex-grow border-t border-navy-200"></div>
         </div>
 
         {/* Error Alert */}

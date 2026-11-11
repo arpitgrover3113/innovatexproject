@@ -61,6 +61,7 @@ export const authApi = {
     body: JSON.stringify(payload)
   }),
   demoLogin: () => apiFetch('/auth/demo', { method: 'POST' }),
+  guestLogin: () => apiFetch('/auth/guest', { method: 'POST' }),
   getCurrentUser: () => apiFetch('/auth/me'),
   updateProfile: (updates) => apiFetch('/auth/profile', {
     method: 'PUT',
@@ -104,7 +105,11 @@ export const tutorApi = {
     method: 'POST',
     body: JSON.stringify({ message, topicContext })
   }),
-  clearHistory: () => apiFetch('/tutor/clear', { method: 'POST' })
+  clearHistory: () => apiFetch('/tutor/clear', { method: 'POST' }),
+  updateConfig: (payload) => apiFetch('/tutor/config', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
 };
 
 export const roadmapApi = {

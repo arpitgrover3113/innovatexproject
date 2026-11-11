@@ -1,7 +1,7 @@
 import express from 'express';
 import { dbStore } from '../services/storage.js';
 import { generateTutorResponse, getTutorStatus } from '../services/geminiService.js';
-import { requireAuth } from '../middleware/auth.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -11,9 +11,10 @@ router.get('/status', (req, res) => {
 });
 
 // Get user chat history
-router.get('/history', requireAuth, async (req, res) => {
+router.get('/history', optionalAuth, async (req, res) => {
   try {
-    const history = await dbStore.getChatHistory(req.user._id);
+    const userId = req.user ? req.user._id : 'guest_preview';
+    const history = await dbStore.getChatHistory(userId);
     res.json(history);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -21,10 +22,10 @@ router.get('/history', requireAuth, async (req, res) => {
 });
 
 // Chat with AI Tutor
-router.post('/chat', requireAuth, async (req, res) => {
+router.post('/chat', optionalAuth, async (req, res) => {
   try {
     const { message, topicContext } = req.body;
-    const userId = req.user._id;
+    const userId = req.user ? req.user._id : 'guest_preview';
 
     if (!message || message.trim() === '') {
       return res.status(400).json({ error: 'Message cannot be empty.' });
@@ -69,10 +70,19 @@ router.post('/chat', requireAuth, async (req, res) => {
   }
 });
 
+// Configure API keys dynamically (optional user override)
+router.post('/config', optionalAuth, async (req, res) => {
+  const { geminiApiKey, groqApiKey } = req.body;
+  if (typeof geminiApiKey === 'string') process.env.GEMINI_API_KEY = geminiApiKey.trim();
+  if (typeof groqApiKey === 'string') process.env.GROQ_API_KEY = groqApiKey.trim();
+  res.json({ success: true, status: getTutorStatus() });
+});
+
 // Clear conversation
-router.post('/clear', requireAuth, async (req, res) => {
+router.post('/clear', optionalAuth, async (req, res) => {
   try {
-    const cleared = await dbStore.clearChatHistory(req.user._id);
+    const userId = req.user ? req.user._id : 'guest_preview';
+    const cleared = await dbStore.clearChatHistory(userId);
     res.json({ message: 'Conversation cleared', history: cleared });
   } catch (err) {
     res.status(500).json({ error: err.message });

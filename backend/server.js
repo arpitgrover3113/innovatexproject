@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { connectDB, getDbStatus } from './config/db.js';
 import { dbStore } from './services/storage.js';
 
@@ -14,7 +16,12 @@ import tutorRoutes from './routes/tutor.js';
 import roadmapRoutes from './routes/roadmap.js';
 import analyticsRoutes from './routes/analytics.js';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Explicitly load .env from backend and root directories
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -76,12 +83,23 @@ const startServer = async () => {
     await dbStore.initialize();
 
     // 3. Start Express HTTP Listener
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log(`=======================================================`);
       console.log(`🚀 LearnLoop AI Backend listening on http://localhost:${PORT}`);
       console.log(`⚡ Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`🧠 AI Tutor Engine: Groq Cloud LPU (openai/gpt-oss-120b) ACTIVE`);
       console.log(`🎯 Demo User: alex@learnloop.ai (Password: password123)`);
       console.log(`=======================================================`);
+    });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n❌ [PORT IN USE] Port ${PORT} is already in use by another instance.`);
+        console.error(`💡 Freeing port automatically with './dev.sh' or 'kill -9 $(lsof -t -i:${PORT})'.\n`);
+        process.exit(1);
+      } else {
+        console.error('[Server Error]', err);
+      }
     });
   } catch (err) {
     console.error('Fatal initialization error:', err);

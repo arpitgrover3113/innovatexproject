@@ -1,14 +1,14 @@
 import express from 'express';
 import { dbStore } from '../services/storage.js';
-import { requireAuth } from '../middleware/auth.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // List all topics with student's current mastery
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
     const topics = await dbStore.getTopics();
-    const progressList = await dbStore.getStudentProgress(req.user._id);
+    const progressList = req.user ? await dbStore.getStudentProgress(req.user._id) : [];
 
     const progressMap = new Map(progressList.map(p => [p.topicSlug, p]));
 
@@ -31,14 +31,15 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // Get individual topic details
-router.get('/:slug', requireAuth, async (req, res) => {
+router.get('/:slug', optionalAuth, async (req, res) => {
   try {
     const topic = await dbStore.getTopicBySlug(req.params.slug);
     if (!topic) {
       return res.status(404).json({ error: 'Topic not found' });
     }
 
-    const progress = await dbStore.getTopicProgress(req.user._id, topic.slug);
+    const userId = req.user ? req.user._id : 'guest_preview';
+    const progress = await dbStore.getTopicProgress(userId, topic.slug);
     const questions = await dbStore.getQuestions({ topicSlug: topic.slug });
 
     res.json({

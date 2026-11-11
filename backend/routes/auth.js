@@ -1,9 +1,26 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { dbStore } from '../services/storage.js';
 import { generateToken, requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+
+const formatUserPayload = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  learningGoals: user.learningGoals,
+  skillLevel: user.skillLevel,
+  selectedSubjects: user.selectedSubjects,
+  streakDays: user.streakDays || 1,
+  totalQuestionsAnswered: user.totalQuestionsAnswered || 0,
+  overallAccuracy: user.overallAccuracy || 0,
+  xp: user.xp || 0,
+  level: user.level || 1,
+  levelTitle: user.levelTitle || 'Novice Learner',
+  achievements: user.achievements || []
+});
 
 // Register new user
 router.post('/register', async (req, res) => {
@@ -29,22 +46,44 @@ router.post('/register', async (req, res) => {
       selectedSubjects: selectedSubjects || ['Data Structures & Algorithms']
     });
 
+    // If student took diagnostic test as a guest, automatically migrate their test data to their new account
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const guestToken = authHeader.split(' ')[1];
+        const decoded = jwt.verify(guestToken, process.env.JWT_SECRET || 'learnloop_hackathon_jwt_secret_2026');
+        if (decoded && decoded.id && decoded.id.startsWith('guest_')) {
+          const guestProgress = await dbStore.getStudentProgress(decoded.id);
+          for (const p of guestProgress) {
+            if (p.totalAttempts > 0 || p.masteryScore > 0) {
+              await dbStore.updateTopicProgress(user._id, p.topicSlug, {
+                masteryScore: p.masteryScore,
+                totalAttempts: p.totalAttempts,
+                correctAttempts: p.correctAttempts,
+                recentAccuracy: p.recentAccuracy,
+                lastDifficulty: p.lastDifficulty,
+                consecutiveMistakes: p.consecutiveMistakes,
+                consecutiveSuccesses: p.consecutiveSuccesses,
+                recentMisconceptions: p.recentMisconceptions
+              });
+            }
+          }
+          const guestAssessments = await dbStore.getUserAssessments(decoded.id);
+          for (const a of guestAssessments) {
+            a.userId = user._id;
+          }
+        }
+      } catch (e) {
+        // Graceful continuation if guest token is invalid
+      }
+    }
+
     const token = generateToken(user);
 
     res.status(201).json({
       message: 'Account created successfully',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        learningGoals: user.learningGoals,
-        skillLevel: user.skillLevel,
-        selectedSubjects: user.selectedSubjects,
-        streakDays: user.streakDays || 1,
-        totalQuestionsAnswered: user.totalQuestionsAnswered || 0,
-        overallAccuracy: user.overallAccuracy || 0
-      }
+      user: formatUserPayload(user)
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -62,12 +101,12 @@ router.post('/login', async (req, res) => {
 
     const user = await dbStore.findUserByEmail(email);
     if (!user) {
-      return res.status(401).json({ error: 'Invalid credentials. Try the 1-Click Demo Login!' });
+      return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
+      return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
     const token = generateToken(user);
@@ -75,44 +114,50 @@ router.post('/login', async (req, res) => {
     res.json({
       message: 'Login successful',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        learningGoals: user.learningGoals,
-        skillLevel: user.skillLevel,
-        selectedSubjects: user.selectedSubjects,
-        streakDays: user.streakDays || 3,
-        totalQuestionsAnswered: user.totalQuestionsAnswered || 0,
-        overallAccuracy: user.overallAccuracy || 0
-      }
+      user: formatUserPayload(user)
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// 1-Click Demo Access
+// Guest Learner Auto-Session
+router.post('/guest', async (req, res) => {
+  try {
+    const guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+    const guestUser = await dbStore.createUser({
+      name: 'Guest Learner',
+      email: `${guestId}@guest.learnloop.ai`,
+      passwordHash: 'guest_no_password',
+      learningGoals: 'Explore Data Structures & Algorithms',
+      skillLevel: 'Beginner',
+      selectedSubjects: ['Data Structures & Algorithms']
+    });
+
+    const token = generateToken(guestUser);
+
+    res.status(201).json({
+      message: 'Guest session created',
+      token,
+      user: formatUserPayload(guestUser)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Demo account login
 router.post('/demo', async (req, res) => {
   try {
     const demoUser = await dbStore.findUserById('demo_student_01');
+    if (!demoUser) {
+      return res.status(404).json({ error: 'Demo user not found' });
+    }
     const token = generateToken(demoUser);
-
     res.json({
-      message: 'Logged in as Demo Student (Alex Mercer)',
+      message: 'Demo login successful',
       token,
-      user: {
-        id: demoUser._id,
-        name: demoUser.name,
-        email: demoUser.email,
-        learningGoals: demoUser.learningGoals,
-        skillLevel: demoUser.skillLevel,
-        selectedSubjects: demoUser.selectedSubjects,
-        streakDays: demoUser.streakDays,
-        totalQuestionsAnswered: demoUser.totalQuestionsAnswered,
-        overallAccuracy: demoUser.overallAccuracy,
-        isDemo: true
-      }
+      user: formatUserPayload(demoUser)
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -123,18 +168,7 @@ router.post('/demo', async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   const user = req.user;
   res.json({
-    user: {
-      id: user._id,
-      name: user.name,
-      email: user.email,
-      learningGoals: user.learningGoals,
-      skillLevel: user.skillLevel,
-      selectedSubjects: user.selectedSubjects,
-      streakDays: user.streakDays,
-      totalQuestionsAnswered: user.totalQuestionsAnswered,
-      overallAccuracy: user.overallAccuracy,
-      isDemo: user._id === 'demo_student_01'
-    }
+    user: formatUserPayload(user)
   });
 });
 
@@ -151,17 +185,7 @@ router.put('/profile', requireAuth, async (req, res) => {
 
     res.json({
       message: 'Profile updated successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        learningGoals: user.learningGoals,
-        skillLevel: user.skillLevel,
-        selectedSubjects: user.selectedSubjects,
-        streakDays: user.streakDays,
-        totalQuestionsAnswered: user.totalQuestionsAnswered,
-        overallAccuracy: user.overallAccuracy
-      }
+      user: formatUserPayload(user)
     });
   } catch (err) {
     res.status(500).json({ error: err.message });

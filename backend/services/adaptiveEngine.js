@@ -182,7 +182,7 @@ export const getInitialAdaptiveQuestion = async ({ userId, topicSlug }) => {
   else if (progress.masteryScore >= 40) startingDifficulty = 'medium';
 
   const candidates = await dbStore.getQuestions({ topicSlug, difficulty: startingDifficulty });
-  const question = candidates[0] || (await dbStore.getQuestions({ topicSlug }))[0];
+  const question = (candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : null) || (await dbStore.getQuestions({ topicSlug }))[0];
 
   return {
     question: {

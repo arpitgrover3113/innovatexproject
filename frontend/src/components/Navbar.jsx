@@ -1,31 +1,31 @@
-import React, { useState } from 'react';
-import { Sparkles, Flame, User as UserIcon, LogOut, Compass, BrainCircuit, Activity, BarChart3, BookOpen, Layers, Award } from 'lucide-react';
+import React from 'react';
+import { Sparkles, Flame, LogOut, Compass, BrainCircuit, Activity, BarChart3, Layers, Award, Code2, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AIStatusBadge } from './AIStatusBadge';
-import { AchievementsModal } from './AchievementsModal';
 
-export const Navbar = ({ activeTab, onTabChange }) => {
-  const { user, logout, demoLogin, isAuthenticated } = useAuth();
-  const [showAchievements, setShowAchievements] = useState(false);
+export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
+  const { user, logout, isAuthenticated } = useAuth();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'diagnostic', label: 'Diagnostic', icon: Activity },
     { id: 'adaptive', label: 'Adaptive Quiz', icon: BrainCircuit },
     { id: 'tutor', label: 'AI Tutor', icon: Sparkles },
+    { id: 'visualizer', label: 'Visualizer Lab', icon: Code2 },
     { id: 'roadmap', label: 'Roadmap', icon: Compass },
     { id: 'analytics', label: 'Analytics', icon: Layers },
   ];
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-navy-200/80 transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
           {/* Brand Logo */}
           <div 
             onClick={() => onTabChange(isAuthenticated ? 'dashboard' : 'landing')}
             className="flex items-center gap-2.5 cursor-pointer group"
+            title={isAuthenticated ? 'Go to Dashboard' : 'Return to Home Landing Page'}
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-purple to-brand-blue flex items-center justify-center text-white shadow-soft-sm group-hover:scale-105 transition-transform">
               <Sparkles className="w-5 h-5" />
@@ -40,9 +40,9 @@ export const Navbar = ({ activeTab, onTabChange }) => {
             </div>
           </div>
 
-          {/* Desktop Navigation for Authenticated User */}
-          {isAuthenticated && (
-            <nav className="hidden md:flex items-center gap-1 bg-navy-50/70 p-1 rounded-xl border border-navy-200/50">
+          {/* Desktop Navigation */}
+          {(isAuthenticated || activeTab !== 'landing') && (
+            <nav className="hidden lg:flex items-center gap-0.5 bg-navy-50/70 p-1 rounded-xl border border-navy-200/50">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -50,14 +50,14 @@ export const Navbar = ({ activeTab, onTabChange }) => {
                   <button
                     key={item.id}
                     onClick={() => onTabChange(item.id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-white text-brand-purple-dark shadow-soft-xs font-bold'
                         : 'text-navy-600 hover:text-navy-900 hover:bg-white/50'
                     }`}
                   >
                     <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-brand-purple' : 'text-navy-400'}`} />
-                    {item.label}
+                    <span>{item.label}</span>
                   </button>
                 );
               })}
@@ -65,70 +65,74 @@ export const Navbar = ({ activeTab, onTabChange }) => {
           )}
 
           {/* Right Action Cluster */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             <AIStatusBadge />
 
             {isAuthenticated ? (
-              <div className="flex items-center gap-2 sm:gap-3">
-                {/* Level / XP Pill */}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {/* Level / XP Pill — opens modal lifted to App root */}
                 <button
-                  onClick={() => setShowAchievements(true)}
+                  onClick={onShowAchievements}
                   title="View Achievements & XP Progression"
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/15 transition-all shadow-soft-xs"
+                  className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-brand-purple/10 text-brand-purple border border-brand-purple/20 hover:bg-brand-purple/15 transition-all shadow-soft-xs shrink-0"
                 >
                   <Award className="w-3.5 h-3.5 text-brand-purple" />
-                  <span>Lv. {user?.level || 3}</span>
-                  <span className="text-[10px] text-brand-purple/70 font-mono hidden sm:inline">({user?.xp || 1450} XP)</span>
+                  <span>Lv.{user?.level || 3}</span>
                 </button>
 
                 {/* Streak Counter */}
                 <div 
                   title="Consecutive Learning Streak"
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/80 shadow-soft-xs"
+                  className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200/80 shadow-soft-xs shrink-0"
                 >
                   <Flame className="w-3.5 h-3.5 text-amber-500 fill-amber-500 animate-bounce" />
-                  <span>{user?.streakDays || 4}d</span>
+                  <span>{user?.streakDays || 1}d</span>
                 </div>
 
-                {/* User Pill / Logout */}
-                <div className="flex items-center gap-2 pl-2 border-l border-navy-200">
-                  <div className="flex items-center gap-2 text-left">
-                    <div className="w-8 h-8 rounded-full bg-brand-purple/10 text-brand-purple font-bold flex items-center justify-center text-xs border border-brand-purple/20">
-                      {user?.name ? user.name.charAt(0) : 'A'}
+                {/* User Avatar & Bright Sign Out Button */}
+                <div className="flex items-center gap-1.5 pl-2 border-l border-navy-200 shrink-0">
+                  {/* Avatar + Name + Role */}
+                  <div className="flex items-center gap-1.5 cursor-default">
+                    <div 
+                      className={`w-7 h-7 rounded-full font-bold flex items-center justify-center text-xs shrink-0 border ${
+                        user?.email?.includes('@guest')
+                          ? 'bg-amber-50 text-amber-700 border-amber-300'
+                          : 'bg-brand-purple/10 text-brand-purple border-brand-purple/20'
+                      }`}
+                    >
+                      {user?.name ? user.name.charAt(0).toUpperCase() : 'G'}
                     </div>
-                    <div className="hidden lg:block">
-                      <p className="text-xs font-semibold text-navy-900 leading-tight truncate max-w-[110px]">
-                        {user?.name || 'Alex Mercer'}
-                      </p>
-                      <p className="text-[10px] text-navy-400 font-medium">
-                        {user?.isDemo ? 'Demo Student' : 'Student'}
-                      </p>
+                    <div className="hidden sm:flex flex-col leading-none">
+                      <span className="text-xs font-bold text-navy-800 whitespace-nowrap">
+                        {user?.name || 'Student'}
+                      </span>
+                      <span className={`text-[10px] font-semibold whitespace-nowrap ${
+                        user?.email?.includes('@guest')
+                          ? 'text-amber-600'
+                          : 'text-brand-purple'
+                      }`}>
+                        {user?.email?.includes('@guest') ? 'Guest' : 'Student'}
+                      </span>
                     </div>
                   </div>
 
                   <button
                     onClick={logout}
-                    title="Sign Out"
-                    className="p-1.5 text-navy-400 hover:text-brand-rose hover:bg-rose-50 rounded-lg transition-colors"
+                    title="Sign Out of LearnLoop"
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 transition-all shadow-soft-xs shrink-0"
                   >
-                    <LogOut className="w-4 h-4" />
+                    <LogOut className="w-3.5 h-3.5 text-white" />
+                    <span>Sign Out</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={demoLogin}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-brand-purple-dark bg-brand-purple-light hover:bg-brand-purple/15 border border-brand-purple/20 transition-all shadow-soft-xs"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
-                  <span>1-Click Demo</span>
-                </button>
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => onTabChange('auth')}
                   className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-white bg-navy-900 hover:bg-navy-800 transition-all shadow-soft-xs"
                 >
-                  Sign In
+                  Sign In / Register
                 </button>
               </div>
             )}
@@ -137,14 +141,6 @@ export const Navbar = ({ activeTab, onTabChange }) => {
 
         </div>
       </div>
-
-      {/* Unlocked Achievements & XP Progression Modal */}
-      <AchievementsModal 
-        isOpen={showAchievements} 
-        onClose={() => setShowAchievements(false)} 
-        user={user} 
-      />
     </header>
   );
 };
-

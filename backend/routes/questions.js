@@ -5,7 +5,7 @@ import { requireAuth } from '../middleware/auth.js';
 const router = express.Router();
 
 // Get curated Diagnostic Assessment (1 question per each of the 10 DSA topics)
-router.get('/diagnostic', requireAuth, async (req, res) => {
+router.get('/diagnostic', async (req, res) => {
   try {
     const topics = await dbStore.getTopics();
     const diagnosticQuestions = [];
@@ -22,8 +22,10 @@ router.get('/diagnostic', requireAuth, async (req, res) => {
           topicName: chosen.topicName,
           difficulty: chosen.difficulty,
           questionText: chosen.questionText,
-          options: chosen.options
-          // Notice: correctAnswer and explanation are omitted for test integrity, verified on submission
+          options: chosen.options,
+          correctAnswer: chosen.correctAnswer,
+          explanation: chosen.explanation,
+          misconceptionTip: chosen.misconceptionTip
         });
       }
     }
