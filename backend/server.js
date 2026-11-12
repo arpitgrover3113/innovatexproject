@@ -16,6 +16,7 @@ import tutorRoutes from './routes/tutor.js';
 import roadmapRoutes from './routes/roadmap.js';
 import analyticsRoutes from './routes/analytics.js';
 import interviewRoutes from './routes/interview.js';
+import leetcodeRoutes from './routes/leetcode.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -65,6 +66,7 @@ app.use('/api/tutor', tutorRoutes);
 app.use('/api/roadmap', roadmapRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/interview', interviewRoutes);
+app.use('/api/leetcode', leetcodeRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

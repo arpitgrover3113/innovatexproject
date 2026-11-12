@@ -18,6 +18,7 @@ class DataStore {
     this.assessments = new Map();
     this.learningPaths = new Map();
     this.chatHistories = new Map();
+    this.leetcodeSubmissions = new Map();
     this.isInitialized = false;
   }
 
@@ -133,6 +134,63 @@ class DataStore {
       updatedAt: new Date()
     });
 
+    // Seed initial LeetCode submissions if empty
+    if (this.leetcodeSubmissions.size === 0) {
+      const seedSubs = [
+        {
+          id: 'lc_seed_01',
+          userId: 'demo_student_01',
+          leetcodeUsername: 'alex_mercer',
+          title: 'Two Sum',
+          titleSlug: 'two-sum',
+          difficulty: 'Easy',
+          timeSpentSeconds: 432,
+          timeSpentFormatted: '7m 12s',
+          runtime: '48 ms',
+          runtimePercentile: 89.4,
+          memory: '17.5 MB',
+          memoryPercentile: 82.1,
+          status: 'Accepted',
+          createdAt: new Date(Date.now() - 4 * 3600 * 1000)
+        },
+        {
+          id: 'lc_seed_02',
+          userId: 'demo_student_01',
+          leetcodeUsername: 'alex_mercer',
+          title: 'LRU Cache',
+          titleSlug: 'lru-cache',
+          difficulty: 'Medium',
+          timeSpentSeconds: 1040,
+          timeSpentFormatted: '17m 20s',
+          runtime: '68 ms',
+          runtimePercentile: 86.2,
+          memory: '74.2 MB',
+          memoryPercentile: 79.5,
+          status: 'Accepted',
+          createdAt: new Date(Date.now() - 24 * 3600 * 1000)
+        },
+        {
+          id: 'lc_seed_03',
+          userId: 'demo_student_01',
+          leetcodeUsername: 'alex_mercer',
+          title: 'Trapping Rain Water',
+          titleSlug: 'trapping-rain-water',
+          difficulty: 'Hard',
+          timeSpentSeconds: 2160,
+          timeSpentFormatted: '36m 00s',
+          runtime: '54 ms',
+          runtimePercentile: 91.8,
+          memory: '18.9 MB',
+          memoryPercentile: 76.4,
+          status: 'Accepted',
+          createdAt: new Date(Date.now() - 48 * 3600 * 1000)
+        }
+      ];
+      for (const s of seedSubs) {
+        this.leetcodeSubmissions.set(s.id, s);
+      }
+    }
+
     // Load persisted changes from disk if available
     this.loadFromFile();
 
@@ -150,7 +208,8 @@ class DataStore {
         users: Array.from(this.users.entries()),
         studentProgress: Array.from(this.studentProgress.entries()),
         assessments: Array.from(this.assessments.entries()),
-        chatHistories: Array.from(this.chatHistories.entries())
+        chatHistories: Array.from(this.chatHistories.entries()),
+        leetcodeSubmissions: Array.from(this.leetcodeSubmissions.entries())
       };
       fs.writeFileSync(STORE_FILE_PATH, JSON.stringify(serialized, null, 2), 'utf-8');
     } catch (e) {
@@ -179,6 +238,9 @@ class DataStore {
         }
         if (parsed.chatHistories) {
           for (const [k, v] of parsed.chatHistories) this.chatHistories.set(k, v);
+        }
+        if (parsed.leetcodeSubmissions) {
+          for (const [k, v] of parsed.leetcodeSubmissions) this.leetcodeSubmissions.set(k, v);
         }
         console.log(`[DataStore] Restored persistent data from disk (${this.users.size} users, ${this.studentProgress.size} progress records).`);
       }
@@ -384,6 +446,82 @@ class DataStore {
     this.chatHistories.delete(userId);
     this.debouncedSave();
     return this.getChatHistory(userId);
+  }
+
+  // --- LeetCode Tracking & Submissions ---
+  async addLeetCodeSubmission(submission) {
+    const id = submission.id || `lc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
+    const record = {
+      id,
+      ...submission,
+      createdAt: submission.createdAt || new Date()
+    };
+    this.leetcodeSubmissions.set(id, record);
+
+    // Award XP to user
+    const userId = submission.userId || 'demo_student_01';
+    const user = this.users.get(userId);
+    if (user) {
+      const xpAward = submission.difficulty === 'Hard' ? 200 : submission.difficulty === 'Medium' ? 100 : 50;
+      user.xp = (user.xp || 0) + xpAward;
+      user.totalQuestionsAnswered = (user.totalQuestionsAnswered || 0) + 1;
+      this.users.set(userId, user);
+    }
+
+    this.debouncedSave();
+    return record;
+  }
+
+  async getLeetCodeSubmissions(userId = 'demo_student_01') {
+    const all = Array.from(this.leetcodeSubmissions.values());
+    return all
+      .filter(s => !s.userId || s.userId === userId || userId === 'all')
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  async getLeetCodeAnalytics(userId = 'demo_student_01') {
+    const subs = await this.getLeetCodeSubmissions(userId);
+    const byDiff = {
+      Easy: { count: 0, totalSeconds: 0 },
+      Medium: { count: 0, totalSeconds: 0 },
+      Hard: { count: 0, totalSeconds: 0 }
+    };
+
+    subs.forEach(s => {
+      const diff = s.difficulty || 'Medium';
+      if (!byDiff[diff]) byDiff[diff] = { count: 0, totalSeconds: 0 };
+      byDiff[diff].count += 1;
+      byDiff[diff].totalSeconds += (s.timeSpentSeconds || 0);
+    });
+
+    const formatAvg = (sec, count) => {
+      if (count === 0) return 'N/A';
+      const avg = Math.round(sec / count);
+      const m = Math.floor(avg / 60);
+      const s = avg % 60;
+      return `${m}m ${s}s`;
+    };
+
+    return {
+      totalSubmissions: subs.length,
+      averageTime: {
+        easy: formatAvg(byDiff.Easy.totalSeconds, byDiff.Easy.count),
+        medium: formatAvg(byDiff.Medium.totalSeconds, byDiff.Medium.count),
+        hard: formatAvg(byDiff.Hard.totalSeconds, byDiff.Hard.count),
+        easySeconds: byDiff.Easy.count ? Math.round(byDiff.Easy.totalSeconds / byDiff.Easy.count) : null,
+        mediumSeconds: byDiff.Medium.count ? Math.round(byDiff.Medium.totalSeconds / byDiff.Medium.count) : null,
+        hardSeconds: byDiff.Hard.count ? Math.round(byDiff.Hard.totalSeconds / byDiff.Hard.count) : null
+      },
+      counts: {
+        easy: byDiff.Easy.count,
+        medium: byDiff.Medium.count,
+        hard: byDiff.Hard.count
+      },
+      speedRating: byDiff.Medium.count && (byDiff.Medium.totalSeconds / byDiff.Medium.count) <= 1200
+        ? 'FAANG Screen Ready (Sub-20m Medium Pace)'
+        : 'Steady (Aim for <20m per Medium)',
+      recentSubmissions: subs.slice(0, 10)
+    };
   }
 }
 

@@ -136,3 +136,17 @@ export const interviewApi = {
   })
 };
 
+export const leetcodeApi = {
+  logSubmission: (payload) => apiFetch('/leetcode/log-submission', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  getSubmissions: (userId) => apiFetch(`/leetcode/submissions${userId ? `?userId=${userId}` : ''}`),
+  getAnalytics: (userId) => apiFetch(`/leetcode/analytics${userId ? `?userId=${userId}` : ''}`),
+  linkHandle: (username) => apiFetch('/leetcode/link-handle', {
+    method: 'POST',
+    body: JSON.stringify({ username })
+  }),
+  getProfile: (username) => apiFetch(`/leetcode/profile/${username}`)
+};
+
