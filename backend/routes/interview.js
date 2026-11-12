@@ -1,5 +1,6 @@
 import express from 'express';
 import { optionalAuth } from '../middleware/auth.js';
+import { generateInterviewerResponse, analyzeCodeSnippet } from '../services/interviewAIService.js';
 
 const router = express.Router();
 
@@ -1466,7 +1467,7 @@ router.get('/problems', (req, res) => {
 // START a mock interview session
 router.post('/start', optionalAuth, (req, res) => {
   try {
-    const { company = 'google', questionId, lastQuestionId } = req.body;
+    const { company = 'google', questionId, lastQuestionId, language = 'python' } = req.body;
     const userId = req.user ? req.user._id : 'guest_learner';
 
     let selectedQuestion = null;
@@ -1504,6 +1505,8 @@ ${selectedQuestion.description}
 
 To start: **Before writing any code**, please review the problem and ask any clarifying questions regarding constraints, input types, or potential edge cases you'd like to check! Speak your thoughts aloud or type them in.`;
 
+    const starterCodeStr = selectedQuestion.starterCode?.[language] || selectedQuestion.starterCode?.python || '';
+
     const sessionState = {
       interviewId,
       userId,
@@ -1511,6 +1514,7 @@ To start: **Before writing any code**, please review the problem and ask any cla
       question: selectedQuestion,
       currentStageIndex: 0,
       startTime,
+      language,
       messages: [
         {
           role: 'interviewer',
@@ -1519,7 +1523,7 @@ To start: **Before writing any code**, please review the problem and ask any cla
           timestamp: new Date().toISOString()
         }
       ],
-      currentCode: selectedQuestion.starterCode.python
+      currentCode: starterCodeStr
     };
 
     activeInterviews.set(interviewId, sessionState);
@@ -1530,7 +1534,8 @@ To start: **Before writing any code**, please review the problem and ask any cla
       stages: STAGES,
       currentStage: STAGES[0],
       initialInterviewerMessage,
-      timeLimitSeconds: selectedQuestion.timeLimitMinutes * 60
+      timeLimitSeconds: selectedQuestion.timeLimitMinutes * 60,
+      starterCode: starterCodeStr
     });
   } catch (err) {
     console.error('Failed to start mock interview:', err);
@@ -1538,10 +1543,10 @@ To start: **Before writing any code**, please review the problem and ask any cla
   }
 });
 
-// SEND MESSAGE during mock interview
+// SEND MESSAGE during mock interview (AI + Code Snippet Aware)
 router.post('/message', optionalAuth, async (req, res) => {
   try {
-    const { interviewId, message, currentCode, stageId } = req.body;
+    const { interviewId, message, currentCode, stageId, language = 'python' } = req.body;
     if (!interviewId || !message) {
       return res.status(400).json({ error: 'interviewId and message are required.' });
     }
@@ -1551,97 +1556,55 @@ router.post('/message', optionalAuth, async (req, res) => {
       return res.status(404).json({ error: 'Interview session expired or not found.' });
     }
 
-    if (currentCode) {
+    if (currentCode !== undefined && currentCode !== null) {
       session.currentCode = currentCode;
     }
+    if (language) {
+      session.language = language;
+    }
+
+    const currentStage = stageId || STAGES[session.currentStageIndex]?.id || 'clarification';
 
     session.messages.push({
       role: 'candidate',
-      stage: stageId || STAGES[session.currentStageIndex].id,
+      stage: currentStage,
       content: message,
       timestamp: new Date().toISOString()
     });
 
-    const question = session.question;
-    const lowerMsg = message.toLowerCase();
-    let currentStage = stageId || STAGES[session.currentStageIndex].id;
+    // Call dynamic AI Interviewer (Groq LPU / Gemini / Code-Aware Fallback Engine)
+    const aiResult = await generateInterviewerResponse({
+      question: session.question,
+      currentCode: session.currentCode || '',
+      language: session.language || language || 'python',
+      messages: session.messages,
+      message,
+      stageId: currentStage,
+      currentStageIndex: session.currentStageIndex
+    });
 
-    // Determine interviewer response based on stage and content
-    let interviewerReply = '';
-    let nextStageId = currentStage;
-    let suggestedPrompt = '';
-
-    if (currentStage === 'clarification') {
-      const askedEdgeCases = /empty|null|negative|duplicate|length|case|ascii|unicode|space|bound|zero|size/i.test(lowerMsg);
-      if (askedEdgeCases || session.messages.filter(m => m.role === 'candidate').length >= 2) {
-        interviewerReply = `Great questions on the constraints and edge cases! Yes, ${question.constraints[0]} and ${question.constraints[1]}.
-
-Now let's move to **Stage 2: Approach & Trade-offs**. 
-Before writing any code, how would you think about solving this? What is the brute force approach, and how can we optimize the time complexity?`;
-        nextStageId = 'approach';
-        session.currentStageIndex = 1;
-        suggestedPrompt = "I think a brute force approach would be O(N^2), but we can optimize it using...";
-      } else {
-        interviewerReply = `Good start! Let's consider a couple more edge cases before diving into the code. 
-For instance, what happens if the input has a length of 0 or 1, or contains all identical elements? 
-Once you feel comfortable with those, walk me through your high-level approach.`;
-        suggestedPrompt = "What if the input is empty or contains extreme values?";
-      }
-    } else if (currentStage === 'approach') {
-      const mentionsPointersOrHash = /two pointer|sliding window|hash|map|set|prefix sum|binary search|heap|priority queue|graph|bfs|dfs|o\(n\)|o\(log n\)/i.test(lowerMsg);
-      if (mentionsPointersOrHash || session.messages.filter(m => m.role === 'candidate').length >= 4) {
-        interviewerReply = `Excellent intuition! That optimal approach should bring our runtime down to **${question.expectedComplexity.time}** with **${question.expectedComplexity.space}**.
-
-Let's transition to **Stage 3: Implementation**.
-Please begin writing out your solution in the code editor on the right. As you write, talk me through your variable choices, loop bounds, and how you prevent off-by-one errors.`;
-        nextStageId = 'implementation';
-        session.currentStageIndex = 2;
-        suggestedPrompt = "I have outlined my main loop and pointers in the editor.";
-      } else {
-        interviewerReply = `That's an interesting direction. Let's analyze the time complexity of that idea. 
-If we use that approach, would we have to re-scan elements repeatedly? 
-Can we use a helper data structure like a hash set, heap, or two pointers to achieve optimal runtime?`;
-        suggestedPrompt = "Let's use an optimal data structure to track our state in O(N).";
-      }
-    } else if (currentStage === 'implementation') {
-      const codeIsSubstantial = (currentCode && currentCode.length > 50) || lowerMsg.includes('done') || lowerMsg.includes('finished') || lowerMsg.includes('wrote') || lowerMsg.includes('implemented');
-      if (codeIsSubstantial || session.messages.filter(m => m.role === 'candidate').length >= 6) {
-        interviewerReply = `I see your implementation coming together in the editor! Clean structure.
-
-Now for **Stage 4: Complexity Analysis & Optimization**.
-Looking at your written solution:
-1. What is the exact **worst-case Time Complexity** and **Space Complexity**?
-2. Walk me through a quick dry-run with a minimal edge case (e.g. \`${question.examples[1]?.input || 'minimal input'}\`).`;
-        nextStageId = 'complexity';
-        session.currentStageIndex = 3;
-        suggestedPrompt = "The time complexity is O(N) because each element is visited at most twice.";
-      } else {
-        interviewerReply = `Good progress! Make sure to handle the base condition at the start of your function and return the correct variable. 
-Tell me when you have completed your core logic or if you would like feedback on a specific block!`;
-        suggestedPrompt = "I have handled the base condition and the return statement.";
-      }
-    } else {
-      // Complexity / final stage
-      interviewerReply = `Well done walking through the trade-offs. You accurately highlighted how the auxiliary space and pointer increments behave. 
-
-We are at the end of our allotted technical screen! Whenever you are ready, please click **"End Interview & Generate Scorecard"** above to review your comprehensive FAANG evaluation scorecard and hire verdict!`;
-      suggestedPrompt = "Thank you! I am ready to generate my scorecard.";
+    const nextStageId = aiResult.stageId || currentStage;
+    const stageIdx = STAGES.findIndex(s => s.id === nextStageId);
+    if (stageIdx !== -1) {
+      session.currentStageIndex = stageIdx;
     }
 
     session.messages.push({
       role: 'interviewer',
       stage: nextStageId,
-      content: interviewerReply,
+      content: aiResult.reply,
       timestamp: new Date().toISOString()
     });
 
-    const activeStageObj = STAGES.find(s => s.id === nextStageId) || STAGES[0];
+    const activeStageObj = STAGES.find(s => s.id === nextStageId) || STAGES[session.currentStageIndex] || STAGES[0];
 
     res.json({
-      reply: interviewerReply,
+      reply: aiResult.reply,
       stage: activeStageObj,
       stageIndex: session.currentStageIndex,
-      suggestedPrompt
+      suggestedPrompt: aiResult.suggestedPrompt,
+      provider: aiResult.provider,
+      codeAnalysis: analyzeCodeSnippet(session.currentCode, session.language)
     });
   } catch (err) {
     console.error('Failed to process interview message:', err);
@@ -1662,9 +1625,10 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
     const candidateMessages = messages.filter(m => m.role === 'candidate');
     const totalWords = candidateMessages.reduce((sum, m) => sum + m.content.split(' ').length, 0);
 
-    // Code analysis
-    const hasCodeWritten = code.length > 50 && !code.includes('pass') && !code.includes('// Write your solution here') && !code.includes('# Write your solution here');
-    const hasProperKeywords = /while|for|if|return|max|min|set|map|push|pop|append|dict/i.test(code);
+    // Detailed code structural analysis
+    const codeAnalysis = analyzeCodeSnippet(code, session?.language || 'python');
+    const hasCodeWritten = !codeAnalysis.isStarterCode && (codeAnalysis.charCount > 35 || codeAnalysis.linesCount > 3);
+    const hasProperKeywords = codeAnalysis.constructs.length > 0 || /while|for|if|return|max|min|set|map|push|pop|append|dict/i.test(code);
 
     // Check if the user made any attempt at all
     const isZeroAttempt = candidateMessages.length === 0 && !hasCodeWritten;
@@ -1760,10 +1724,12 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
 
     // 4. Code Quality & Edge Cases (0.0 to 5.0)
     let codeQualityScore = 1.0;
-    if (hasCodeWritten) codeQualityScore += 1.8;
-    if (hasProperKeywords) codeQualityScore += 1.0;
-    if (hasClarified) codeQualityScore += 0.6;
-    if (code.length > 120) codeQualityScore += 0.4;
+    if (hasCodeWritten) codeQualityScore += 1.4;
+    if (codeAnalysis.hasLoop) codeQualityScore += 0.6;
+    if (codeAnalysis.hasBaseCase) codeQualityScore += 0.6;
+    if (codeAnalysis.hasReturn) codeQualityScore += 0.5;
+    if (codeAnalysis.hasPointers || codeAnalysis.hasMapOrSet) codeQualityScore += 0.5;
+    if (hasClarified) codeQualityScore += 0.4;
     codeQualityScore = Math.min(5.0, Math.round(codeQualityScore * 10) / 10);
 
     // Overall Average Score (Percentage 0-100)

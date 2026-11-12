@@ -31,15 +31,158 @@ import {
   ChevronDown,
   Maximize2,
   ShieldAlert,
-  Lock
+  Lock,
+  Copy,
+  Check
 } from 'lucide-react';
 import { interviewApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
+const CodeBlock = ({ code, language = '' }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <div className="my-2 rounded-2xl bg-navy-950 border border-navy-800 overflow-hidden shadow-soft-sm font-mono text-xs">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-navy-900 border-b border-navy-800 text-[10px] text-navy-400 font-bold uppercase tracking-wider">
+        <span>{language || 'code'}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer"
+        >
+          {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+          <span>{copied ? 'Copied' : 'Copy'}</span>
+        </button>
+      </div>
+      <pre className="p-3 text-navy-100 overflow-x-auto leading-relaxed select-text font-mono text-[11px]">
+        <code>{code}</code>
+      </pre>
+    </div>
+  );
+};
+
+const renderInlineFormatting = (text, isUser = false) => {
+  if (!text) return '';
+  const tokens = text.split(/(`[^`]+`|\*\*[^*]+\*\*)/g);
+  return tokens.map((token, tIdx) => {
+    if (token.startsWith('`') && token.endsWith('`')) {
+      return (
+        <code
+          key={tIdx}
+          className={`px-1.5 py-0.5 rounded font-mono text-[11px] font-semibold ${
+            isUser ? 'bg-white/20 text-white' : 'bg-navy-200/60 text-brand-purple-dark'
+          }`}
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    if (token.startsWith('**') && token.endsWith('**')) {
+      return (
+        <strong key={tIdx} className={isUser ? 'font-bold text-white' : 'font-bold text-navy-900'}>
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+    return token;
+  });
+};
+
+const renderMessageContent = (content, isUser = false) => {
+  if (!content) return null;
+
+  let normalized = content;
+  const backtickCount = (normalized.match(/```/g) || []).length;
+  if (backtickCount % 2 !== 0) {
+    normalized += '\n```';
+  }
+
+  const parts = normalized.split(/(```[\s\S]*?```)/g);
+
+  return parts.map((part, idx) => {
+    if (part.startsWith('```')) {
+      const match = part.match(/^```([a-zA-Z0-9_-]*)\n?([\s\S]*?)```$/);
+      const lang = match ? match[1] : '';
+      const code = match ? match[2] : part.replace(/^```[a-zA-Z0-9_-]*\n?/, '').replace(/```$/, '');
+      return <CodeBlock key={idx} code={code.trim()} language={lang} />;
+    }
+
+    const lines = part.split('\n');
+    return (
+      <div key={idx} className="space-y-1.5">
+        {lines.map((line, lIdx) => {
+          const trimmed = line.trim();
+          if (!trimmed) return <div key={lIdx} className="h-0.5" />;
+
+          if (trimmed.startsWith('#### ')) {
+            return (
+              <h5 key={lIdx} className={`font-bold text-xs mt-1.5 ${isUser ? 'text-white' : 'text-navy-900'}`}>
+                {renderInlineFormatting(trimmed.slice(5), isUser)}
+              </h5>
+            );
+          }
+          if (trimmed.startsWith('### ')) {
+            return (
+              <h4 key={lIdx} className={`font-bold text-xs mt-2 pb-0.5 border-b ${isUser ? 'text-white border-white/20' : 'text-navy-900 border-navy-200/50'}`}>
+                {renderInlineFormatting(trimmed.slice(4), isUser)}
+              </h4>
+            );
+          }
+          if (trimmed.startsWith('## ')) {
+            return (
+              <h3 key={lIdx} className={`font-extrabold text-sm mt-2.5 ${isUser ? 'text-white' : 'text-navy-900'}`}>
+                {renderInlineFormatting(trimmed.slice(3), isUser)}
+              </h3>
+            );
+          }
+          if (trimmed.startsWith('> ')) {
+            return (
+              <div key={lIdx} className={`border-l-4 pl-3 py-1 my-1 rounded-r-xl text-xs italic ${isUser ? 'border-brand-purple bg-white/10 text-white' : 'border-brand-purple/70 bg-brand-purple/5 text-navy-800'}`}>
+                {renderInlineFormatting(trimmed.slice(2), isUser)}
+              </div>
+            );
+          }
+          if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+            return (
+              <div key={lIdx} className="flex items-start gap-2 pl-1 text-xs">
+                <span className={`font-bold ${isUser ? 'text-brand-purple-light' : 'text-brand-purple'}`}>•</span>
+                <span>{renderInlineFormatting(trimmed.slice(2), isUser)}</span>
+              </div>
+            );
+          }
+          const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+          if (numMatch) {
+            return (
+              <div key={lIdx} className="flex items-start gap-2 pl-1 text-xs">
+                <span className={`font-bold font-mono ${isUser ? 'text-brand-purple-light' : 'text-brand-purple'}`}>{numMatch[1]}.</span>
+                <span>{renderInlineFormatting(numMatch[2], isUser)}</span>
+              </div>
+            );
+          }
+
+          return (
+            <p key={lIdx} className="text-xs leading-relaxed">
+              {renderInlineFormatting(line, isUser)}
+            </p>
+          );
+        })}
+      </div>
+    );
+  });
+};
+
 const cleanTextForSpeech = (text) => {
   if (!text) return '';
   return text
-    .replace(/```[\s\S]*?```/g, 'Code block omitted.')
+    .replace(/```[\s\S]*?```/g, 'Code block omitted from voice.')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/[*#_>`]/g, '')
@@ -477,6 +620,7 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
 
       const res = await interviewApi.start(payload);
       setSession(res);
+      setProblemFilterCompany(companyId);
       setCurrentStageIndex(0);
       setTimeLeft(res.timeLimitSeconds || 900);
       setIsTimerRunning(true);
@@ -533,7 +677,8 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
         interviewId: session.interviewId,
         message: text,
         currentCode: codeRef.current,
-        stageId: currentStageId
+        stageId: currentStageId,
+        language: selectedLanguage
       });
 
       const interviewerMsg = {
@@ -563,6 +708,13 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Request dedicated code review on current editor snippet
+  const handleAskForCodeReview = () => {
+    if (loading || !session) return;
+    const prompt = "Could you please review my solution code in the editor? Check my logic, boundary conditions, and tell me if my approach is optimal.";
+    handleSendMessage(prompt, false);
   };
 
   // End interview and generate evaluation scorecard
@@ -677,104 +829,18 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
               <button
                 onClick={() => requestStartInterview()}
                 disabled={loading}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-95 text-white font-bold text-xs shadow-soft-md flex items-center gap-2 transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-95 text-white font-bold text-xs shadow-soft-md flex items-center gap-2 transition-all cursor-pointer"
               >
                 <Play className="w-4 h-4 fill-white" />
                 <span>{loading ? 'Initializing...' : 'Start Mock Interview'}</span>
               </button>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowProblemPicker(prev => !prev)}
-                  className="px-3 py-2.5 rounded-xl border border-navy-200 hover:bg-navy-50 text-navy-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <span>Select Problem ({allProblems.length || 32})</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-navy-400" />
-                </button>
-                {showProblemPicker && (
-                  <div className="absolute right-0 mt-2 w-96 max-h-[28rem] overflow-y-auto bg-white rounded-2xl border border-navy-200 shadow-soft-2xl z-40 p-2 space-y-2">
-                    <div className="flex items-center justify-between px-1">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-navy-400">
-                        FAANG Signature Problem Catalog
-                      </span>
-                      <button
-                        onClick={() => setShowProblemPicker(false)}
-                        className="text-navy-400 hover:text-navy-700 text-xs font-bold"
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    {/* Filter Tabs by Company */}
-                    <div className="flex items-center gap-1 p-1 bg-navy-50 rounded-xl text-[10px] font-bold overflow-x-auto">
-                      {[
-                        { id: 'all', label: 'All (32)' },
-                        { id: 'google', label: 'Google (8)' },
-                        { id: 'amazon', label: 'Amazon (8)' },
-                        { id: 'meta', label: 'Meta (8)' },
-                        { id: 'general', label: 'FAANG Std (8)' }
-                      ].map(t => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setProblemFilterCompany(t.id);
-                          }}
-                          className={`px-2 py-1 rounded-lg transition-all shrink-0 ${
-                            problemFilterCompany === t.id
-                              ? 'bg-brand-purple text-white shadow-soft-xs'
-                              : 'text-navy-600 hover:text-navy-900 hover:bg-navy-200/50'
-                          }`}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
-                      {allProblems
-                        .filter(p => problemFilterCompany === 'all' || p.company === problemFilterCompany)
-                        .map(p => (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCompany(p.company);
-                              requestStartInterview(p.company, p.id);
-                            }}
-                            className="w-full text-left px-2.5 py-2 rounded-xl text-xs hover:bg-navy-50 text-navy-800 transition-colors flex items-center justify-between gap-2 border border-transparent hover:border-navy-200/60"
-                          >
-                            <div className="min-w-0">
-                              <div className="font-bold text-navy-900 truncate">{p.title}</div>
-                              <div className="text-[10px] text-navy-500 flex items-center gap-1.5 mt-0.5">
-                                <span className="font-semibold text-brand-purple">{p.companyName}</span>
-                                <span>•</span>
-                                <span className="text-navy-400 truncate">{p.topic}</span>
-                              </div>
-                            </div>
-                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider shrink-0 ${
-                              p.difficulty === 'Hard'
-                                ? 'bg-rose-100 text-rose-700'
-                                : p.difficulty === 'Medium'
-                                ? 'bg-amber-100 text-amber-700'
-                                : 'bg-emerald-100 text-emerald-700'
-                            }`}>
-                              {p.difficulty}
-                            </span>
-                          </button>
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </div>
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => handleStartInterview(selectedCompany)}
+                onClick={() => handleStartInterview(session?.question?.company || selectedCompany)}
                 disabled={loading}
-                title="Shuffle to another FAANG question"
+                title={`Shuffle to another ${companies.find(c => c.id === (session?.question?.company || selectedCompany))?.name || 'FAANG'} question`}
                 className="px-3 py-2 rounded-xl border border-navy-200 hover:bg-navy-50 text-navy-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <Shuffle className="w-3.5 h-3.5 text-brand-purple" />
@@ -786,64 +852,44 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                   onClick={() => setShowProblemPicker(prev => !prev)}
                   className="px-3 py-2 rounded-xl border border-navy-200 hover:bg-navy-50 text-navy-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <span>Select ({allProblems.length || 32})</span>
+                  <span>
+                    {companies.find(c => c.id === (session?.question?.company || selectedCompany))?.name || 'Company'} Problems ({allProblems.filter(p => p.company === (session?.question?.company || selectedCompany)).length || 8})
+                  </span>
                   <ChevronDown className="w-3.5 h-3.5 text-navy-400" />
                 </button>
                 {showProblemPicker && (
-                  <div className="absolute right-0 mt-2 w-96 max-h-[28rem] overflow-y-auto bg-white rounded-2xl border border-navy-200 shadow-soft-2xl z-40 p-2 space-y-2">
-                    <div className="flex items-center justify-between px-1">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-navy-400">
-                        Choose Next Signature Problem
-                      </span>
+                  <div className="absolute right-0 mt-2 w-96 max-h-[28rem] overflow-y-auto bg-white rounded-2xl border border-navy-200 shadow-soft-2xl z-40 p-3 space-y-2.5">
+                    <div className="flex items-center justify-between px-1 pb-1 border-b border-navy-100">
+                      <div>
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-purple block">
+                          {companies.find(c => c.id === (session?.question?.company || selectedCompany))?.name} Interview Loop
+                        </span>
+                        <h4 className="text-xs font-bold text-navy-900">
+                          {companies.find(c => c.id === (session?.question?.company || selectedCompany))?.name} Signature Problems ({allProblems.filter(p => p.company === (session?.question?.company || selectedCompany)).length || 8})
+                        </h4>
+                      </div>
                       <button
                         onClick={() => setShowProblemPicker(false)}
-                        className="text-navy-400 hover:text-navy-700 text-xs font-bold"
+                        className="text-navy-400 hover:text-navy-700 text-xs font-bold p-1 rounded-lg hover:bg-navy-100"
                       >
                         ✕
                       </button>
                     </div>
 
-                    {/* Filter Tabs by Company */}
-                    <div className="flex items-center gap-1 p-1 bg-navy-50 rounded-xl text-[10px] font-bold overflow-x-auto">
-                      {[
-                        { id: 'all', label: 'All (32)' },
-                        { id: 'google', label: 'Google (8)' },
-                        { id: 'amazon', label: 'Amazon (8)' },
-                        { id: 'meta', label: 'Meta (8)' },
-                        { id: 'general', label: 'FAANG Std (8)' }
-                      ].map(t => (
-                        <button
-                          key={t.id}
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setProblemFilterCompany(t.id);
-                          }}
-                          className={`px-2 py-1 rounded-lg transition-all shrink-0 ${
-                            problemFilterCompany === t.id
-                              ? 'bg-brand-purple text-white shadow-soft-xs'
-                              : 'text-navy-600 hover:text-navy-900 hover:bg-navy-200/50'
-                          }`}
-                        >
-                          {t.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="space-y-1 max-h-72 overflow-y-auto pr-1">
+                    <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1">
                       {allProblems
-                        .filter(p => problemFilterCompany === 'all' || p.company === problemFilterCompany)
+                        .filter(p => p.company === (session?.question?.company || selectedCompany))
                         .map(p => (
                           <button
                             key={p.id}
                             type="button"
                             onClick={() => {
-                              setSelectedCompany(p.company);
+                              setShowProblemPicker(false);
                               handleStartInterview(p.company, p.id);
                             }}
-                            className={`w-full text-left px-2.5 py-2 rounded-xl text-xs transition-colors flex items-center justify-between gap-2 border ${
+                            className={`w-full text-left px-3 py-2.5 rounded-xl text-xs transition-colors flex items-center justify-between gap-2 border ${
                               session?.question?.id === p.id
-                                ? 'bg-brand-purple/10 border-brand-purple/30 text-brand-purple font-bold'
+                                ? 'bg-brand-purple/10 border-brand-purple/40 text-brand-purple font-bold shadow-soft-xs'
                                 : 'border-transparent hover:bg-navy-50 text-navy-800'
                             }`}
                           >
@@ -1055,7 +1101,9 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                             </button>
                           </div>
                         )}
-                        <p className="whitespace-pre-line">{msg.content}</p>
+                        <div className="space-y-1.5">
+                          {renderMessageContent(msg.content, isUser)}
+                        </div>
                       </div>
                     </motion.div>
                   );
@@ -1064,26 +1112,39 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                 {loading && (
                   <div className="flex items-center gap-2 p-3 bg-navy-50 rounded-2xl rounded-tl-none border border-navy-200/60 text-xs text-navy-500 w-fit">
                     <Sparkles className="w-3.5 h-3.5 text-brand-purple animate-spin" />
-                    <span className="text-[11px]">Senior Interviewer evaluating response...</span>
+                    <span className="text-[11px]">Senior Interviewer analyzing code & response...</span>
                   </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Suggested Quick Talking Points */}
-              {suggestedPrompt && (
-                <div className="px-4 py-2 bg-navy-50/50 border-t border-navy-200/60 flex items-center gap-2 overflow-x-auto text-xs">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-navy-400 shrink-0">
-                    Suggested Thought:
-                  </span>
-                  <button
-                    onClick={() => handleSendMessage(suggestedPrompt, false)}
-                    className="px-2.5 py-0.5 rounded-full bg-white hover:bg-navy-100 text-navy-700 text-[11px] border border-navy-200 font-medium transition-all truncate max-w-xs shadow-soft-xs"
-                  >
-                    "{suggestedPrompt}"
-                  </button>
-                </div>
-              )}
+              {/* Suggested Quick Talking Points & Code Review Action */}
+              <div className="px-4 py-2 bg-navy-50/50 border-t border-navy-200/60 flex items-center gap-2 overflow-x-auto text-xs">
+                <button
+                  type="button"
+                  onClick={handleAskForCodeReview}
+                  disabled={loading}
+                  title="Ask interviewer to read and review your editor code"
+                  className="px-2.5 py-0.5 rounded-full bg-brand-purple/10 hover:bg-brand-purple/20 text-brand-purple border border-brand-purple/30 text-[11px] font-bold flex items-center gap-1 transition-all shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  <Sparkles className="w-3 h-3 text-brand-purple" />
+                  <span>Review Editor Code</span>
+                </button>
+
+                {suggestedPrompt && (
+                  <>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-navy-400 shrink-0">
+                      Suggested:
+                    </span>
+                    <button
+                      onClick={() => handleSendMessage(suggestedPrompt, false)}
+                      className="px-2.5 py-0.5 rounded-full bg-white hover:bg-navy-100 text-navy-700 text-[11px] border border-navy-200 font-medium transition-all truncate max-w-xs shadow-soft-xs"
+                    >
+                      "{suggestedPrompt}"
+                    </button>
+                  </>
+                )}
+              </div>
 
               {/* Interview Input Bar with Voice Mode */}
               <div className="p-3.5 bg-white border-t border-navy-200/80 space-y-2">
@@ -1173,22 +1234,38 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                   </button>
                 </div>
 
-                {/* Language Select */}
-                {activeRightTab === 'code' && (
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="text-[10px] uppercase font-mono text-navy-500 font-bold">Lang:</span>
-                    <select
-                      value={selectedLanguage}
-                      onChange={(e) => handleLanguageChange(e.target.value)}
-                      className="bg-navy-950 border border-navy-700 text-white text-xs font-mono py-1 px-2.5 rounded-lg focus:outline-none focus:border-brand-purple cursor-pointer"
+                {/* Right controls: Review My Code button + Language Select */}
+                <div className="flex items-center gap-2 text-xs">
+                  {activeRightTab === 'code' && (
+                    <button
+                      type="button"
+                      onClick={handleAskForCodeReview}
+                      disabled={loading}
+                      title="Ask interviewer to read and review your editor code"
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-95 text-white shadow-soft-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
                     >
-                      <option value="python">Python 3</option>
-                      <option value="javascript">JavaScript (ES6)</option>
-                      <option value="cpp">C++ 20</option>
-                      <option value="java">Java 17</option>
-                    </select>
-                  </div>
-                )}
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Review My Code</span>
+                      <span className="sm:hidden">Review</span>
+                    </button>
+                  )}
+
+                  {activeRightTab === 'code' && (
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <span className="text-[10px] uppercase font-mono text-navy-500 font-bold">Lang:</span>
+                      <select
+                        value={selectedLanguage}
+                        onChange={(e) => handleLanguageChange(e.target.value)}
+                        className="bg-navy-950 border border-navy-700 text-white text-xs font-mono py-1 px-2.5 rounded-lg focus:outline-none focus:border-brand-purple cursor-pointer"
+                      >
+                        <option value="python">Python 3</option>
+                        <option value="javascript">JavaScript (ES6)</option>
+                        <option value="cpp">C++ 20</option>
+                        <option value="java">Java 17</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Code Editor Body */}
