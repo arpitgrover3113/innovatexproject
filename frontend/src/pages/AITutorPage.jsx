@@ -46,15 +46,23 @@ const renderInlineFormatting = (text) => {
   });
 };
 
-const renderMessageContent = (content) => {
+const renderMessageContent = (content, onSelectOption = null, disabled = false) => {
   if (!content) return null;
-  const parts = content.split(/(```[\s\S]*?```)/g);
+
+  // Ensure unclosed code blocks are safely balanced
+  let normalized = content;
+  const backtickCount = (normalized.match(/```/g) || []).length;
+  if (backtickCount % 2 !== 0) {
+    normalized += '\n```';
+  }
+
+  const parts = normalized.split(/(```[\s\S]*?```)/g);
 
   return parts.map((part, idx) => {
     if (part.startsWith('```')) {
       const code = part.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
       return (
-        <pre key={idx} className="bg-navy-950 text-navy-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto my-2 border border-navy-800">
+        <pre key={idx} className="bg-navy-950 text-navy-100 p-3.5 rounded-xl font-mono text-xs overflow-x-auto my-2 border border-navy-800 shadow-inner">
           <code>{code}</code>
         </pre>
       );
@@ -67,6 +75,7 @@ const renderMessageContent = (content) => {
           const trimmed = line.trim();
           if (!trimmed) return <div key={lIdx} className="h-1" />;
 
+          // Headings
           if (trimmed.startsWith('#### ')) {
             return <h5 key={lIdx} className="font-bold text-xs text-navy-900 mt-2">{renderInlineFormatting(trimmed.slice(5))}</h5>;
           }
@@ -77,6 +86,40 @@ const renderMessageContent = (content) => {
             return <h3 key={lIdx} className="font-extrabold text-sm text-navy-900 mt-3">{renderInlineFormatting(trimmed.slice(3))}</h3>;
           }
 
+          // Blockquotes
+          if (trimmed.startsWith('> ')) {
+            return (
+              <div key={lIdx} className="border-l-4 border-brand-purple/70 pl-3 py-1.5 my-1.5 bg-brand-purple/5 text-navy-800 rounded-r-xl italic text-xs leading-relaxed">
+                {renderInlineFormatting(trimmed.slice(2))}
+              </div>
+            );
+          }
+
+          // Interactive Practice Question Options: "* **Option A:**" or "**Option A:**"
+          const optionMatch = trimmed.match(/^(\*|-)?\s*\*\*Option\s+([A-D]):?\*\*\s*(.*)/i);
+          if (optionMatch) {
+            const letter = optionMatch[2].toUpperCase();
+            const optionText = optionMatch[3];
+            return (
+              <button
+                key={lIdx}
+                type="button"
+                onClick={() => onSelectOption && onSelectOption(`I choose Option ${letter}`)}
+                disabled={disabled}
+                className="w-full text-left p-2.5 my-1 rounded-xl border border-brand-purple/30 bg-white hover:bg-brand-purple/10 hover:border-brand-purple transition-all flex items-start gap-2.5 text-xs group shadow-soft-xs cursor-pointer disabled:opacity-50"
+              >
+                <span className="w-5 h-5 rounded-md bg-brand-purple/10 text-brand-purple font-bold flex items-center justify-center text-[11px] shrink-0 group-hover:bg-brand-purple group-hover:text-white transition-colors">
+                  {letter}
+                </span>
+                <span className="text-navy-800 font-medium leading-relaxed pt-0.5">
+                  <strong className="text-navy-900 font-bold mr-1">Option {letter}:</strong>
+                  {renderInlineFormatting(optionText)}
+                </span>
+              </button>
+            );
+          }
+
+          // Standard Bullet points
           if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
             return (
               <div key={lIdx} className="flex items-start gap-2 pl-1 text-xs">
@@ -86,6 +129,7 @@ const renderMessageContent = (content) => {
             );
           }
 
+          // Numbered lists
           const numMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
           if (numMatch) {
             return (
@@ -162,7 +206,9 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 60);
   };
 
   useEffect(() => {
@@ -369,7 +415,7 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
       </div>
 
       {/* Chat Messages Container */}
-      <div className="bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm overflow-hidden flex flex-col h-[520px]">
+      <div className="bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm overflow-hidden flex flex-col min-h-[580px] h-[640px]">
         
         {/* Messages Stream */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
@@ -421,9 +467,9 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
                         </button>
                       </div>
                     )}
-                    {/* Render rich formatted content with code blocks */}
+                    {/* Render rich formatted content with code blocks & interactive option buttons */}
                     <div className="space-y-2">
-                      {renderMessageContent(msg.content)}
+                      {renderMessageContent(msg.content, (opt) => handleSendMessage(opt), loading)}
                     </div>
                   </div>
 

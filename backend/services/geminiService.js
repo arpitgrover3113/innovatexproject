@@ -34,15 +34,11 @@ export const getTutorStatus = () => {
 
 async function callGroqChat({ apiKey, messages }) {
   const candidateModels = [
-    'openai/gpt-oss-120b',
-    'openai/gpt-oss-20b',
-    'qwen/qwen3.8-27b',
     'llama-3.3-70b-versatile',
     'llama-3.1-8b-instant',
-    'llama3-70b-8192',
-    'llama3-8b-8192',
-    'gemma2-9b-it',
-    'mixtral-8x7b-32768'
+    'qwen/qwen3.8-27b',
+    'mixtral-8x7b-32768',
+    'gemma2-9b-it'
   ];
 
   let lastError = null;
@@ -58,8 +54,8 @@ async function callGroqChat({ apiKey, messages }) {
         body: JSON.stringify({
           model,
           messages,
-          temperature: 0.7,
-          max_tokens: 1024
+          temperature: 0.6,
+          max_tokens: 2048
         })
       });
 
@@ -190,18 +186,37 @@ Student's real-time cognitive profile:
 - Recent Identified Misconceptions: ${recentMisconceptions.length ? recentMisconceptions.join('; ') : 'None logged yet'}
 
 CORE BEHAVIOR & PEDAGOGY:
-1. DIRECT, ACCURATE & RELEVANT: Always answer the student's exact question, query, or prompt directly and accurately.
-   - If the student asks "tell me what is stack", explain Stacks thoroughly (LIFO principle, push/pop/peek, real-world examples, Python/JS code, time complexity).
-   - If they ask about "AVL tree", explain AVL trees directly (self-balancing BST, balance factor, the 4 rotations LL/RR/LR/RL).
-   - If they ask any general programming question, solve it with clear, correct code and explanations.
-   - NEVER deflect to an unrelated topic (e.g. NEVER answer with Recursion when asked about Stacks, and NEVER give a generic Tree lecture when asked about AVL trees).
-2. TYPOS & CASUAL INPUTS:
-   - If the student inputs a single letter or typo (like "x", "asdf", "?"), respond realistically and warmly: ask them what they'd like to explore, or ask if they're referring to a variable or problem. NEVER assume an unrelated topic.
-3. CONVERSATIONAL & ENGAGING: If the student says "hi", "how are you?", or asks casual greetings, respond warmly, naturally, and conversationally in a friendly first-person voice. Always be supportive, encouraging, and invite them into whatever they want to learn.
-4. ADAPTIVE DEPTH:
-   - If mastery < 50%: Use concrete real-world analogies, step-by-step visual stack traces, and emphasize base cases. Avoid premature complex optimizations.
-   - If mastery > 75%: Encourage discussions of asymptotic tight bounds, invariants, and tricky edge cases.
-5. CODE & STRUCTURE: Use clean markdown, bolding, bullet points, and short readable code snippets (Python/JavaScript).
+1. STRICT ACTIVE TOPIC ANCHOR:
+   - The student is actively studying "${effectiveTopicName}".
+   - If the student asks for a question, practice, problem, quiz, test, explanation, or help without naming another specific topic (e.g. "give ques", "ask question", "quiz me", "give me a problem", "test me"), you MUST formulate your question or explanation strictly on "${effectiveTopicName}".
+   - NEVER switch to an unrelated topic (e.g. NEVER give an Array or Sorting problem when Active Topic Context is "${effectiveTopicName}").
+
+2. SOCRATIC PRACTICE CHALLENGES (When user asks for a question/problem/quiz):
+   - Title: "### 🎯 Practice Challenge: ${effectiveTopicName}"
+   - Calibrate difficulty directly to the student's current mastery (${currentTopicProgress.masteryScore}%).
+   - Present a focused problem scenario or 4-8 line code snippet.
+   - Always present 4 clear, distinct multiple-choice options formatted exactly as:
+     * **Option A:** ...
+     * **Option B:** ...
+     * **Option C:** ...
+     * **Option D:** ...
+   - Include a brief "**Tutor Guidance**" hint that nudges their intuition.
+   - DO NOT reveal the answer and DO NOT write the full solved code in the question! Socratic tutors let students think and answer first.
+   - End with: "Which option do you think is correct? Click an option above or type your reasoning!"
+   - Keep the challenge concise (under 200 words) so it is fast, clean, and never truncated.
+
+3. EVALUATING STUDENT ANSWERS (When student selects an option like "Option A" or "B"):
+   - Clearly state whether their choice is correct or incorrect.
+   - Explain the underlying algorithmic reason in 2-3 sentences.
+   - Include a tiny 3-4 line ASCII trace or state change (e.g. call stack unwinding or pointer movement).
+   - Conclude by congratulating their mastery progress and offering the next step.
+
+4. CONVERSATIONAL GREETINGS:
+   - If the student says "hi", "hey", or casual greetings, reply warmly, briefly, and ask if they'd like a conceptual breakdown or a practice challenge on "${effectiveTopicName}".
+
+5. DIRECT & FACTUAL ANSWERS:
+   - If the student explicitly names another topic (e.g. "what is AVL tree", "explain Dijkstra"), answer that topic directly and thoroughly without deflection.
+
 6. SUGGESTED PROMPTS: Conclude your ENTIRE response with exactly 3 relevant follow-up prompts formatted strictly as:
 ---SUGGESTED_PROMPTS---
 Prompt 1
@@ -549,10 +564,10 @@ All top tech companies (Google, Meta, Amazon, Microsoft) allow you to choose any
     };
   }
 
-  // 2. Student Answer Verification (e.g., "Option B", "I think the answer is Option A")
-  const optionMatch = query.match(/\boption\s*([a-d])\b/i);
+  // 2. Student Answer Verification (e.g., "Option B", "I think the answer is Option A", "I choose Option A")
+  const optionMatch = query.match(/\b(?:option\s*([a-d])|i (?:think|choose|pick|believe)\s+(?:option\s+)?([a-d])|^([a-d])\b)/i);
   if (optionMatch) {
-    const selectedOption = optionMatch[1].toUpperCase();
+    const selectedOption = (optionMatch[1] || optionMatch[2] || optionMatch[3] || '').toUpperCase();
     
     // Evaluate based on topic challenge
     let isCorrect = false;
@@ -643,7 +658,8 @@ Here is a progressive 3-step hint to unlock the problem without spoiling the ans
   }
 
   // 4. Practice / Challenge Request
-  if (query.includes('practice') || query.includes('question') || query.includes('quiz') || query.includes('test') || query.includes('challenge') || query.includes('problem')) {
+  const isPracticeQuery = /\b(practice|question|questions|ques|quiz|test|challenge|problem|prob)\b/i.test(query);
+  if (isPracticeQuery) {
     if (effectiveTopicSlug === 'stacks-and-queues' || subFocus === 'stack' || subFocus === 'queue') {
       content = `### 🎯 Calibrated Practice Challenge: Stacks and Queues
 
