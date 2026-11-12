@@ -15,6 +15,7 @@ import adaptiveRoutes from './routes/adaptive.js';
 import tutorRoutes from './routes/tutor.js';
 import roadmapRoutes from './routes/roadmap.js';
 import analyticsRoutes from './routes/analytics.js';
+import interviewRoutes from './routes/interview.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,6 +64,7 @@ app.use('/api/adaptive', adaptiveRoutes);
 app.use('/api/tutor', tutorRoutes);
 app.use('/api/roadmap', roadmapRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/interview', interviewRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

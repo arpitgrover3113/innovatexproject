@@ -14,12 +14,14 @@ import { AITutorPage } from './pages/AITutorPage';
 import { VisualizerPage } from './pages/VisualizerPage';
 import { RoadmapPage } from './pages/RoadmapPage';
 import { AnalyticsPage } from './pages/AnalyticsPage';
+import { MockInterviewPage } from './pages/MockInterviewPage';
 
 const AppContent = () => {
   const { isAuthenticated, loading, user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('landing');
   const [tabParams, setTabParams] = useState({});
   const [showAchievements, setShowAchievements] = useState(false);
+  const [isInterviewActive, setIsInterviewActive] = useState(false);
 
   // Navigate to dashboard upon initial login only if explicitly coming from auth
   React.useEffect(() => {
@@ -33,6 +35,7 @@ const AppContent = () => {
     if (tab === 'landing' && user?.email?.includes('@guest')) {
       logout();
     }
+    setIsInterviewActive(false);
     setTabParams(params);
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -51,7 +54,9 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-navy-900 selection:bg-brand-purple-light selection:text-brand-purple-dark">
-      <Navbar activeTab={activeTab} onTabChange={handleNavigate} onShowAchievements={() => setShowAchievements(true)} />
+      {!isInterviewActive && (
+        <Navbar activeTab={activeTab} onTabChange={handleNavigate} onShowAchievements={() => setShowAchievements(true)} />
+      )}
 
       <main className="flex-1">
         {activeTab === 'landing' && <LandingPage onNavigate={handleNavigate} />}
@@ -70,6 +75,12 @@ const AppContent = () => {
             onNavigate={handleNavigate} 
           />
         )}
+        {activeTab === 'interview' && (
+          <MockInterviewPage 
+            onNavigate={handleNavigate} 
+            onInterviewActiveChange={setIsInterviewActive}
+          />
+        )}
         {activeTab === 'visualizer' && (
           <VisualizerPage onNavigate={handleNavigate} />
         )}
@@ -77,7 +88,7 @@ const AppContent = () => {
         {activeTab === 'analytics' && <AnalyticsPage onNavigate={handleNavigate} />}
       </main>
 
-      <Footer />
+      {!isInterviewActive && <Footer />}
 
       {/* Achievements modal rendered at root level — escapes header stacking context */}
       <AchievementsModal

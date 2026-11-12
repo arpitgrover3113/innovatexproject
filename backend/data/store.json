@@ -151,10 +151,11 @@
           "Data Structures & Algorithms"
         ],
         "createdAt": "2026-11-11T10:59:42.521Z",
-        "totalQuestionsAnswered": 12,
-        "overallAccuracy": 74,
-        "xp": 2455,
-        "level": 5
+        "totalQuestionsAnswered": 15,
+        "overallAccuracy": 79,
+        "xp": 2990,
+        "level": 5,
+        "streakDays": 2
       }
     ],
     [
@@ -366,16 +367,16 @@
         "userId": "user_1794394782521_plwrf",
         "topicSlug": "arrays",
         "topicName": "Arrays",
-        "masteryScore": 9,
-        "totalAttempts": 3,
-        "correctAttempts": 1,
+        "masteryScore": 19,
+        "totalAttempts": 4,
+        "correctAttempts": 2,
         "recentAccuracy": 100,
         "lastDifficulty": "easy",
         "consecutiveMistakes": 0,
-        "consecutiveSuccesses": 1,
+        "consecutiveSuccesses": 2,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -384,16 +385,16 @@
         "userId": "user_1794394782521_plwrf",
         "topicSlug": "strings",
         "topicName": "Strings",
-        "masteryScore": 9,
-        "totalAttempts": 3,
-        "correctAttempts": 2,
+        "masteryScore": 19,
+        "totalAttempts": 4,
+        "correctAttempts": 3,
         "recentAccuracy": 100,
         "lastDifficulty": "easy",
         "consecutiveMistakes": 0,
-        "consecutiveSuccesses": 1,
+        "consecutiveSuccesses": 2,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -402,16 +403,16 @@
         "userId": "user_1794394782521_plwrf",
         "topicSlug": "recursion",
         "topicName": "Recursion",
-        "masteryScore": 59,
-        "totalAttempts": 9,
-        "correctAttempts": 6,
-        "recentAccuracy": 51,
-        "lastDifficulty": "medium",
-        "consecutiveMistakes": 0,
-        "consecutiveSuccesses": 2,
+        "masteryScore": 88,
+        "totalAttempts": 13,
+        "correctAttempts": 9,
+        "recentAccuracy": 0,
+        "lastDifficulty": "hard",
+        "consecutiveMistakes": 1,
+        "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:57:42.117Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -421,15 +422,15 @@
         "topicSlug": "binary-search",
         "topicName": "Binary Search",
         "masteryScore": 0,
-        "totalAttempts": 3,
+        "totalAttempts": 4,
         "correctAttempts": 0,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 3,
+        "consecutiveMistakes": 4,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -439,15 +440,15 @@
         "topicSlug": "sorting",
         "topicName": "Sorting",
         "masteryScore": 0,
-        "totalAttempts": 3,
+        "totalAttempts": 4,
         "correctAttempts": 0,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 3,
+        "consecutiveMistakes": 4,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -457,18 +458,18 @@
         "topicSlug": "linked-lists",
         "topicName": "Linked Lists",
         "masteryScore": 0,
-        "totalAttempts": 9,
+        "totalAttempts": 10,
         "correctAttempts": 3,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 2,
+        "consecutiveMistakes": 3,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [
           "You do not need a preliminary pass to count total length n and a second pass to reach n/2; fast/slow pointers do it in one pass.",
           "Nested loops require zero extra memory but take quadratic O(n²) time; HashSet trades O(n) memory for linear O(n) speed."
         ],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -478,15 +479,15 @@
         "topicSlug": "stacks-and-queues",
         "topicName": "Stacks and Queues",
         "masteryScore": 0,
-        "totalAttempts": 3,
+        "totalAttempts": 4,
         "correctAttempts": 0,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 3,
+        "consecutiveMistakes": 4,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -496,15 +497,15 @@
         "topicSlug": "trees",
         "topicName": "Trees",
         "masteryScore": 0,
-        "totalAttempts": 3,
+        "totalAttempts": 4,
         "correctAttempts": 0,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 3,
+        "consecutiveMistakes": 4,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -514,15 +515,15 @@
         "topicSlug": "graphs",
         "topicName": "Graphs",
         "masteryScore": 0,
-        "totalAttempts": 3,
+        "totalAttempts": 4,
         "correctAttempts": 0,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 3,
+        "consecutiveMistakes": 4,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ],
     [
@@ -532,15 +533,15 @@
         "topicSlug": "dynamic-programming",
         "topicName": "Dynamic Programming",
         "masteryScore": 0,
-        "totalAttempts": 3,
+        "totalAttempts": 4,
         "correctAttempts": 0,
         "recentAccuracy": 0,
         "lastDifficulty": "easy",
-        "consecutiveMistakes": 3,
+        "consecutiveMistakes": 4,
         "consecutiveSuccesses": 0,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-11T18:56:34.870Z"
+        "updatedAt": "2026-11-12T10:40:21.650Z"
       }
     ]
   ],
@@ -6766,6 +6767,242 @@
         ],
         "completedAt": "2026-11-11T18:56:34.870Z"
       }
+    ],
+    [
+      "assess_1794480021650",
+      {
+        "_id": "assess_1794480021650",
+        "userId": "user_1794394782521_plwrf",
+        "title": "DSA Comprehensive Diagnostic Assessment",
+        "totalQuestions": 10,
+        "score": 20,
+        "correctCount": 2,
+        "topicResults": [
+          {
+            "topicSlug": "arrays",
+            "topicName": "Arrays",
+            "total": 1,
+            "correct": 1,
+            "initialMastery": 9,
+            "newMastery": 19,
+            "masteryDelta": 10
+          },
+          {
+            "topicSlug": "strings",
+            "topicName": "Strings",
+            "total": 1,
+            "correct": 1,
+            "initialMastery": 9,
+            "newMastery": 19,
+            "masteryDelta": 10
+          },
+          {
+            "topicSlug": "recursion",
+            "topicName": "Recursion",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 100,
+            "newMastery": 88,
+            "masteryDelta": -12
+          },
+          {
+            "topicSlug": "binary-search",
+            "topicName": "Binary Search",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          },
+          {
+            "topicSlug": "sorting",
+            "topicName": "Sorting",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          },
+          {
+            "topicSlug": "linked-lists",
+            "topicName": "Linked Lists",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          },
+          {
+            "topicSlug": "stacks-and-queues",
+            "topicName": "Stacks and Queues",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          },
+          {
+            "topicSlug": "trees",
+            "topicName": "Trees",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          },
+          {
+            "topicSlug": "graphs",
+            "topicName": "Graphs",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          },
+          {
+            "topicSlug": "dynamic-programming",
+            "topicName": "Dynamic Programming",
+            "total": 1,
+            "correct": 0,
+            "initialMastery": 0,
+            "newMastery": 0,
+            "masteryDelta": 0
+          }
+        ],
+        "answers": [
+          {
+            "questionId": "arr_1",
+            "questionText": "What is the time complexity to access an element at index i in a standard dynamically sized contiguous array?",
+            "topicSlug": "arrays",
+            "topicName": "Arrays",
+            "difficulty": "easy",
+            "selectedOption": 0,
+            "correctAnswer": 0,
+            "isCorrect": true,
+            "explanation": "Arrays store elements in contiguous memory locations. Using pointer arithmetic (base_address + i * element_size), access is instantaneous O(1).",
+            "misconceptionTip": "Remember that accessing by known index is constant time, whereas searching for an unknown value requires an O(n) scan.",
+            "responseTimeSeconds": 2
+          },
+          {
+            "questionId": "str_1",
+            "questionText": "To verify whether a string of length n is a palindrome, what is the most efficient space-optimal strategy?",
+            "topicSlug": "strings",
+            "topicName": "Strings",
+            "difficulty": "easy",
+            "selectedOption": 1,
+            "correctAnswer": 1,
+            "isCorrect": true,
+            "explanation": "Using two pointers starting at index 0 and index n-1, comparing characters and moving inwards requires O(n) time and O(1) auxiliary space.",
+            "misconceptionTip": "Reversing creating a new string takes O(n) memory allocation, whereas two pointers requires zero extra allocation.",
+            "responseTimeSeconds": 1
+          },
+          {
+            "questionId": "rec_1",
+            "questionText": "What is the absolute prerequisite condition that every recursive function must have to prevent a Stack Overflow error?",
+            "topicSlug": "recursion",
+            "topicName": "Recursion",
+            "difficulty": "easy",
+            "selectedOption": 0,
+            "correctAnswer": 1,
+            "isCorrect": false,
+            "explanation": "A base case defines the termination condition where the function returns a concrete answer directly, halting infinite call stack expansion.",
+            "misconceptionTip": "Without a reachable base case, recursive stack frames continuously consume memory until Call Stack limit is exceeded.",
+            "responseTimeSeconds": 1
+          },
+          {
+            "questionId": "bs_1",
+            "questionText": "What essential property must a collection have for standard Binary Search to be directly applicable?",
+            "topicSlug": "binary-search",
+            "topicName": "Binary Search",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 0,
+            "isCorrect": false,
+            "explanation": "Binary Search relies on monotonicity (sorted order) so that comparing the target with the middle element eliminates half of the search space with certainty.",
+            "misconceptionTip": "Binary search does not require elements to be distinct; duplicates can be handled with lower_bound/upper_bound variations.",
+            "responseTimeSeconds": 25
+          },
+          {
+            "questionId": "sort_1",
+            "questionText": "What is the theoretical lower bound time complexity for any comparison-based sorting algorithm in the worst case?",
+            "topicSlug": "sorting",
+            "topicName": "Sorting",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 1,
+            "isCorrect": false,
+            "explanation": "Any comparison sort can be modeled as a decision tree with n! leaves. The height of such a binary decision tree is at least log₂(n!) = Ω(n log n).",
+            "misconceptionTip": "Non-comparison sorts like Counting Sort can beat this bound by using integer indexing, but comparison sorts cannot.",
+            "responseTimeSeconds": 25
+          },
+          {
+            "questionId": "ll_1",
+            "questionText": "To reverse a singly linked list iteratively in a single pass, how many pointer variables are typically required?",
+            "topicSlug": "linked-lists",
+            "topicName": "Linked Lists",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 1,
+            "isCorrect": false,
+            "explanation": "Reversing requires keeping track of prev (to point curr.next to), curr (node currently being updated), and next (to not lose the remainder of the list).",
+            "misconceptionTip": "If you overwrite `curr.next = prev` before caching `curr.next` in a temporary variable, you sever the link to the rest of the list.",
+            "responseTimeSeconds": 25
+          },
+          {
+            "questionId": "sq_1",
+            "questionText": "Which abstract data type follows the Last-In, First-Out (LIFO) protocol?",
+            "topicSlug": "stacks-and-queues",
+            "topicName": "Stacks and Queues",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 1,
+            "isCorrect": false,
+            "explanation": "A Stack is inherently LIFO: the most recently inserted item is the first one removed.",
+            "misconceptionTip": "Queues are FIFO (First-In, First-Out); Stacks are LIFO (Last-In, First-Out).",
+            "responseTimeSeconds": 25
+          },
+          {
+            "questionId": "trees_1",
+            "questionText": "Why does an In-Order traversal (Left, Root, Right) of a Binary Search Tree (BST) visit nodes in strictly ascending numerical order?",
+            "topicSlug": "trees",
+            "topicName": "Trees",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 0,
+            "isCorrect": false,
+            "explanation": "The BST invariant guarantees that all values in the left subtree are smaller than the root, and all values in the right subtree are larger. In-Order visits Left -> Root -> Right, yielding sorted order.",
+            "misconceptionTip": "Pre-order visits Root first (useful for cloning); Post-order visits Root last (useful for bottom-up deletion); only In-order produces sorted BST values.",
+            "responseTimeSeconds": 25
+          },
+          {
+            "questionId": "graphs_1",
+            "questionText": "For a sparse graph with V vertices and E edges where E << V², which graph representation is most space-efficient?",
+            "topicSlug": "graphs",
+            "topicName": "Graphs",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 0,
+            "isCorrect": false,
+            "explanation": "An Adjacency List stores only the edges that actually exist, consuming O(V + E) space. For sparse graphs, an Adjacency Matrix wastes O(V²) memory on zeros.",
+            "misconceptionTip": "Adjacency matrices are only preferred for very dense graphs (E ~ V²) or when instant O(1) edge lookup between any u and v is required.",
+            "responseTimeSeconds": 25
+          },
+          {
+            "questionId": "dp_1",
+            "questionText": "What two fundamental characteristics must a problem possess for Dynamic Programming to be applicable?",
+            "topicSlug": "dynamic-programming",
+            "topicName": "Dynamic Programming",
+            "difficulty": "easy",
+            "selectedOption": -1,
+            "correctAnswer": 0,
+            "isCorrect": false,
+            "explanation": "Overlapping Subproblems means subproblems recur repeatedly (caching avoids recomputation). Optimal Substructure means optimal solutions to subproblems combine into the global optimal solution.",
+            "misconceptionTip": "If subproblems do not overlap (like Merge Sort), divide-and-conquer is used, not dynamic programming.",
+            "responseTimeSeconds": 25
+          }
+        ],
+        "completedAt": "2026-11-12T10:40:21.650Z"
+      }
     ]
   ],
   "chatHistories": [
@@ -7688,9 +7925,97 @@
             "content": "Hey there! 👋 It's great to see you back.\n\nSince we are currently exploring **Recursion** (your active topic with 59% mastery), would you like a quick conceptual breakdown of how the call stack works, or shall I give you a fresh practice challenge to test your intuition?",
             "suggestedNextStep": "Give me a recursion practice challenge",
             "timestamp": "2026-11-12T10:35:29.111Z"
+          },
+          {
+            "role": "user",
+            "content": "hello hello",
+            "timestamp": "2026-11-12T10:51:50.445Z"
+          },
+          {
+            "role": "assistant",
+            "content": "Hello! It's great to connect with you again.\n\nSince we are focusing on **Recursion** (where you have a strong 88% mastery), would you like a conceptual breakdown of a specific recursive pattern, or shall I give you a fresh practice challenge to test your intuition?",
+            "suggestedNextStep": "Give me a Recursion practice challenge",
+            "timestamp": "2026-11-12T10:51:51.239Z"
+          },
+          {
+            "role": "user",
+            "content": "hi hi",
+            "timestamp": "2026-11-12T10:52:05.779Z"
+          },
+          {
+            "role": "assistant",
+            "content": "Hello! It’s great to see you again.\n\nSince we are focusing on **Recursion** (your active topic with 88% mastery), would you like a conceptual breakdown of a specific recursive pattern, or shall I give you a fresh practice challenge to test your intuition?",
+            "suggestedNextStep": "Give me a Recursion challenge",
+            "timestamp": "2026-11-12T10:52:06.392Z"
+          },
+          {
+            "role": "user",
+            "content": "give question",
+            "timestamp": "2026-11-12T10:52:12.372Z"
+          },
+          {
+            "role": "assistant",
+            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following Python function that calculates the nth Fibonacci number:\n\n```python\ndef fib(n):\n    if n <= 1:\n        return n\n    return fib(n - 1) + fib(n - 2)\n```\n\nIf we call `fib(4)`, how many times does the function `fib` execute its base case (`if n <= 1`)?\n\n* **Option A:** 2\n* **Option B:** 3\n* **Option C:** 4\n* **Option D:** 5\n\n**Tutor Guidance**\nTrace the recursion tree. The base case triggers when `n` is 0 or 1. Count every leaf node in the tree for `fib(4)` where the input is 0 or 1.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
+            "suggestedNextStep": "Option C",
+            "timestamp": "2026-11-12T10:52:13.352Z"
+          },
+          {
+            "role": "user",
+            "content": "hello",
+            "timestamp": "2026-11-12T10:52:18.202Z"
+          },
+          {
+            "role": "assistant",
+            "content": "Hello! It’s great to see you again.\n\nSince we are focusing on **Recursion** (your active topic with 88% mastery), would you like a conceptual breakdown of a specific recursive pattern, or shall I give you a fresh practice challenge to test your intuition?",
+            "suggestedNextStep": "Give me a practice question on Recursion",
+            "timestamp": "2026-11-12T10:52:19.047Z"
+          },
+          {
+            "role": "user",
+            "content": "Explain the fundamentals of Recursion",
+            "timestamp": "2026-11-12T10:52:56.228Z"
+          },
+          {
+            "role": "assistant",
+            "content": "Recursion is a problem-solving technique where a function calls itself to solve smaller instances of the same problem. It relies on two critical components: a **base case** (the condition that stops the recursion to prevent infinite loops) and a **recursive case** (the logic that breaks the problem down and calls the function again with modified parameters). Under the hood, each call adds a new frame to the call stack, storing local variables and the return address, until the base case is reached and the stack begins to unwind.",
+            "suggestedNextStep": "Give me a practice challenge on Recursion",
+            "timestamp": "2026-11-12T10:52:56.960Z"
+          },
+          {
+            "role": "user",
+            "content": "ask question",
+            "timestamp": "2026-11-12T13:54:51.672Z"
+          },
+          {
+            "role": "assistant",
+            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following recursive function that calculates the factorial of a number `n`:\n\n```python\ndef factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)\n```\n\nIf we call `factorial(3)`, what is the total number of function calls made (including the initial call)?\n\n* **Option A:** 3\n* **Option B:** 4\n* **Option C:** 5\n* **Option D:** 6\n\n**Tutor Guidance**\nCount every single invocation of the `factorial` function. Remember, the initial call `factorial(3)` counts as one, and it continues until it hits the base case.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
+            "suggestedNextStep": "Give me a practice question on Recursion",
+            "timestamp": "2026-11-12T13:54:52.512Z"
+          },
+          {
+            "role": "user",
+            "content": "ask question",
+            "timestamp": "2026-11-12T13:55:21.353Z"
+          },
+          {
+            "role": "assistant",
+            "content": "### 🎯 Practice Challenge: Strings\n\nConsider the following Python code snippet:\n\n```python\ns = \"hello\"\nt = s[1:4]\nprint(t)\n```\n\nWhat is the output of this code?\n\n* **Option A:** \"hel\"\n* **Option B:** \"ell\"\n* **Option C:** \"ell o\"\n* **Option D:** \"hello\"\n\n**Tutor Guidance**\nRemember how Python string slicing works: `s[start:stop]` includes the character at `start` but excludes the character at `stop`. Indices start at 0.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
+            "suggestedNextStep": "Give me a practice question on Strings",
+            "timestamp": "2026-11-12T13:55:22.170Z"
+          },
+          {
+            "role": "user",
+            "content": "hello",
+            "timestamp": "2026-11-12T13:55:57.090Z"
+          },
+          {
+            "role": "assistant",
+            "content": "Hello! It's great to see you back. Given your strong grasp of Recursion (88%), are you ready for a conceptual breakdown of a tricky recursive scenario, or would you prefer a new practice challenge to test your limits?",
+            "suggestedNextStep": "Give me a practice question on Recursion",
+            "timestamp": "2026-11-12T13:55:58.015Z"
           }
         ],
-        "updatedAt": "2026-11-12T10:35:29.111Z"
+        "updatedAt": "2026-11-12T13:55:58.015Z"
       }
     ]
   ]

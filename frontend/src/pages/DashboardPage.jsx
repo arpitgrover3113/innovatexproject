@@ -143,10 +143,18 @@ export const DashboardPage = ({ onNavigate }) => {
                 </button>
                 <button
                   onClick={() => onNavigate('tutor', { topicContext: recommendedNextTopic?.topicName || 'Recursion' })}
-                  className="px-5 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 flex items-center gap-2 transition-all"
+                  className="px-5 py-3 rounded-xl font-bold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/20 flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-brand-purple-light" />
                   <span>Ask AI Tutor</span>
+                </button>
+                <button
+                  onClick={() => onNavigate('interview')}
+                  className="px-5 py-3 rounded-xl font-bold text-xs bg-gradient-to-r from-rose-500 to-amber-500 hover:opacity-95 text-white shadow-soft-md hover:shadow-soft-lg flex items-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Mock Interview</span>
+                  <span className="text-[9px] bg-white/20 px-1 py-0.2 rounded font-black">NEW</span>
                 </button>
               </>
             ) : (
@@ -196,11 +204,11 @@ export const DashboardPage = ({ onNavigate }) => {
         />
         <MetricCard
           title="Learning Streak"
-          value={`${summary?.streakDays || 0} Days`}
+          value={summary?.streakDays === 1 ? '1 Day' : `${summary?.streakDays || 1} Days`}
           subtext="Consistent daily practice"
           icon={Flame}
-          trend={summary?.streakDays > 0 ? "🔥 Active" : "Not started"}
-          trendPositive={summary?.streakDays > 0}
+          trend={summary?.streakDays > 0 ? "🔥 Active" : "Active"}
+          trendPositive={true}
           color="amber"
         />
       </div>
@@ -227,16 +235,17 @@ export const DashboardPage = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div className="h-72 w-full pt-4">
+          <div className="h-80 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.topicMastery || []} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+              <BarChart data={charts?.topicMastery || []} margin={{ top: 10, right: 10, left: -20, bottom: 48 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                 <XAxis 
                   dataKey="topic" 
                   tick={{ fontSize: 11, fill: '#64748B' }} 
                   interval={0} 
-                  angle={-30} 
+                  angle={-32} 
                   textAnchor="end"
+                  height={50}
                 />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748B' }} />
                 <Tooltip 

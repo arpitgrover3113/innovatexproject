@@ -120,3 +120,19 @@ export const analyticsApi = {
   getDashboard: () => apiFetch('/analytics/dashboard')
 };
 
+export const interviewApi = {
+  getProblems: () => apiFetch('/interview/problems'),
+  start: (payload = {}) => apiFetch('/interview/start', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  sendMessage: (payload) => apiFetch('/interview/message', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  }),
+  evaluate: (payload) => apiFetch('/interview/evaluate', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+};
+

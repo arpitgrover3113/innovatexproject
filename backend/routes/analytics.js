@@ -124,12 +124,56 @@ router.get('/dashboard', optionalAuth, async (req, res) => {
       date: new Date(a.completedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     })).reverse();
 
+    // Calculate dynamic consecutive active calendar day streak
+    const activeDays = new Set();
+    for (const a of assessments) {
+      if (a.completedAt) {
+        activeDays.add(new Date(a.completedAt).toISOString().split('T')[0]);
+      }
+    }
+    for (const p of progressList) {
+      if (p.updatedAt) {
+        activeDays.add(new Date(p.updatedAt).toISOString().split('T')[0]);
+      }
+    }
+    if (totalAttempts > 0 || assessments.length > 0) {
+      activeDays.add(new Date().toISOString().split('T')[0]);
+    }
+
+    let calculatedStreak = 0;
+    if (activeDays.size > 0) {
+      let checkDate = new Date();
+      while (true) {
+        const key = checkDate.toISOString().split('T')[0];
+        if (activeDays.has(key)) {
+          calculatedStreak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          if (calculatedStreak === 0) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            const yKey = checkDate.toISOString().split('T')[0];
+            if (activeDays.has(yKey)) {
+              calculatedStreak++;
+              checkDate.setDate(checkDate.getDate() - 1);
+              continue;
+            }
+          }
+          break;
+        }
+      }
+    }
+    const dynamicStreak = Math.max(calculatedStreak, totalAttempts > 0 ? 1 : 0);
+    if (user._id && user.streakDays !== dynamicStreak) {
+      user.streakDays = dynamicStreak;
+      dbStore.saveUser(user).catch(() => {});
+    }
+
     res.json({
       summary: {
         overallMastery,
         questionsAttempted: totalAttempts || user.totalQuestionsAnswered || 0,
         accuracy: calculatedAccuracy || user.overallAccuracy || 0,
-        streakDays: totalAttempts > 0 ? (user.streakDays || 1) : 0,
+        streakDays: dynamicStreak,
         skillLevel: user.skillLevel || 'Beginner'
       },
       strongestTopics,

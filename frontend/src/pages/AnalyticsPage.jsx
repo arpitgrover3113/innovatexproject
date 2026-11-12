@@ -159,11 +159,11 @@ export const AnalyticsPage = ({ onNavigate }) => {
             <p className="text-xs text-navy-500">Score per algorithmic domain</p>
           </div>
 
-          <div className="h-72 w-full pt-4">
+          <div className="h-80 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={charts?.topicMastery || []} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+              <BarChart data={charts?.topicMastery || []} margin={{ top: 10, right: 10, left: -20, bottom: 48 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                <XAxis dataKey="topic" tick={{ fontSize: 10, fill: '#64748B' }} interval={0} angle={-30} textAnchor="end" />
+                <XAxis dataKey="topic" tick={{ fontSize: 10, fill: '#64748B' }} interval={0} angle={-32} textAnchor="end" height={50} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#64748B' }} />
                 <Tooltip />
                 <Bar dataKey="score" fill="#6366F1" radius={[4, 4, 0, 0]} />

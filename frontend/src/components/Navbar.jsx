@@ -11,6 +11,7 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
     { id: 'diagnostic', label: 'Diagnostic', icon: Activity },
     { id: 'adaptive', label: 'Adaptive Quiz', icon: BrainCircuit },
     { id: 'tutor', label: 'AI Tutor', icon: Sparkles },
+    { id: 'interview', label: 'Mock Interview', icon: Award, badge: 'FAANG' },
     { id: 'visualizer', label: 'Visualizer Lab', icon: Code2 },
     { id: 'roadmap', label: 'Roadmap', icon: Compass },
     { id: 'analytics', label: 'Analytics', icon: Layers },
@@ -19,12 +20,12 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-navy-200/80 transition-all">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center h-16 gap-2 min-w-0">
           
           {/* Brand Logo */}
           <div 
             onClick={() => onTabChange(isAuthenticated ? 'dashboard' : 'landing')}
-            className="flex items-center gap-2.5 cursor-pointer group"
+            className="flex items-center gap-2.5 cursor-pointer group shrink-0"
             title={isAuthenticated ? 'Go to Dashboard' : 'Return to Home Landing Page'}
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-purple to-brand-blue flex items-center justify-center text-white shadow-soft-sm group-hover:scale-105 transition-transform">
@@ -40,9 +41,9 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation — scrollable so it never squeezes the right cluster */}
           {(isAuthenticated || activeTab !== 'landing') && (
-            <nav className="hidden lg:flex items-center gap-0.5 bg-navy-50/70 p-1 rounded-xl border border-navy-200/50">
+            <nav className="hidden md:flex items-center gap-0.5 bg-navy-50/70 p-1 rounded-xl border border-navy-200/50 overflow-x-auto scrollbar-none flex-1 min-w-0 mx-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -50,22 +51,27 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
                   <button
                     key={item.id}
                     onClick={() => onTabChange(item.id)}
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all ${
                       isActive
                         ? 'bg-white text-brand-purple-dark shadow-soft-xs font-bold'
                         : 'text-navy-600 hover:text-navy-900 hover:bg-white/50'
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-brand-purple' : 'text-navy-400'}`} />
+                    <Icon className={`w-3 h-3 shrink-0 ${isActive ? 'text-brand-purple' : 'text-navy-400'}`} />
                     <span>{item.label}</span>
+                    {item.badge && (
+                      <span className="text-[9px] bg-rose-500 text-white font-black px-1 rounded leading-none">
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 );
               })}
             </nav>
           )}
 
-          {/* Right Action Cluster */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right Action Cluster — always visible, never clipped */}
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
             <AIStatusBadge />
 
             {isAuthenticated ? (
