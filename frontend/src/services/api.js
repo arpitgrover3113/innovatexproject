@@ -147,6 +147,7 @@ export const leetcodeApi = {
     method: 'POST',
     body: JSON.stringify({ username })
   }),
-  getProfile: (username) => apiFetch(`/leetcode/profile/${username}`)
+  getProfile: (username) => apiFetch(`/leetcode/profile/${username}`),
+  clearHistory: () => apiFetch('/leetcode/clear-history', { method: 'POST' })
 };
 

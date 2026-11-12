@@ -134,63 +134,6 @@ class DataStore {
       updatedAt: new Date()
     });
 
-    // Seed initial LeetCode submissions if empty
-    if (this.leetcodeSubmissions.size === 0) {
-      const seedSubs = [
-        {
-          id: 'lc_seed_01',
-          userId: 'demo_student_01',
-          leetcodeUsername: 'alex_mercer',
-          title: 'Two Sum',
-          titleSlug: 'two-sum',
-          difficulty: 'Easy',
-          timeSpentSeconds: 432,
-          timeSpentFormatted: '7m 12s',
-          runtime: '48 ms',
-          runtimePercentile: 89.4,
-          memory: '17.5 MB',
-          memoryPercentile: 82.1,
-          status: 'Accepted',
-          createdAt: new Date(Date.now() - 4 * 3600 * 1000)
-        },
-        {
-          id: 'lc_seed_02',
-          userId: 'demo_student_01',
-          leetcodeUsername: 'alex_mercer',
-          title: 'LRU Cache',
-          titleSlug: 'lru-cache',
-          difficulty: 'Medium',
-          timeSpentSeconds: 1040,
-          timeSpentFormatted: '17m 20s',
-          runtime: '68 ms',
-          runtimePercentile: 86.2,
-          memory: '74.2 MB',
-          memoryPercentile: 79.5,
-          status: 'Accepted',
-          createdAt: new Date(Date.now() - 24 * 3600 * 1000)
-        },
-        {
-          id: 'lc_seed_03',
-          userId: 'demo_student_01',
-          leetcodeUsername: 'alex_mercer',
-          title: 'Trapping Rain Water',
-          titleSlug: 'trapping-rain-water',
-          difficulty: 'Hard',
-          timeSpentSeconds: 2160,
-          timeSpentFormatted: '36m 00s',
-          runtime: '54 ms',
-          runtimePercentile: 91.8,
-          memory: '18.9 MB',
-          memoryPercentile: 76.4,
-          status: 'Accepted',
-          createdAt: new Date(Date.now() - 48 * 3600 * 1000)
-        }
-      ];
-      for (const s of seedSubs) {
-        this.leetcodeSubmissions.set(s.id, s);
-      }
-    }
-
     // Load persisted changes from disk if available
     this.loadFromFile();
 

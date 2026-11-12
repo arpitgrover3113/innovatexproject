@@ -1,10 +1,25 @@
 import React from 'react';
-import { Sparkles, Flame, LogOut, Compass, BrainCircuit, Activity, BarChart3, Layers, Award, Code2, ArrowLeft } from 'lucide-react';
+import { Sparkles, Flame, LogOut, Compass, BrainCircuit, Activity, BarChart3, Layers, Award, Code2, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AIStatusBadge } from './AIStatusBadge';
 
 export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
   const { user, logout, isAuthenticated } = useAuth();
+
+  // LeetCode pill: scroll to anchor if on dashboard, else navigate there first
+  const handleLCPillClick = () => {
+    if (activeTab === 'dashboard') {
+      const el = document.getElementById('leetcode-anchor');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      onTabChange('dashboard');
+      // After navigation, give the page a moment to render then scroll
+      setTimeout(() => {
+        const el = document.getElementById('leetcode-anchor');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+  };
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
@@ -76,6 +91,18 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
 
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                {/* LeetCode Quick-Jump Pill */}
+                <button
+                  onClick={handleLCPillClick}
+                  title="Jump to your LeetCode heatmap"
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-300/70 hover:bg-amber-500/20 transition-all shadow-soft-xs shrink-0"
+                >
+                  <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+                  <span className="font-mono">LC</span>
+                  <span className="text-amber-600/80">·</span>
+                  <span>@{user?.leetcodeUsername || user?.leetcodeHandle || (typeof window !== 'undefined' && localStorage.getItem('learnloop_lc_handle')) || 'ganga_kaurr'}</span>
+                </button>
+
                 {/* Level / XP Pill — opens modal lifted to App root */}
                 <button
                   onClick={onShowAchievements}

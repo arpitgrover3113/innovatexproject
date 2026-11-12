@@ -19,7 +19,8 @@ const formatUserPayload = (user) => ({
   xp: user.xp || 0,
   level: user.level || 1,
   levelTitle: user.levelTitle || 'Novice Learner',
-  achievements: user.achievements || []
+  achievements: user.achievements || [],
+  leetcodeUsername: user.leetcodeUsername || 'ganga_kaurr'
 });
 
 // Register new user

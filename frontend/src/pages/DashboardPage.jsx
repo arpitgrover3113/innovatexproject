@@ -214,6 +214,11 @@ export const DashboardPage = ({ onNavigate }) => {
         />
       </div>
 
+      {/* ── LeetCode Priority Anchor ── visible immediately, no scrolling needed */}
+      <div id="leetcode-anchor" className="scroll-mt-20">
+        <LeetCodeTrackerCard onNavigate={onNavigate} />
+      </div>
+
       {/* Main Visualizations Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
@@ -405,9 +410,6 @@ export const DashboardPage = ({ onNavigate }) => {
         </div>
 
       </div>
-
-      {/* LeetCode Live Speed & Submission Tracker (LearnLoop Companion) */}
-      <LeetCodeTrackerCard onNavigate={onNavigate} />
 
       {/* Interactive Visualizer Lab Action Banner */}
       <div className="p-6 rounded-3xl bg-gradient-to-r from-brand-purple/10 via-brand-blue/10 to-white border border-brand-purple/20 shadow-soft-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
