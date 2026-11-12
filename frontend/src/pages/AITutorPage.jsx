@@ -18,7 +18,10 @@ import {
   Layers,
   BrainCircuit,
   Key,
-  X
+  X,
+  Mic,
+  MicOff,
+  Radio
 } from 'lucide-react';
 import { tutorApi, topicsApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -44,6 +47,26 @@ const renderInlineFormatting = (text) => {
     }
     return token;
   });
+};
+
+const cleanTextForSpeech = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/```[\s\S]*?```/g, 'Code block omitted.')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\*\*Option ([A-D]):\*\*/gi, 'Option $1: ')
+    .replace(/\\le\b/g, 'less than or equal to')
+    .replace(/\\ge\b/g, 'greater than or equal to')
+    .replace(/\\ne\b/g, 'not equal to')
+    .replace(/\\approx\b/g, 'approximately')
+    .replace(/\\log\b/g, 'log')
+    .replace(/\\times\b/g, 'times')
+    .replace(/[*#_>`]/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\|[^\n]+\|/g, '')
+    .replace(/\\([a-zA-Z]+)/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 const renderMessageContent = (content, onSelectOption = null, disabled = false) => {
@@ -167,7 +190,23 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
   const [groqKeyInput, setGroqKeyInput] = useState('');
   const [savingKey, setSavingKey] = useState(false);
 
+  // Live Voice Mode State
+  const [isVoiceMode, setIsVoiceMode] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const [voiceError, setVoiceError] = useState(null);
+
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+  const utteranceRef = useRef(null); // keep utterance alive to prevent GC-cancel
+  const keepAliveRef = useRef(null); // Chrome 15s keep-alive interval
+  const interimTranscriptRef = useRef('');
+  const topicContextRef = useRef(topicContext);
+  topicContextRef.current = topicContext;
+  const loadingRef = useRef(loading);
+  loadingRef.current = loading;
+  const isVoiceModeRef = useRef(isVoiceMode);
+  isVoiceModeRef.current = isVoiceMode;
 
   const handleSaveConfig = async () => {
     setSavingKey(true);
@@ -188,22 +227,263 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
     }
   };
 
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.resume();
+      } catch (e) {}
+    }
+    if (typeof window !== 'undefined') {
+      window._learnloop_active_utterance = null;
+    }
+    utteranceRef.current = null;
+    if (keepAliveRef.current) {
+      clearInterval(keepAliveRef.current);
+      keepAliveRef.current = null;
+    }
+    setSpeakingIndex(null);
+  };
+
+  const speakAssistantMessage = (text, idx = null) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+
+    // Immediately stop any ongoing speech
+    stopSpeaking();
+
+    const cleanText = cleanTextForSpeech(text);
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.05;
+    utterance.volume = 1.0;
+
+    // Load available voices and prefer a natural English voice
+    try {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const preferredVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Natural') || v.default)) ||
+                               voices.find(v => v.lang.startsWith('en')) ||
+                               voices[0];
+        if (preferredVoice) {
+          utterance.voice = preferredVoice;
+        }
+      }
+    } catch (e) {}
+
+    utterance.onend = () => {
+      if (typeof window !== 'undefined') window._learnloop_active_utterance = null;
+      utteranceRef.current = null;
+      if (keepAliveRef.current) {
+        clearInterval(keepAliveRef.current);
+        keepAliveRef.current = null;
+      }
+      setSpeakingIndex(null);
+    };
+
+    utterance.onerror = (e) => {
+      if (typeof window !== 'undefined') window._learnloop_active_utterance = null;
+      utteranceRef.current = null;
+      if (keepAliveRef.current) {
+        clearInterval(keepAliveRef.current);
+        keepAliveRef.current = null;
+      }
+      setSpeakingIndex(null);
+    };
+
+    // Prevent GC in Chrome/V8
+    if (typeof window !== 'undefined') {
+      window._learnloop_active_utterance = utterance;
+    }
+    utteranceRef.current = utterance;
+    setSpeakingIndex(idx !== null ? idx : 9999);
+
+    // Keep Chrome 15-second speech synthesis alive
+    keepAliveRef.current = setInterval(() => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        if (!window.speechSynthesis.speaking) {
+          clearInterval(keepAliveRef.current);
+          keepAliveRef.current = null;
+        } else {
+          window.speechSynthesis.pause();
+          window.speechSynthesis.resume();
+        }
+      }
+    }, 10000);
+
+    // Speak synchronously!
+    window.speechSynthesis.speak(utterance);
+    window.speechSynthesis.resume();
+  };
+
   const toggleSpeak = (text, idx) => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     if (speakingIndex === idx) {
-      window.speechSynthesis.cancel();
-      setSpeakingIndex(null);
+      stopSpeaking();
       return;
     }
-    window.speechSynthesis.cancel();
-    const cleanText = text.replace(/```[\s\S]*?```/g, 'Code block omitted.').replace(/[#*_`]/g, '');
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    utterance.rate = 1.05;
-    utterance.onend = () => setSpeakingIndex(null);
-    utterance.onerror = () => setSpeakingIndex(null);
-    setSpeakingIndex(idx);
-    window.speechSynthesis.speak(utterance);
+    speakAssistantMessage(text, idx);
   };
+
+  const toggleListening = () => {
+    if (typeof window === 'undefined') return;
+
+    // If tutor is currently speaking, user tapping mic immediately stops tutor audio!
+    if (speakingIndex !== null || ('speechSynthesis' in window && window.speechSynthesis.speaking)) {
+      stopSpeaking();
+    }
+
+    // Prime speech synthesis on user gesture so subsequent speech response from AI is allowed by browser
+    if ('speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.resume();
+      } catch (e) {}
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setVoiceError('Speech recognition is not supported in this browser. Please open in Google Chrome or Microsoft Edge.');
+      return;
+    }
+
+    if (isListening && recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch (e) {}
+      recognitionRef.current = null;
+      setIsListening(false);
+      setInterimTranscript('');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setVoiceError(null);
+        setInterimTranscript('');
+      };
+
+      recognition.onresult = (event) => {
+        let finalStr = '';
+        let interimStr = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            finalStr += res[0].transcript;
+          } else {
+            interimStr += res[0].transcript;
+          }
+        }
+
+        if (interimStr) {
+          interimTranscriptRef.current = interimStr;
+          setInterimTranscript(interimStr);
+        }
+
+        if (finalStr && finalStr.trim()) {
+          const cleanFinal = finalStr.trim();
+          interimTranscriptRef.current = '';
+          setInterimTranscript('');
+          setInputMessage(cleanFinal);
+          setIsListening(false);
+          try { recognition.abort(); } catch (e) {}
+          recognitionRef.current = null;
+          // When asking via microphone, ALWAYS auto-speak the answer!
+          handleSendMessage(cleanFinal, true);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        setIsListening(false);
+        try { recognition.abort(); } catch (e) {}
+        recognitionRef.current = null;
+        if (event.error === 'not-allowed') {
+          setVoiceError('Microphone permission blocked. Please allow mic access in your browser.');
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        recognitionRef.current = null;
+        // If recognition ended with unsubmitted spoken words, keep them in input box
+        if (interimTranscriptRef.current && interimTranscriptRef.current.trim()) {
+          const salvage = interimTranscriptRef.current.trim();
+          interimTranscriptRef.current = '';
+          setInterimTranscript('');
+          setInputMessage(salvage);
+        }
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.warn('Speech recognition start error:', err);
+      setIsListening(false);
+      recognitionRef.current = null;
+    }
+  };
+
+  const toggleVoiceMode = () => {
+    const next = !isVoiceMode;
+    setIsVoiceMode(next);
+    setVoiceError(null);
+
+    if (next) {
+      const SpeechRecognition = typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition);
+      if (!SpeechRecognition) {
+        setVoiceError('Live speech recognition requires Google Chrome or Microsoft Edge.');
+      }
+      speakAssistantMessage(`Voice interview mode activated for ${topicContextRef.current}. Speak anytime or tap the microphone!`);
+    } else {
+      stopSpeaking();
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+      }
+      setIsListening(false);
+      setInterimTranscript('');
+    }
+  };
+
+  // Cleanup speech audio and mic session when navigating away from tutor page
+  useEffect(() => {
+    return () => {
+      stopSpeaking();
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch (e) {}
+        recognitionRef.current = null;
+      }
+    };
+  }, []);
+
+  // Pre-load available speech synthesis voices on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.getVoices();
+        const onVoices = () => {
+          window.speechSynthesis.getVoices();
+        };
+        window.speechSynthesis.addEventListener('voiceschanged', onVoices);
+        return () => window.speechSynthesis.removeEventListener('voiceschanged', onVoices);
+      } catch (e) {}
+    }
+  }, []);
+
+  // Keyboard shortcut: Esc stops tutor audio immediately
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        stopSpeaking();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -239,9 +519,9 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
       });
   }, [initialTopicContext]);
 
-  const handleSendMessage = async (textToSend = null) => {
+  const handleSendMessage = async (textToSend = null, autoSpeak = false) => {
     const text = (textToSend || inputMessage).trim();
-    if (!text || loading) return;
+    if (!text || loadingRef.current) return;
 
     // Optimistically add user message
     const userMsg = {
@@ -251,10 +531,11 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
     };
     setMessages(prev => [...prev, userMsg]);
     setInputMessage('');
+    setInterimTranscript('');
     setLoading(true);
 
     try {
-      const res = await tutorApi.sendMessage(text, topicContext);
+      const res = await tutorApi.sendMessage(text, topicContextRef.current);
       
       const assistantMsg = {
         role: 'assistant',
@@ -264,11 +545,21 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
         provider: res.provider
       };
 
+      // Update messages state
+      const targetIndex = messages.length + 1;
       setMessages(prev => [...prev, assistantMsg]);
+
+      // Auto-speak when question was asked via voice or Voice Mode is active
+      if (isVoiceModeRef.current || autoSpeak) {
+        setTimeout(() => {
+          speakAssistantMessage(res.reply, targetIndex);
+        }, 60);
+      }
+
       if (res.suggestedPrompts && res.suggestedPrompts.length > 0) {
         setSuggestedPrompts(res.suggestedPrompts);
       }
-      if (res.topicContext && res.topicContext !== topicContext) {
+      if (res.topicContext && res.topicContext !== topicContextRef.current) {
         setTopicContext(res.topicContext);
       }
     } catch (err) {
@@ -380,7 +671,30 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
           <MasteryBadge score={activeTopicObj.masteryScore ?? 0} size="sm" />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* Live Voice Interview Mode Toggle */}
+          <button
+            onClick={toggleVoiceMode}
+            title={isVoiceMode ? "Voice Interview Mode Active — AI speaks and listens. Click to turn off." : "Start Live Voice Interview Mode"}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all shadow-soft-xs border cursor-pointer ${
+              isVoiceMode
+                ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white border-rose-400 shadow-md ring-2 ring-rose-200 animate-pulse'
+                : 'bg-white border-brand-purple/30 text-brand-purple hover:bg-brand-purple/10'
+            }`}
+          >
+            {isVoiceMode ? (
+              <>
+                <Radio className="w-3.5 h-3.5 text-white animate-spin" />
+                <span>Voice Interview: ON</span>
+              </>
+            ) : (
+              <>
+                <Mic className="w-3.5 h-3.5 text-brand-purple" />
+                <span>Start Voice Mode</span>
+              </>
+            )}
+          </button>
+
           <button
             onClick={() => onNavigate && onNavigate('visualizer')}
             title="Open Interactive Algorithm & Call-Stack Visualizer Lab"
@@ -524,6 +838,53 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
 
         {/* Input Bar */}
         <div className="p-4 bg-white border-t border-navy-200/80">
+          {/* Active Listening / Audio Status Indicator */}
+          {(isListening || speakingIndex !== null || voiceError) && (
+            <div className="mb-2.5 px-3.5 py-1.5 rounded-xl text-xs flex items-center justify-between gap-2 transition-all animate-in fade-in bg-navy-50/80 border border-navy-200/70">
+              {isListening && (
+                <div className="flex items-center gap-2 text-rose-600 font-semibold">
+                  <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping shrink-0" />
+                  <span>Listening to your voice... Speak your question or answer!</span>
+                  <span className="flex items-center gap-0.5 ml-2">
+                    <span className="w-1 h-3 bg-rose-500 rounded-full animate-bounce [animation-delay:0ms]" />
+                    <span className="w-1 h-4 bg-rose-500 rounded-full animate-bounce [animation-delay:150ms]" />
+                    <span className="w-1 h-2 bg-rose-500 rounded-full animate-bounce [animation-delay:300ms]" />
+                    <span className="w-1 h-5 bg-rose-500 rounded-full animate-bounce [animation-delay:75ms]" />
+                  </span>
+                </div>
+              )}
+              {speakingIndex !== null && !isListening && (
+                <div className="flex items-center justify-between w-full text-brand-purple font-semibold text-xs py-0.5">
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="w-4 h-4 text-brand-purple animate-bounce shrink-0" />
+                    <span>Tutor is speaking response aloud...</span>
+                    <span className="text-[10px] text-navy-400 font-normal hidden sm:inline">(Press Esc to stop)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={stopSpeaking}
+                    className="px-2.5 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-bold transition-all shadow-soft-xs cursor-pointer flex items-center gap-1 shrink-0"
+                  >
+                    <VolumeX className="w-3.5 h-3.5" />
+                    <span>Stop Voice</span>
+                  </button>
+                </div>
+              )}
+              {voiceError && (
+                <div className="flex items-center justify-between w-full text-amber-700 text-[11px]">
+                  <span>{voiceError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setVoiceError(null)}
+                    className="text-amber-800 hover:text-navy-900 font-bold ml-2 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           <form 
             onSubmit={(e) => {
               e.preventDefault();
@@ -531,18 +892,49 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
             }}
             className="flex items-center gap-2"
           >
+            {/* Microphone Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleListening}
+              title={isListening ? "Listening... Click to stop" : "Speak to AI Tutor (Web Speech)"}
+              className={`p-2.5 rounded-xl border transition-all flex items-center justify-center shrink-0 shadow-soft-xs cursor-pointer ${
+                isListening
+                  ? 'bg-rose-500 text-white border-rose-600 ring-4 ring-rose-200 animate-pulse'
+                  : isVoiceMode
+                  ? 'bg-brand-purple text-white border-brand-purple-dark hover:bg-brand-purple-dark'
+                  : 'bg-navy-50 text-navy-600 border-navy-200 hover:bg-brand-purple/10 hover:text-brand-purple hover:border-brand-purple/40'
+              }`}
+            >
+              {isListening ? (
+                <MicOff className="w-4 h-4 text-white" />
+              ) : (
+                <Mic className="w-4 h-4" />
+              )}
+            </button>
+
             <input
               type="text"
-              value={inputMessage}
+              value={interimTranscript || inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder={`Ask anything about ${topicContext} or requested practice problem...`}
+              placeholder={
+                isListening 
+                  ? 'Listening to speech... (Words will appear here)' 
+                  : isVoiceMode
+                  ? `Voice mode active: Speak or type about ${topicContext}...`
+                  : `Ask anything about ${topicContext} or requested practice problem...`
+              }
               disabled={loading}
-              className="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-navy-200 focus:outline-none focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20 transition-all text-navy-900"
+              className={`flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border focus:outline-none transition-all text-navy-900 ${
+                isListening
+                  ? 'border-rose-400 bg-rose-50/40 ring-2 ring-rose-200 italic'
+                  : 'border-navy-200 bg-white focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20'
+              }`}
             />
+
             <button
               type="submit"
-              disabled={!inputMessage.trim() || loading}
-              className="px-4 py-2.5 bg-navy-900 hover:bg-navy-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-soft-xs transition-all flex items-center gap-1.5"
+              disabled={(!inputMessage.trim() && !interimTranscript.trim()) || loading}
+              className="px-4 py-2.5 bg-navy-900 hover:bg-navy-800 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-xs font-bold shadow-soft-xs transition-all flex items-center gap-1.5 shrink-0"
             >
               <span>Send</span>
               <Send className="w-3.5 h-3.5" />
