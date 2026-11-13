@@ -20,7 +20,7 @@ const formatUserPayload = (user) => ({
   level: user.level || 1,
   levelTitle: user.levelTitle || 'Novice Learner',
   achievements: user.achievements || [],
-  leetcodeUsername: user.leetcodeUsername || 'ganga_kaurr'
+  leetcodeUsername: user.leetcodeUsername || null
 });
 
 // Register new user
@@ -176,13 +176,15 @@ router.get('/me', requireAuth, async (req, res) => {
 // Update Profile / Onboarding Settings
 router.put('/profile', requireAuth, async (req, res) => {
   try {
-    const { learningGoals, skillLevel, selectedSubjects, name } = req.body;
+    const { learningGoals, skillLevel, selectedSubjects, name, leetcodeUsername } = req.body;
     const user = req.user;
 
     if (name) user.name = name;
     if (learningGoals) user.learningGoals = learningGoals;
     if (skillLevel) user.skillLevel = skillLevel;
     if (selectedSubjects) user.selectedSubjects = selectedSubjects;
+    if (leetcodeUsername !== undefined) user.leetcodeUsername = leetcodeUsername;
+    if (dbStore.debouncedSave) dbStore.debouncedSave();
 
     res.json({
       message: 'Profile updated successfully',

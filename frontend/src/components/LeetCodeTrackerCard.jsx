@@ -11,22 +11,42 @@ import {
   Calendar
 } from 'lucide-react';
 import { leetcodeApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export const LeetCodeTrackerCard = ({ onNavigate }) => {
+  const { user, setUser } = useAuth();
   const [profile, setProfile] = useState(null);
-  const [handle, setHandle] = useState('ganga_kaurr');
+
+  // Initialize handle dynamically from user context, then localStorage
+  const [handle, setHandle] = useState(() => {
+    return user?.leetcodeUsername || 
+      (typeof window !== 'undefined' ? localStorage.getItem('learnloop_lc_handle') : '') || 
+      '';
+  });
   const [editingHandle, setEditingHandle] = useState(false);
   const [tempHandle, setTempHandle] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(handle));
   const [savingHandle, setSavingHandle] = useState(false);
   const [syncToast, setSyncToast] = useState(null);
   const [hoveredDay, setHoveredDay] = useState(null);
   const [colorTheme, setColorTheme] = useState('leetcode'); // 'leetcode' (actual green) | 'purple' (brand purple)
 
-  const fetchProfileData = async (targetHandle = handle) => {
+  const fetchProfileData = async (targetHandle) => {
     try {
-      const res = await leetcodeApi.getAnalytics().catch(() => null);
-      const activeHandle = res?.linkedHandle || targetHandle;
+      let activeHandle = targetHandle !== undefined ? targetHandle : handle;
+      if (!activeHandle) {
+        const res = await leetcodeApi.getAnalytics().catch(() => null);
+        if (res?.linkedHandle) {
+          activeHandle = res.linkedHandle;
+        }
+      }
+      if (!activeHandle) {
+        activeHandle = user?.leetcodeUsername || (typeof window !== 'undefined' ? localStorage.getItem('learnloop_lc_handle') : '');
+      }
+      if (!activeHandle) {
+        setLoading(false);
+        return;
+      }
       setHandle(activeHandle);
       const prof = await leetcodeApi.getProfile(activeHandle).catch(() => null);
       if (prof) {
@@ -43,18 +63,33 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
     fetchProfileData();
   }, []);
 
+  // Synchronize when user in AuthContext updates
+  useEffect(() => {
+    if (user?.leetcodeUsername && user.leetcodeUsername !== handle) {
+      setHandle(user.leetcodeUsername);
+      fetchProfileData(user.leetcodeUsername);
+    }
+  }, [user?.leetcodeUsername]);
+
   const handleSaveHandle = async (e) => {
     e?.preventDefault();
-    if (!tempHandle.trim()) return;
+    const clean = tempHandle.trim();
+    if (!clean) return;
     setSavingHandle(true);
     try {
-      await leetcodeApi.linkHandle(tempHandle.trim());
-      setHandle(tempHandle.trim());
-      localStorage.setItem('learnloop_lc_handle', tempHandle.trim());
+      await leetcodeApi.linkHandle(clean);
+      setHandle(clean);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('learnloop_lc_handle', clean);
+        window.dispatchEvent(new CustomEvent('learnloop:lc_updated', { detail: { handle: clean } }));
+      }
+      if (setUser) {
+        setUser(prev => prev ? ({ ...prev, leetcodeUsername: clean }) : { leetcodeUsername: clean });
+      }
       setEditingHandle(false);
-      const prof = await leetcodeApi.getProfile(tempHandle.trim()).catch(() => null);
+      const prof = await leetcodeApi.getProfile(clean).catch(() => null);
       if (prof) setProfile(prof);
-      showNotification(`Linked @${tempHandle.trim()} to LearnLoop!`);
+      showNotification(`Linked @${clean} to LearnLoop!`);
     } catch (err) {
       console.error('Failed to link handle:', err);
     } finally {
@@ -261,15 +296,15 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
             <div className="flex items-center gap-2 p-1.5 pl-3 rounded-2xl bg-navy-50 border border-navy-200/80 text-xs">
               <Link2 className="w-3.5 h-3.5 text-brand-purple" />
               <span className="font-semibold text-navy-600">ID:</span>
-              <strong className="text-navy-900 font-mono">@{handle}</strong>
+              <strong className="text-navy-900 font-mono">{handle ? `@${handle}` : 'Not linked'}</strong>
               <button
                 onClick={() => {
-                  setTempHandle(handle);
+                  setTempHandle(handle || '');
                   setEditingHandle(true);
                 }}
                 className="px-2.5 py-1 rounded-lg hover:bg-white text-[11px] font-bold text-brand-purple border border-transparent hover:border-navy-200 transition-all ml-1 cursor-pointer"
               >
-                Change ID
+                {handle ? 'Change ID' : 'Connect ID'}
               </button>
             </div>
           )}

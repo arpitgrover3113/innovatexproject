@@ -1,10 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Flame, LogOut, Compass, BrainCircuit, Activity, BarChart3, Layers, Award, Code2, Zap } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AIStatusBadge } from './AIStatusBadge';
 
 export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
   const { user, logout, isAuthenticated } = useAuth();
+  const [localLCHandle, setLocalLCHandle] = useState(() => {
+    return (typeof window !== 'undefined' ? localStorage.getItem('learnloop_lc_handle') : null);
+  });
+
+  // Listen to cross-component LeetCode handle updates
+  useEffect(() => {
+    const handleLCUpdate = (e) => {
+      if (e?.detail?.handle) {
+        setLocalLCHandle(e.detail.handle);
+      } else if (typeof window !== 'undefined') {
+        setLocalLCHandle(localStorage.getItem('learnloop_lc_handle'));
+      }
+    };
+    window.addEventListener('learnloop:lc_updated', handleLCUpdate);
+    window.addEventListener('storage', handleLCUpdate);
+    return () => {
+      window.removeEventListener('learnloop:lc_updated', handleLCUpdate);
+      window.removeEventListener('storage', handleLCUpdate);
+    };
+  }, []);
+
+  const displayLCHandle = user?.leetcodeUsername || localLCHandle;
 
   // LeetCode pill: scroll to anchor if on dashboard, else navigate there first
   const handleLCPillClick = () => {
@@ -94,13 +116,13 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
                 {/* LeetCode Quick-Jump Pill */}
                 <button
                   onClick={handleLCPillClick}
-                  title="Jump to your LeetCode heatmap"
-                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-300/70 hover:bg-amber-500/20 transition-all shadow-soft-xs shrink-0"
+                  title={displayLCHandle ? `Jump to @${displayLCHandle}'s LeetCode heatmap` : 'Connect your LeetCode profile'}
+                  className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-700 border border-amber-300/70 hover:bg-amber-500/20 transition-all shadow-soft-xs shrink-0 cursor-pointer"
                 >
                   <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
                   <span className="font-mono">LC</span>
                   <span className="text-amber-600/80">·</span>
-                  <span>@{user?.leetcodeUsername || user?.leetcodeHandle || (typeof window !== 'undefined' && localStorage.getItem('learnloop_lc_handle')) || 'ganga_kaurr'}</span>
+                  <span>{displayLCHandle ? `@${displayLCHandle}` : 'Link ID'}</span>
                 </button>
 
                 {/* Level / XP Pill — opens modal lifted to App root */}

@@ -1,7 +1,9 @@
 import express from 'express';
 import { dbStore } from '../services/storage.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
+router.use(optionalAuth);
 
 // Helper to extract authenticated user ID or fallback to demo
 const getUserId = (req) => {
@@ -107,7 +109,7 @@ router.get('/analytics', async (req, res) => {
 
     // Get user's linked LeetCode handle
     const user = dbStore.users.get(userId);
-    const linkedHandle = user?.leetcodeUsername || 'alex_mercer';
+    const linkedHandle = user?.leetcodeUsername || null;
 
     res.json({
       linkedHandle,
