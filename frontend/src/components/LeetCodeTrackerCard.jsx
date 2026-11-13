@@ -8,10 +8,13 @@ import {
   RefreshCw, 
   ArrowRight,
   BrainCircuit,
-  Calendar
+  Calendar,
+  X,
+  Unlink
 } from 'lucide-react';
 import { leetcodeApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { LeetCodeLogo } from './Navbar';
 
 export const LeetCodeTrackerCard = ({ onNavigate }) => {
   const { user, setUser } = useAuth();
@@ -27,6 +30,8 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
   const [tempHandle, setTempHandle] = useState('');
   const [loading, setLoading] = useState(Boolean(handle));
   const [savingHandle, setSavingHandle] = useState(false);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
   const [syncToast, setSyncToast] = useState(null);
   const [hoveredDay, setHoveredDay] = useState(null);
   const [colorTheme, setColorTheme] = useState('leetcode'); // 'leetcode' (actual green) | 'purple' (brand purple)
@@ -94,6 +99,28 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
       console.error('Failed to link handle:', err);
     } finally {
       setSavingHandle(false);
+    }
+  };
+
+  const handleDisconnectHandle = async () => {
+    setDisconnecting(true);
+    try {
+      await leetcodeApi.unlinkHandle().catch(() => null);
+      setHandle('');
+      setProfile(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('learnloop_lc_handle');
+        window.dispatchEvent(new CustomEvent('learnloop:lc_updated', { detail: { handle: null } }));
+      }
+      if (setUser) {
+        setUser(prev => prev ? ({ ...prev, leetcodeUsername: null }) : prev);
+      }
+      setShowDisconnectModal(false);
+      showNotification('LeetCode handle disconnected from your LearnLoop profile.');
+    } catch (err) {
+      console.error('Failed to disconnect handle:', err);
+    } finally {
+      setDisconnecting(false);
     }
   };
 
@@ -306,6 +333,17 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
               >
                 {handle ? 'Change ID' : 'Connect ID'}
               </button>
+              {handle && (
+                <button
+                  type="button"
+                  onClick={() => setShowDisconnectModal(true)}
+                  className="px-2 py-1 rounded-lg hover:bg-rose-50 text-[11px] font-bold text-rose-500 hover:text-rose-700 transition-all cursor-pointer flex items-center gap-1"
+                  title="Disconnect LeetCode ID from your account"
+                >
+                  <Unlink className="w-3 h-3 text-rose-500" />
+                  <span>Disconnect</span>
+                </button>
+              )}
             </div>
           )}
 
@@ -322,29 +360,39 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
       {/* Official LeetCode Profile Banner with 4 Stats Counters */}
       <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-brand-purple/10 to-brand-blue/10 border border-amber-300/60 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-soft-xs">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center font-black text-sm shrink-0 shadow-soft-sm">
-            LC
+          <div className="w-12 h-12 rounded-2xl bg-white border border-amber-200/80 flex items-center justify-center shrink-0 shadow-soft-sm p-2">
+            <LeetCodeLogo className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-base text-navy-900">@{handle}</span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>Verified LeetCode Profile</span>
-              </span>
+              <span className="font-extrabold text-base text-navy-900">{handle ? `@${handle}` : 'No LeetCode Connected'}</span>
+              {handle ? (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                  <span>Verified LeetCode Profile</span>
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-navy-100 text-navy-600 border border-navy-200 flex items-center gap-1">
+                  <span>Profile Not Linked</span>
+                </span>
+              )}
             </div>
             <div className="text-xs text-navy-600 flex items-center gap-3 mt-1">
-              <span>Global Rank: <strong className="text-navy-900">#{ranking?.toLocaleString() || '1,726,959'}</strong></span>
-              <span>•</span>
-              <a
-                href={`https://leetcode.com/${handle}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-purple hover:underline font-bold flex items-center gap-1"
-              >
-                <span>View on LeetCode</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+              <span>Global Rank: <strong className="text-navy-900">{handle ? `#${ranking?.toLocaleString() || '1,726,959'}` : 'Unranked'}</strong></span>
+              {handle && (
+                <>
+                  <span>•</span>
+                  <a
+                    href={`https://leetcode.com/${handle}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand-purple hover:underline font-bold flex items-center gap-1"
+                  >
+                    <span>View on LeetCode</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -571,8 +619,8 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
                 className="p-3.5 rounded-2xl bg-white border border-navy-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs hover:border-brand-purple/40 transition-colors shadow-soft-xs"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-200">
-                    LC
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-200 p-1.5">
+                    <LeetCodeLogo className="w-4 h-4" />
                   </div>
                   <div>
                     <div className="font-extrabold text-navy-900 flex items-center gap-2">
@@ -605,6 +653,73 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
           )}
         </div>
       </div>
+
+      {/* Disconnect LeetCode Handle Disclaimer Modal */}
+      <AnimatePresence>
+        {showDisconnectModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-[#1e2330] text-white rounded-3xl p-6 sm:p-7 max-w-md w-full border border-navy-700/80 shadow-2xl space-y-5"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-navy-700/60 pb-3">
+                <h3 className="text-sm font-bold text-navy-100">
+                  Disconnect LeetCode Handle
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowDisconnectModal(false)}
+                  className="text-navy-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Center Icon & Body */}
+              <div className="text-center py-2 space-y-3">
+                <div className="w-14 h-14 rounded-full bg-blue-500/10 border-2 border-blue-400/30 text-blue-400 flex items-center justify-center mx-auto shadow-soft-sm">
+                  <X className="w-7 h-7 stroke-[2.5]" />
+                </div>
+                
+                <h4 className="text-base font-extrabold text-blue-400">
+                  Disconnect LeetCode handle?
+                </h4>
+                
+                <p className="text-xs text-navy-300 max-w-xs mx-auto leading-relaxed">
+                  This will remove the link between your account and LeetCode (<span className="text-white font-mono font-bold">@{handle}</span>). You can reconnect anytime.
+                </p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDisconnectModal(false)}
+                  disabled={disconnecting}
+                  className="px-5 py-2.5 rounded-xl border border-navy-600 hover:bg-white/10 text-xs font-bold text-navy-300 hover:text-white transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDisconnectHandle}
+                  disabled={disconnecting}
+                  className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-extrabold shadow-soft-md transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  {disconnecting ? (
+                    <span>Disconnecting...</span>
+                  ) : (
+                    <span>Disconnect</span>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

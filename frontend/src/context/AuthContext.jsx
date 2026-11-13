@@ -62,6 +62,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setAuthToken(null);
     setUser(null);
+    localStorage.removeItem('learnloop_lc_handle');
   };
 
   const updateProfile = async (updates) => {

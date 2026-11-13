@@ -159,6 +159,34 @@ router.post('/link-handle', async (req, res) => {
 });
 
 /**
+ * @route   POST /api/leetcode/unlink-handle
+ * @desc    Disconnect user's LeetCode username from profile
+ */
+router.post('/unlink-handle', async (req, res) => {
+  try {
+    const userId = getUserId(req);
+    const user = dbStore.users.get(userId);
+    if (user) {
+      user.leetcodeUsername = null;
+      dbStore.users.set(userId, user);
+      if (user.email) {
+        const emailUser = dbStore.users.get(user.email);
+        if (emailUser) emailUser.leetcodeUsername = null;
+      }
+      if (dbStore.debouncedSave) dbStore.debouncedSave();
+    }
+
+    res.json({
+      success: true,
+      message: 'Disconnected LeetCode handle successfully.'
+    });
+  } catch (err) {
+    console.error('Failed to unlink LeetCode handle:', err);
+    res.status(500).json({ error: 'Failed to disconnect handle.' });
+  }
+});
+
+/**
  * @route   POST /api/leetcode/clear-history
  * @desc    Clear test stopwatch submissions
  */

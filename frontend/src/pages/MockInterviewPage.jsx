@@ -235,11 +235,15 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
   useEffect(() => {
     const isActive = Boolean(session);
     onInterviewActiveChange?.(isActive);
+  }, [session, onInterviewActiveChange]);
+
+  // Only exit fullscreen when user navigates away from MockInterviewPage completely
+  useEffect(() => {
     return () => {
       onInterviewActiveChange?.(false);
       exitFullscreen();
     };
-  }, [session, onInterviewActiveChange]);
+  }, []);
 
   // Safe Exam / Proctored Browser Mode (Always Mandatory)
   const proctorMode = true;
@@ -254,20 +258,25 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
   tabSwitchCountRef.current = tabSwitchCount;
   const proctorGracePeriodRef = useRef(0);
 
-  // Safe Exam Browser: Enter Fullscreen
-  const enterFullscreen = async () => {
+  // Safe Exam Browser: Enter Fullscreen (synchronous trigger for browser security compatibility)
+  const enterFullscreen = () => {
     try {
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
-        await elem.requestFullscreen();
+        elem.requestFullscreen().then(() => {
+          setIsFullscreen(true);
+        }).catch(err => {
+          console.warn('Fullscreen request denied by browser:', err);
+        });
       } else if (elem.webkitRequestFullscreen) {
-        await elem.webkitRequestFullscreen();
+        elem.webkitRequestFullscreen();
+        setIsFullscreen(true);
       } else if (elem.msRequestFullscreen) {
-        await elem.msRequestFullscreen();
+        elem.msRequestFullscreen();
+        setIsFullscreen(true);
       }
-      setIsFullscreen(true);
     } catch (err) {
-      console.warn('Fullscreen request denied or not supported:', err);
+      console.warn('Fullscreen request error:', err);
     }
   };
 
@@ -592,7 +601,10 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
   };
 
   // User confirmed Safe Exam disclaimer -> enter fullscreen & start session
-  const confirmAndLaunchExam = async () => {
+  const confirmAndLaunchExam = () => {
+    // 1. Trigger fullscreen immediately from direct user click stack
+    enterFullscreen();
+
     setShowStartDisclaimer(false);
     // 5-second launch grace period so fullscreen transition never triggers false alert
     proctorGracePeriodRef.current = Date.now() + 5000;
@@ -600,7 +612,6 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
     setShowProctorAlert(false);
 
     const config = pendingStartConfig || { companyId: selectedCompany, questionId: null };
-    await enterFullscreen();
     handleStartInterview(config.companyId, config.questionId);
   };
 
@@ -628,7 +639,7 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
       setShowProctorAlert(false);
       proctorGracePeriodRef.current = Date.now() + 5000;
 
-      if (proctorMode) {
+      if (proctorMode && !document.fullscreenElement && !document.webkitFullscreenElement) {
         enterFullscreen();
       }
 
@@ -802,7 +813,12 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                 key={c.id}
                 onClick={() => {
                   setSelectedCompany(c.id);
-                  if (session) handleStartInterview(c.id);
+                  if (session) {
+                    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                      enterFullscreen();
+                    }
+                    handleStartInterview(c.id);
+                  }
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   selectedCompany === c.id
@@ -838,7 +854,12 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
           ) : (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => handleStartInterview(session?.question?.company || selectedCompany)}
+                onClick={() => {
+                  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                    enterFullscreen();
+                  }
+                  handleStartInterview(session?.question?.company || selectedCompany);
+                }}
                 disabled={loading}
                 title={`Shuffle to another ${companies.find(c => c.id === (session?.question?.company || selectedCompany))?.name || 'FAANG'} question`}
                 className="px-3 py-2 rounded-xl border border-navy-200 hover:bg-navy-50 text-navy-700 font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -884,6 +905,9 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                             key={p.id}
                             type="button"
                             onClick={() => {
+                              if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                                enterFullscreen();
+                              }
                               setShowProblemPicker(false);
                               handleStartInterview(p.company, p.id);
                             }}
