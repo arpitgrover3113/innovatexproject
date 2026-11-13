@@ -30,28 +30,162 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MasteryBadge } from '../components/MasteryBadge';
-import capImg from '../assets/graduation_cap_3d.png';
 
 // ==========================================
-// 3D GRADUATION CAP WITH ORBITAL RING
-// EXACT MATCH TO IMAGE 2
+// 3D GRADUATION CAP WITH ORBITAL RING (PURE SVG)
+// Razor-sharp, perfectly seamless, matching reference image
 // ==========================================
-const GraduationCapMockup = () => (
+const GraduationCap3D = () => (
   <div className="relative w-64 h-56 sm:w-72 sm:h-64 lg:w-80 lg:h-72 flex items-center justify-center select-none pointer-events-none">
-    {/* Soft ambient violet glow */}
-    <div className="absolute w-48 h-48 rounded-full bg-gradient-to-tr from-purple-400/20 via-indigo-300/25 to-violet-400/20 blur-2xl" />
+    
+    {/* Soft ambient violet background glow */}
+    <div className="absolute w-44 h-44 rounded-full bg-gradient-to-tr from-purple-400/25 via-indigo-300/30 to-violet-400/25 blur-3xl" />
 
-    {/* Exact 3D Rendered Cap Asset with Orbital Ring from Reference Image */}
-    <img 
-      src={capImg} 
-      alt="3D Graduation Cap" 
-      className="w-full h-auto object-contain mix-blend-multiply relative z-10 drop-shadow-[0_20px_25px_rgba(99,102,241,0.2)]" 
-    />
+    {/* SVG 3D Graduation Cap & Orbit */}
+    <svg 
+      viewBox="0 0 340 300" 
+      className="w-full h-full overflow-visible drop-shadow-[0_15px_30px_rgba(79,70,229,0.22)]"
+    >
+      <defs>
+        {/* Top Diamond Face Gradient */}
+        <linearGradient id="capTop3D" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#818CF8" />
+          <stop offset="30%" stopColor="#6366F1" />
+          <stop offset="70%" stopColor="#4F46E5" />
+          <stop offset="100%" stopColor="#4338CA" />
+        </linearGradient>
 
-    {/* Sparkle star next to cap */}
-    <div className="absolute -right-1 bottom-14 text-purple-600 font-bold text-xl animate-pulse select-none">
-      ✦
-    </div>
+        {/* Left Edge Bevel Gradient (in shadow) */}
+        <linearGradient id="capLeftEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#4338CA" />
+          <stop offset="100%" stopColor="#1E1B4B" />
+        </linearGradient>
+
+        {/* Right Edge Bevel Gradient */}
+        <linearGradient id="capRightEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4F46E5" />
+          <stop offset="100%" stopColor="#312E81" />
+        </linearGradient>
+
+        {/* Skull Cap Crown Gradient (cylindrical 3D dome) */}
+        <linearGradient id="skullCapGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#312E81" />
+          <stop offset="25%" stopColor="#4338CA" />
+          <stop offset="65%" stopColor="#3730A3" />
+          <stop offset="100%" stopColor="#1E1B4B" />
+        </linearGradient>
+
+        {/* Gold Tassel Gradient */}
+        <linearGradient id="goldTassel" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#FEF08A" />
+          <stop offset="40%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#D97706" />
+        </linearGradient>
+
+        {/* Gold Button Radial */}
+        <radialGradient id="goldBtn" cx="35%" cy="35%" r="65%">
+          <stop offset="0%" stopColor="#FEF08A" />
+          <stop offset="60%" stopColor="#F59E0B" />
+          <stop offset="100%" stopColor="#B45309" />
+        </radialGradient>
+
+        {/* Orbital Ring Gradient */}
+        <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#A855F7" stopOpacity="0.75" />
+          <stop offset="50%" stopColor="#818CF8" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="#C084FC" stopOpacity="0.4" />
+        </linearGradient>
+      </defs>
+
+      {/* 1. Ground Drop Shadow under cap */}
+      <ellipse cx="170" cy="235" rx="60" ry="14" fill="#1E1B4B" opacity="0.18" />
+      <ellipse cx="170" cy="235" rx="42" ry="9" fill="#312E81" opacity="0.22" />
+
+      {/* 2. Large Orbital Ellipse Ring (Passing around the cap) */}
+      <ellipse 
+        cx="170" 
+        cy="180" 
+        rx="148" 
+        ry="50" 
+        fill="none" 
+        stroke="url(#orbitGrad)" 
+        strokeWidth="1.8" 
+        transform="rotate(-18 170 180)" 
+      />
+
+      {/* 3. Skull Cap Crown Base (underneath the mortarboard) */}
+      <path
+        d="M 124 135 
+           C 120 165 125 198 132 208 
+           C 142 222 198 222 208 208 
+           C 215 198 220 165 216 135 
+           Z"
+        fill="url(#skullCapGrad)"
+      />
+      {/* Crown base rim shadow */}
+      <path
+        d="M 132 208 C 142 222 198 222 208 208 C 198 214 142 214 132 208 Z"
+        fill="#0F172A"
+        opacity="0.6"
+      />
+
+      {/* 4. Mortarboard 3D Slab Thickness (Bevel Faces) */}
+      {/* Left Bevel Face */}
+      <polygon 
+        points="52,110 170,158 170,170 52,122" 
+        fill="url(#capLeftEdge)" 
+      />
+      {/* Right Bevel Face */}
+      <polygon 
+        points="170,158 288,110 288,122 170,170" 
+        fill="url(#capRightEdge)" 
+      />
+
+      {/* 5. Mortarboard Top Face (Smooth Isometric Rhombus) */}
+      <polygon 
+        points="170,62 288,110 170,158 52,110" 
+        fill="url(#capTop3D)" 
+      />
+
+      {/* Top Face Specular Highlight (soft gloss along front-left edge) */}
+      <polygon 
+        points="170,63 228,87 170,111 112,87" 
+        fill="#FFFFFF" 
+        opacity="0.12" 
+      />
+
+      {/* 6. Golden Center Button */}
+      <ellipse cx="170" cy="110" rx="7" ry="4.5" fill="url(#goldBtn)" />
+
+      {/* 7. Golden Tassel String Drape */}
+      <path 
+        d="M 170 110 
+           C 215 106 256 122 258 155 
+           C 260 174 256 195 253 210" 
+        fill="none" 
+        stroke="url(#goldTassel)" 
+        strokeWidth="3.5" 
+        strokeLinecap="round" 
+      />
+
+      {/* Tassel Ring / Clip */}
+      <ellipse cx="253" cy="210" rx="3.5" ry="2" fill="#FDE047" />
+
+      {/* Tassel Brush / Fringe */}
+      <path 
+        d="M 249 211 L 245 244 C 249 248 257 248 261 244 L 257 211 Z" 
+        fill="url(#goldTassel)" 
+      />
+      <line x1="250" y1="216" x2="248" y2="242" stroke="#FEF08A" strokeWidth="0.8" opacity="0.8" />
+      <line x1="253" y1="216" x2="253" y2="245" stroke="#FEF08A" strokeWidth="0.8" opacity="0.9" />
+      <line x1="256" y1="216" x2="258" y2="242" stroke="#FEF08A" strokeWidth="0.8" opacity="0.8" />
+
+      {/* 8. Four-Point Sparkle Star ✦ (to the right of the cap, matching Image 2) */}
+      <path 
+        d="M 305 180 Q 305 170 310 165 Q 305 160 305 150 Q 305 160 300 165 Q 305 170 305 180 Z" 
+        fill="#8B5CF6" 
+      />
+    </svg>
   </div>
 );
 
@@ -804,7 +938,7 @@ export const LandingPage = ({ onNavigate }) => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="hidden md:block absolute bottom-0 right-2 sm:right-4 lg:right-6 z-20"
           >
-            <GraduationCapMockup />
+            <GraduationCap3D />
           </motion.div>
 
         </div>
@@ -812,7 +946,7 @@ export const LandingPage = ({ onNavigate }) => {
         {/* Mobile strip (< 768px screens only) */}
         <div className="md:hidden mt-8 px-4 flex flex-col items-center gap-4">
           <div className="w-full flex justify-center py-2">
-            <GraduationCapMockup />
+            <GraduationCap3D />
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 w-full">
