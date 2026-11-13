@@ -88,19 +88,19 @@ export const RecursionVisualizer = () => {
   };
 
   return (
-    <div className="bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm overflow-hidden p-6 space-y-6">
+    <div className="bg-gray-900 rounded-3xl border border-gray-700 shadow-soft-sm overflow-hidden p-6 space-y-6">
       
       {/* Visualizer Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-navy-100">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-700">
         <div>
           <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple flex items-center gap-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Interactive Cognitive Diagnostic Simulator</span>
           </span>
-          <h3 className="text-lg font-bold text-navy-900 mt-0.5">
-            Recursion Call Stack & Memory Frame Tracer
+          <h3 className="text-lg font-bold text-gray-100 mt-0.5">
+            Recursion Call Stack &amp; Memory Frame Tracer
           </h3>
-          <p className="text-xs text-navy-500">
+          <p className="text-xs text-gray-400">
             Step-by-step visual inspection of stack frame allocations and return unwinding.
           </p>
         </div>
@@ -109,7 +109,7 @@ export const RecursionVisualizer = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleReset}
-            className="p-2 text-navy-400 hover:text-navy-700 hover:bg-navy-100 rounded-xl transition-colors text-xs font-semibold flex items-center gap-1"
+            className="p-2 text-gray-400 hover:text-gray-100 hover:bg-gray-700 rounded-xl transition-colors text-xs font-semibold flex items-center gap-1"
             title="Reset to Step 0"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -119,12 +119,12 @@ export const RecursionVisualizer = () => {
           <button
             onClick={handlePrev}
             disabled={currentStep === 0}
-            className="p-2 text-navy-600 hover:text-navy-900 hover:bg-navy-100 disabled:opacity-30 rounded-xl transition-colors"
+            className="p-2 text-gray-300 hover:text-gray-100 hover:bg-gray-700 disabled:opacity-30 rounded-xl transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
 
-          <span className="text-xs font-mono font-bold text-navy-700 px-2">
+          <span className="text-xs font-mono font-bold text-gray-300 px-2">
             {currentStep + 1} / {traceSteps.length}
           </span>
 
@@ -145,31 +145,31 @@ export const RecursionVisualizer = () => {
         {/* Left: Code Snippet with Highlighted Active Line */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-mono text-navy-400">factorial.py</span>
-            <span className="text-[10px] font-bold text-brand-purple uppercase bg-brand-purple/10 px-2 py-0.5 rounded">
+            <span className="font-mono text-gray-500">factorial.py</span>
+            <span className="text-[10px] font-bold text-brand-purple uppercase bg-brand-purple/20 px-2 py-0.5 rounded">
               Python 3.12
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-navy-950 font-mono text-xs text-navy-200 shadow-soft-sm space-y-1">
+          <div className="p-4 rounded-2xl bg-gray-800 font-mono text-xs text-gray-300 shadow-soft-sm space-y-1 border border-gray-700">
             <div className={`px-2 py-1 rounded transition-colors ${state.highlightLine === 1 ? 'bg-brand-purple/30 text-white font-bold' : ''}`}>
-              <span className="text-navy-500 mr-3">1</span>def factorial(n):
+              <span className="text-gray-600 mr-3">1</span>def factorial(n):
             </div>
             <div className={`px-2 py-1 rounded transition-colors ${state.highlightLine === 2 ? 'bg-brand-emerald/30 text-brand-emerald font-bold' : ''}`}>
-              <span className="text-navy-500 mr-3">2</span>&nbsp;&nbsp;&nbsp;&nbsp;if n &lt;= 1:
+              <span className="text-gray-600 mr-3">2</span>&nbsp;&nbsp;&nbsp;&nbsp;if n &lt;= 1:
             </div>
             <div className={`px-2 py-1 rounded transition-colors ${state.highlightLine === 3 ? 'bg-brand-emerald/30 text-brand-emerald font-bold' : ''}`}>
-              <span className="text-navy-500 mr-3">3</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1  <span className="text-brand-emerald/70"># Base Case</span>
+              <span className="text-gray-600 mr-3">3</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1  <span className="text-brand-emerald/70"># Base Case</span>
             </div>
             <div className={`px-2 py-1 rounded transition-colors ${state.highlightLine === 4 ? 'bg-brand-blue/30 text-brand-blue font-bold' : ''}`}>
-              <span className="text-navy-500 mr-3">4</span>&nbsp;&nbsp;&nbsp;&nbsp;return n * factorial(n - 1)
+              <span className="text-gray-600 mr-3">4</span>&nbsp;&nbsp;&nbsp;&nbsp;return n * factorial(n - 1)
             </div>
           </div>
 
           {/* Explanation Box */}
-          <div className="p-4 rounded-2xl bg-navy-50/70 border border-navy-200/60 text-xs space-y-1.5">
-            <p className="font-bold text-navy-900">{state.title}</p>
-            <p className="text-navy-600 leading-relaxed">{state.explanation}</p>
+          <div className="p-4 rounded-2xl bg-gray-800 border border-gray-700 text-xs space-y-1.5">
+            <p className="font-bold text-gray-100">{state.title}</p>
+            <p className="text-gray-400 leading-relaxed">{state.explanation}</p>
             {state.returnValue && (
               <p className="text-brand-emerald font-bold font-mono text-xs pt-1">
                 ↳ Return Value: {state.returnValue}
@@ -181,15 +181,15 @@ export const RecursionVisualizer = () => {
         {/* Right: Interactive Call Stack (Grows upward) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-mono text-navy-400">System Call Stack Memory</span>
-            <span className="text-[10px] font-mono font-bold text-navy-500">
+            <span className="font-mono text-gray-500">System Call Stack Memory</span>
+            <span className="text-[10px] font-mono font-bold text-gray-500">
               Depth: {state.callStack.length} / 3 Frames
             </span>
           </div>
 
-          <div className="h-64 p-4 rounded-2xl bg-navy-50/50 border-2 border-dashed border-navy-200 flex flex-col-reverse justify-start gap-2.5 overflow-hidden">
+          <div className="h-64 p-4 rounded-2xl bg-gray-800 border-2 border-dashed border-gray-600 flex flex-col-reverse justify-start gap-2.5 overflow-hidden">
             {state.callStack.length === 0 ? (
-              <div className="my-auto text-center text-xs text-navy-400 italic">
+              <div className="my-auto text-center text-xs text-gray-500 italic">
                 Call Stack is currently empty. All frames returned!
               </div>
             ) : (
@@ -216,7 +216,7 @@ export const RecursionVisualizer = () => {
             )}
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-navy-400 font-mono">
+          <div className="flex items-center justify-between text-[11px] text-gray-500 font-mono">
             <span>Stack Base (bottom)</span>
             <span>↑ Grows toward top</span>
           </div>

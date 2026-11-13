@@ -199,7 +199,7 @@ const cleanTextForSpeech = (text) => {
 };
 
 export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
-  const { user } = useAuth();
+  const { user, addXp } = useAuth();
   const [selectedCompany, setSelectedCompany] = useState('google');
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -248,6 +248,7 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
   // Safe Exam / Proctored Browser Mode (Always Mandatory)
   const proctorMode = true;
   const [showStartDisclaimer, setShowStartDisclaimer] = useState(false);
+  const [showZeroAttemptDisclaimer, setShowZeroAttemptDisclaimer] = useState(false);
   const [pendingStartConfig, setPendingStartConfig] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
@@ -728,34 +729,40 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
     handleSendMessage(prompt, false);
   };
 
-  // End interview and generate evaluation scorecard
-  const handleEndInterview = async (force = false) => {
+  // Check if candidate has participated in the interview or written custom code
+  const checkIfAttempted = () => {
+    const candidateMsgs = messages.filter(m => m.role === 'candidate');
+    const currentCodeStr = codeRef.current || '';
+    const starterCodes = sessionRef.current?.question?.starterCode || {};
+    const normalize = (s) => (s || '').replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '').replace(/#.*/g, '').replace(/\s+/g, '');
+    const cleanCurrent = normalize(currentCodeStr);
+    const isStarter = !currentCodeStr.trim() || Object.values(starterCodes).some(sc => normalize(sc) === cleanCurrent);
+    const hasCode = !isStarter && currentCodeStr.trim().length > 30;
+    return candidateMsgs.length > 0 || hasCode;
+  };
+
+  // Perform interview evaluation and generate scorecard
+  const executeEndInterview = async () => {
+    setShowZeroAttemptDisclaimer(false);
     stopSpeaking();
-
-    // Check if user has participated
-    if (!force) {
-      const candidateMsgs = messages.filter(m => m.role === 'candidate');
-      const currentCodeStr = codeRef.current || '';
-      const hasCode = currentCodeStr.length > 50 && !currentCodeStr.includes('pass') && !currentCodeStr.includes('// Write your solution here') && !currentCodeStr.includes('# Write your solution here');
-      if (candidateMsgs.length === 0 && !hasCode) {
-        const confirmEnd = window.confirm(
-          "You haven't participated in the interview or written any code yet.\n\nEnding now will generate an Incomplete / 0% evaluation scorecard.\n\nDo you want to end and generate the scorecard anyway?"
-        );
-        if (!confirmEnd) return;
-      }
-    }
-
     setIsTimerRunning(false);
     setEvaluating(true);
+
     try {
       const timeSpent = Math.max(10, (sessionRef.current?.timeLimitSeconds || 900) - timeLeft);
       const res = await interviewApi.evaluate({
         interviewId: sessionRef.current?.interviewId,
+        questionId: sessionRef.current?.question?.id,
         finalCode: codeRef.current,
+        messages: messages,
+        language: selectedLanguage,
         timeSpentSeconds: timeSpent,
         tabSwitchCount: tabSwitchCountRef.current
       });
       setScorecard(res);
+      if (res.awardedXp && res.awardedXp > 0) {
+        addXp?.(res.awardedXp, `Mock Screen: ${res.questionTitle || 'Technical Interview'}`);
+      }
       setSession(null);
       onInterviewActiveChange?.(false);
       exitFullscreen();
@@ -765,6 +772,22 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
     } finally {
       setEvaluating(false);
     }
+  };
+
+  // End interview: triggers disclaimer if unattempted, or evaluates immediately if attempted/forced
+  const handleEndInterview = async (force = false) => {
+    stopSpeaking();
+
+    // If candidate has not attempted anything and this is not a forced countdown expiry, show disclaimer modal
+    if (!force) {
+      const hasAttempted = checkIfAttempted();
+      if (!hasAttempted) {
+        setShowZeroAttemptDisclaimer(true);
+        return;
+      }
+    }
+
+    await executeEndInterview();
   };
   // Keep ref updated so the timer closure always uses latest version
   handleEndInterviewRef.current = handleEndInterview;
@@ -1498,6 +1521,96 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
               >
                 Return to Screen {proctorMode && !isFullscreen ? '& Re-enter Fullscreen' : ''}
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Unattempted Assessment 0% Score Warning Disclaimer Modal */}
+      <AnimatePresence>
+        {showZeroAttemptDisclaimer && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-amber-300 shadow-2xl space-y-5"
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-navy-200/60 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0 border border-amber-200">
+                    <ShieldAlert className="w-6 h-6 text-amber-600 animate-pulse" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-amber-700 bg-amber-100 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                      Incomplete Assessment Warning
+                    </span>
+                    <h3 className="text-lg font-black text-navy-900">
+                      You Haven't Attempted Anything
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowZeroAttemptDisclaimer(false)}
+                  className="p-1.5 rounded-xl hover:bg-navy-100 text-navy-400 hover:text-navy-700 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Warning Notice Box */}
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 space-y-2">
+                <div className="flex items-center gap-2 text-rose-800 font-extrabold text-xs">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                  <span>Important: You will get a score of 0% if you end now</span>
+                </div>
+                <p className="text-[11px] text-rose-700 leading-relaxed">
+                  You have not written any code or sent any responses to the interviewer. Ending this technical screen now will finalize your evaluation as <strong className="font-bold underline">NO ATTEMPT (0%)</strong> with <strong>+0 XP</strong>.
+                </p>
+              </div>
+
+              {/* Suggestions / Guidance */}
+              <div className="p-4 rounded-2xl bg-navy-50/80 border border-navy-200/70 text-xs text-navy-700 space-y-2">
+                <span className="font-bold text-navy-900 block text-[11px] uppercase tracking-wider text-navy-400">
+                  Recommended Before Ending:
+                </span>
+                <div className="space-y-1.5 text-[11px] text-navy-600">
+                  <div className="flex items-start gap-2">
+                    <span className="text-brand-purple font-bold">1.</span>
+                    <span>Ask 1–2 clarifying questions to the interviewer about bounds or edge cases.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-brand-purple font-bold">2.</span>
+                    <span>State your proposed algorithmic approach and Big-O time complexity.</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-brand-purple font-bold">3.</span>
+                    <span>Type your solution or algorithm logic in the code editor.</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowZeroAttemptDisclaimer(false)}
+                  className="w-full sm:flex-1 py-3.5 rounded-xl bg-gradient-to-r from-brand-purple to-brand-blue hover:opacity-95 text-white font-extrabold text-xs shadow-soft-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Play className="w-4 h-4" />
+                  <span>Return & Attempt Problem</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={executeEndInterview}
+                  className="w-full sm:w-auto px-4 py-3.5 rounded-xl border border-rose-300 hover:bg-rose-50 text-rose-600 font-bold text-xs transition-colors cursor-pointer"
+                >
+                  <span>End Anyway & Receive 0%</span>
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

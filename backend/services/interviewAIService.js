@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * Robust Code Analyzer for Socratic Feedback
  * Parses and extracts structural insights from the candidate's code.
  */
-export function analyzeCodeSnippet(code, language = 'python') {
+export function analyzeCodeSnippet(code, language = 'python', starterCode = null) {
   if (!code || typeof code !== 'string') {
     return {
       isEmpty: true,
@@ -23,10 +23,42 @@ export function analyzeCodeSnippet(code, language = 'python') {
 
   const clean = code.trim();
   const lines = clean.split('\n');
-  const isStarterCode = clean.includes('pass') && lines.length <= 4 ||
-    clean.includes('// Write your solution here') ||
-    clean.includes('# Write your solution here') ||
-    clean.includes('return 0;') && lines.length <= 4;
+
+  // Robust comparison against question starter code in any language
+  const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '').replace(/#.*/g, '').replace(/\s+/g, '');
+  const cleanNorm = normalize(clean);
+
+  let isStarterCode = false;
+
+  if (starterCode) {
+    if (typeof starterCode === 'string') {
+      isStarterCode = cleanNorm === normalize(starterCode);
+    } else if (typeof starterCode === 'object') {
+      isStarterCode = Object.values(starterCode).some(sc => typeof sc === 'string' && cleanNorm === normalize(sc));
+    }
+  }
+
+  // Also check if user only has placeholder bodies (pass, return 0, return false, empty brackets)
+  if (!isStarterCode) {
+    const stripBoilerplate = clean
+      .replace(/class\s+\w+(\(.*?\))?:/g, '')
+      .replace(/def\s+\w+\(.*?\)(\s*->\s*[^:]+)?:/g, '')
+      .replace(/__init__\(self.*?\):/g, '')
+      .replace(/self\.\w+\s*=\s*[^;\n]+/g, '')
+      .replace(/return\s*(False|True|None|0|""|\[\]|\{\}|null|false|true);?/g, '')
+      .replace(/pass\b/g, '')
+      .replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '')
+      .replace(/#.*/g, '')
+      .replace(/\s+/g, '');
+    
+    if (stripBoilerplate.length === 0) {
+      isStarterCode = true;
+    }
+  }
+
+  if (clean.includes('// Write your solution here') || clean.includes('# Write your solution here')) {
+    isStarterCode = true;
+  }
 
   const constructs = [];
   let hasBaseCase = false;

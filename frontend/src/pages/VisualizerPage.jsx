@@ -203,24 +203,24 @@ const AVLVisualizer = () => {
         </div>
       </div>
 
-      {/* Main Interactive Stage */}
-      <div className="bg-white rounded-3xl border border-navy-200/80 p-6 shadow-soft-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-navy-100">
+      {/* Main Interactive Stage — Dark visualization panel */}
+      <div className="bg-gray-900 rounded-3xl border border-gray-700 p-6 shadow-soft-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-700">
           <div>
-            <h4 className="font-bold text-navy-900 text-sm flex items-center gap-2">
+            <h4 className="font-bold text-gray-100 text-sm flex items-center gap-2">
               <span>{scenario.title}</span>
             </h4>
-            <p className="text-xs text-navy-500 mt-0.5">{stepData.desc}</p>
+            <p className="text-xs text-gray-400 mt-0.5">{stepData.desc}</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-mono font-bold text-navy-400">
+            <span className="text-xs font-mono font-bold text-gray-500">
               {currentStep + 1} / {scenario.steps.length}
             </span>
             <button
               onClick={handlePrev}
               disabled={currentStep === 0}
-              className="p-1.5 rounded-lg bg-navy-100 text-navy-700 disabled:opacity-40 hover:bg-navy-200"
+              className="p-1.5 rounded-lg bg-gray-700 text-gray-300 disabled:opacity-40 hover:bg-gray-600"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -234,7 +234,7 @@ const AVLVisualizer = () => {
             </button>
             <button
               onClick={handleReset}
-              className="p-1.5 rounded-lg bg-navy-100 text-navy-500 hover:text-navy-900"
+              className="p-1.5 rounded-lg bg-gray-700 text-gray-400 hover:text-gray-100"
               title="Reset"
             >
               <RotateCcw className="w-4 h-4" />
@@ -243,7 +243,7 @@ const AVLVisualizer = () => {
         </div>
 
         {/* Tree SVG Visualization Canvas */}
-        <div className="relative w-full h-72 bg-navy-950/5 rounded-2xl border border-navy-200/60 flex items-center justify-center overflow-hidden">
+        <div className="relative w-full h-72 bg-gray-800 rounded-2xl border border-gray-700 flex items-center justify-center overflow-hidden">
           <svg className="w-full h-full">
             {/* Render Edges */}
             {stepData.edges.map((e, idx) => {
@@ -257,7 +257,7 @@ const AVLVisualizer = () => {
                   y1={fromNode.y}
                   x2={toNode.x}
                   y2={toNode.y}
-                  stroke="#94a3b8"
+                  stroke="#6b7280"
                   strokeWidth="3"
                   strokeLinecap="round"
                 />
@@ -297,7 +297,7 @@ const AVLVisualizer = () => {
                     width="38"
                     height="18"
                     rx="5"
-                    fill={node.status === 'unbalanced' ? '#ef4444' : '#1e293b'}
+                    fill={node.status === 'unbalanced' ? '#ef4444' : '#374151'}
                   />
                   <text
                     x={node.x + 33}
@@ -316,7 +316,7 @@ const AVLVisualizer = () => {
           </svg>
 
           {/* Canvas Legend */}
-          <div className="absolute bottom-3 left-4 flex items-center gap-3 text-[11px] bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-navy-200/60 font-semibold text-navy-700 shadow-soft-xs">
+          <div className="absolute bottom-3 left-4 flex items-center gap-3 text-[11px] bg-gray-900/90 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-gray-600 font-semibold text-gray-300 shadow-soft-xs">
             <span className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-brand-purple" /> Balanced
             </span>
@@ -330,11 +330,11 @@ const AVLVisualizer = () => {
         </div>
 
         {/* Theoretical Insight Box */}
-        <div className="p-3.5 bg-gradient-to-r from-brand-purple/5 to-brand-blue/5 rounded-2xl border border-brand-purple/15 flex items-start gap-3 text-xs">
+        <div className="p-3.5 bg-gray-800 rounded-2xl border border-brand-purple/30 flex items-start gap-3 text-xs">
           <Info className="w-4 h-4 text-brand-purple shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-navy-900">Why AVL Rotations Matter in Engineering:</p>
-            <p className="text-navy-600 leading-relaxed">
+            <p className="font-bold text-gray-100">Why AVL Rotations Matter in Engineering:</p>
+            <p className="text-gray-400 leading-relaxed">
               Without rotations, sequentially inserting sorted keys degenerates a Binary Search Tree into an $O(n)$ linked list. 
               By performing $O(1)$ pointer rewiring whenever $|BF| \ge 2$, AVL guarantees worst-case logarithmic performance 
               $O(\log n)$ for every single search, insert, and delete operation.
@@ -779,18 +779,18 @@ const SortingVisualizer = () => {
         </div>
       </div>
 
-      {/* Main Interactive Stage */}
-      <div className="bg-white rounded-3xl border border-navy-200/80 p-6 shadow-soft-sm space-y-4">
+      {/* Main Interactive Stage — Dark visualization panel */}
+      <div className="bg-gray-900 rounded-3xl border border-gray-700 p-6 shadow-soft-sm space-y-4">
         {/* Stage Header & Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-navy-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-700">
           <div>
             <div className="flex items-center gap-2">
-              <h4 className="font-extrabold text-navy-900 text-sm">{algoMeta.name}</h4>
-              <span className="text-[10px] text-brand-purple font-mono font-bold bg-brand-purple/10 px-2 py-0.5 rounded border border-brand-purple/20">
+              <h4 className="font-extrabold text-gray-100 text-sm">{algoMeta.name}</h4>
+              <span className="text-[10px] text-brand-purple font-mono font-bold bg-brand-purple/20 px-2 py-0.5 rounded border border-brand-purple/30">
                 {algoMeta.tagline}
               </span>
             </div>
-            <p className="text-xs text-navy-500 mt-1 max-w-xl">{algoMeta.desc}</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-xl">{algoMeta.desc}</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -804,7 +804,7 @@ const SortingVisualizer = () => {
             </button>
             <button
               onClick={resetArray}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-navy-100 text-navy-700 font-bold text-xs hover:bg-navy-200 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gray-700 text-gray-200 font-bold text-xs hover:bg-gray-600 transition-all"
               title="Generate new random array"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -814,24 +814,24 @@ const SortingVisualizer = () => {
         </div>
 
         {/* Live Step Commentary & Metrics */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-navy-50/80 p-3 rounded-2xl border border-navy-200/60 font-mono">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-gray-800 p-3 rounded-2xl border border-gray-700 font-mono">
           <div className="flex items-center gap-4">
-            <span className="text-navy-600">Comparisons: <strong className="text-navy-900 text-sm">{comparisons}</strong></span>
-            <span className="text-navy-600">Swaps / Shifts: <strong className="text-navy-900 text-sm">{swaps}</strong></span>
+            <span className="text-gray-400">Comparisons: <strong className="text-gray-100 text-sm">{comparisons}</strong></span>
+            <span className="text-gray-400">Swaps / Shifts: <strong className="text-gray-100 text-sm">{swaps}</strong></span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono bg-white text-brand-purple font-bold px-2 py-0.5 rounded border border-navy-200">
+            <span className="text-[10px] font-mono bg-gray-700 text-brand-purple font-bold px-2 py-0.5 rounded border border-gray-600">
               Avg Time: {algoMeta.timeComp}
             </span>
-            <span className="text-[10px] font-mono bg-white text-brand-blue font-bold px-2 py-0.5 rounded border border-navy-200">
+            <span className="text-[10px] font-mono bg-gray-700 text-brand-blue font-bold px-2 py-0.5 rounded border border-gray-600">
               Space: {algoMeta.spaceComp}
             </span>
           </div>
         </div>
 
         {/* Bar Chart Visualization Canvas */}
-        <div className="h-64 flex items-end justify-center gap-2.5 sm:gap-4 pt-6 px-2 bg-navy-950/5 rounded-2xl border border-navy-200/60">
+        <div className="h-64 flex items-end justify-center gap-2.5 sm:gap-4 pt-6 px-2 bg-gray-800 rounded-2xl border border-gray-700">
           {array.map((val, idx) => {
             const isComp = comparing.includes(idx);
             const isSwap = swapping.includes(idx);
@@ -846,26 +846,26 @@ const SortingVisualizer = () => {
 
             return (
               <div key={idx} className="flex-1 max-w-[42px] flex flex-col items-center gap-1.5 transition-all">
-                <span className="text-[10px] font-mono font-bold text-navy-500">{val}</span>
+                <span className="text-[10px] font-mono font-bold text-gray-400">{val}</span>
                 <motion.div
                   layout
                   className={`w-full rounded-t-xl ${barColor} transition-all duration-200`}
                   style={{ height: `${val * 2.2}px` }}
                 />
-                <span className="text-[9px] font-mono text-navy-400">[{idx}]</span>
+                <span className="text-[9px] font-mono text-gray-500">[{idx}]</span>
               </div>
             );
           })}
         </div>
 
         {/* Live Status Note */}
-        <div className="p-3 bg-white rounded-xl border border-navy-200/80 text-xs text-navy-700 flex items-center gap-2">
+        <div className="p-3 bg-gray-800 rounded-xl border border-gray-700 text-xs text-gray-300 flex items-center gap-2">
           <Zap className="w-3.5 h-3.5 text-brand-purple shrink-0" />
           <span className="font-mono text-[11px] font-semibold">{stepNote}</span>
         </div>
 
         {/* Canvas Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] font-semibold text-navy-600 border-t border-navy-100">
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] font-semibold text-gray-400 border-t border-gray-700">
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-brand-blue" /> Unsorted</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-600" /> Active Pivot / Key</span>
           <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400" /> Comparing ($O(1)$)</span>
@@ -958,22 +958,22 @@ const GraphVisualizer = () => {
         </div>
       </div>
 
-      {/* Main Canvas & Data Structure Inspect */}
+      {/* Main Canvas & Data Structure Inspect — Dark visualization panels */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Graph SVG Canvas */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-navy-200/80 p-6 shadow-soft-sm space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-navy-100">
-            <h4 className="font-bold text-navy-900 text-sm">
+        <div className="lg:col-span-2 bg-gray-900 rounded-3xl border border-gray-700 p-6 shadow-soft-sm space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-gray-700">
+            <h4 className="font-bold text-gray-100 text-sm">
               {mode === 'bfs' ? 'Level-by-Level Graph Inspection' : 'Deep-Branching Graph Traversal'}
             </h4>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-navy-400">
+              <span className="text-xs font-mono font-bold text-gray-500">
                 {stepIndex + 1} / {steps.length}
               </span>
               <button
                 onClick={() => setStepIndex(prev => Math.max(0, prev - 1))}
                 disabled={stepIndex === 0}
-                className="p-1.5 rounded-lg bg-navy-100 text-navy-700 disabled:opacity-40"
+                className="p-1.5 rounded-lg bg-gray-700 text-gray-300 disabled:opacity-40 hover:bg-gray-600"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -987,14 +987,14 @@ const GraphVisualizer = () => {
               </button>
               <button
                 onClick={() => setStepIndex(0)}
-                className="p-1.5 rounded-lg bg-navy-100 text-navy-500 hover:text-navy-900"
+                className="p-1.5 rounded-lg bg-gray-700 text-gray-400 hover:text-gray-100"
               >
                 <RotateCcw className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          <div className="relative w-full h-72 bg-navy-950/5 rounded-2xl border border-navy-200/60 flex items-center justify-center">
+          <div className="relative w-full h-72 bg-gray-800 rounded-2xl border border-gray-700 flex items-center justify-center">
             <svg className="w-full h-full">
               {graphEdges.map((e, idx) => {
                 const f = graphNodes.find(n => n.id === e.from);
@@ -1006,7 +1006,7 @@ const GraphVisualizer = () => {
                     y1={f.y}
                     x2={t.x}
                     y2={t.y}
-                    stroke="#94a3b8"
+                    stroke="#6b7280"
                     strokeWidth="3"
                   />
                 );
@@ -1015,7 +1015,7 @@ const GraphVisualizer = () => {
                 const isVisited = current.visited.includes(n.id);
                 const isActive = current.active === n.id;
 
-                let fill = 'fill-navy-200 stroke-navy-400';
+                let fill = 'fill-gray-600 stroke-gray-500';
                 if (isVisited) fill = mode === 'bfs' ? 'fill-brand-purple stroke-brand-purple' : 'fill-brand-blue stroke-brand-blue';
                 if (isActive) fill = 'fill-brand-rose stroke-brand-rose animate-pulse';
 
@@ -1026,7 +1026,7 @@ const GraphVisualizer = () => {
                       x={n.x}
                       y={n.y + 5}
                       textAnchor="middle"
-                      fill={isVisited || isActive ? '#ffffff' : '#1e293b'}
+                      fill="#ffffff"
                       fontWeight="bold"
                       fontSize="14"
                       fontFamily="monospace"
@@ -1039,38 +1039,38 @@ const GraphVisualizer = () => {
             </svg>
           </div>
 
-          <p className="text-xs text-navy-600 bg-navy-50 p-3 rounded-xl border border-navy-200/50">
-            <strong>Current State:</strong> {current.note}
+          <p className="text-xs text-gray-300 bg-gray-800 p-3 rounded-xl border border-gray-700">
+            <strong className="text-gray-100">Current State:</strong> {current.note}
           </p>
         </div>
 
         {/* Data Structure State Tracker (Queue vs Stack) */}
-        <div className="bg-white rounded-3xl border border-navy-200/80 p-6 shadow-soft-sm space-y-4">
-          <div className="pb-2 border-b border-navy-100 flex items-center justify-between">
-            <h4 className="font-bold text-navy-900 text-sm flex items-center gap-1.5">
+        <div className="bg-gray-900 rounded-3xl border border-gray-700 p-6 shadow-soft-sm space-y-4">
+          <div className="pb-2 border-b border-gray-700 flex items-center justify-between">
+            <h4 className="font-bold text-gray-100 text-sm flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-brand-purple" />
               <span>{mode === 'bfs' ? 'FIFO Queue Buffer' : 'LIFO Call Stack'}</span>
             </h4>
-            <span className="text-[10px] font-mono bg-navy-100 text-navy-600 px-2 py-0.5 rounded font-bold">
+            <span className="text-[10px] font-mono bg-gray-700 text-gray-300 px-2 py-0.5 rounded font-bold">
               {mode === 'bfs' ? 'Enqueue Rear / Dequeue Front' : 'Push Top / Pop Top'}
             </span>
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs text-navy-500">Elements currently buffered in memory:</p>
-            <div className="min-h-36 bg-navy-50/80 p-3 rounded-2xl border border-navy-200/60 flex flex-col gap-2">
+            <p className="text-xs text-gray-400">Elements currently buffered in memory:</p>
+            <div className="min-h-36 bg-gray-800 p-3 rounded-2xl border border-gray-700 flex flex-col gap-2">
               {current.queue.map((item, idx) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="px-3 py-2 rounded-xl bg-white border border-brand-purple/20 shadow-soft-xs flex items-center justify-between text-xs font-mono font-bold"
+                  className="px-3 py-2 rounded-xl bg-gray-700 border border-brand-purple/30 flex items-center justify-between text-xs font-mono font-bold"
                 >
                   <span className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-brand-purple" />
-                    <span>Node {item}</span>
+                    <span className="text-gray-100">Node {item}</span>
                   </span>
-                  <span className="text-[10px] text-navy-400">
+                  <span className="text-[10px] text-gray-400">
                     {mode === 'bfs' ? (idx === 0 ? 'Front (Next to Pop)' : 'Rear') : (idx === current.queue.length - 1 ? 'Top of Stack' : 'Paused Frame')}
                   </span>
                 </motion.div>
@@ -1078,11 +1078,11 @@ const GraphVisualizer = () => {
             </div>
           </div>
 
-          <div className="pt-2 border-t border-navy-100 space-y-2">
-            <span className="text-xs font-bold text-navy-800">Traversal History:</span>
+          <div className="pt-2 border-t border-gray-700 space-y-2">
+            <span className="text-xs font-bold text-gray-200">Traversal History:</span>
             <div className="flex flex-wrap gap-1.5 font-mono text-xs">
               {current.visited.map((v, i) => (
-                <span key={i} className="px-2 py-0.5 bg-brand-purple/10 text-brand-purple font-bold rounded-lg border border-brand-purple/20">
+                <span key={i} className="px-2 py-0.5 bg-brand-purple/20 text-brand-purple font-bold rounded-lg border border-brand-purple/30">
                   {v}
                 </span>
               ))}
@@ -1424,40 +1424,40 @@ const DijkstraVisualizer = () => {
         </div>
       </div>
 
-      {/* Main Interactive Grid Stage */}
+      {/* Main Interactive Grid Stage — Dark visualization panel */}
       <div 
-        className="bg-white rounded-3xl border border-navy-200/80 p-4 sm:p-6 shadow-soft-sm space-y-4"
+        className="bg-gray-900 rounded-3xl border border-gray-700 p-4 sm:p-6 shadow-soft-sm space-y-4"
         onMouseUp={() => setIsMousePressed(false)}
         onMouseLeave={() => setIsMousePressed(false)}
       >
         {/* Telemetry Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-navy-50/80 p-3 rounded-2xl border border-navy-200/60 font-mono">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-gray-800 p-3 rounded-2xl border border-gray-700 font-mono">
           <div className="flex items-center gap-4">
-            <span className="text-navy-600">Cells Explored: <strong className="text-navy-900 text-sm">{visitedCount}</strong></span>
-            <span className="text-navy-600">Shortest Path Length: <strong className="text-amber-600 text-sm">{pathLength > 0 ? `${pathLength} steps` : '—'}</strong></span>
+            <span className="text-gray-400">Cells Explored: <strong className="text-gray-100 text-sm">{visitedCount}</strong></span>
+            <span className="text-gray-400">Shortest Path Length: <strong className="text-amber-400 text-sm">{pathLength > 0 ? `${pathLength} steps` : '—'}</strong></span>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-[10px] bg-white text-brand-purple font-bold px-2 py-0.5 rounded border border-navy-200">
+            <span className="text-[10px] bg-gray-700 text-brand-purple font-bold px-2 py-0.5 rounded border border-gray-600">
               Guaranteed Shortest
             </span>
-            <span className="text-[10px] bg-white text-brand-blue font-bold px-2 py-0.5 rounded border border-navy-200" title="Dijkstra with Min-Heap Priority Queue">
+            <span className="text-[10px] bg-gray-700 text-brand-blue font-bold px-2 py-0.5 rounded border border-gray-600" title="Dijkstra with Min-Heap Priority Queue">
               O((V + E) log V) Min-Heap
             </span>
           </div>
         </div>
 
         {/* Responsive Interactive Grid Canvas */}
-        <div className="overflow-x-auto p-2 sm:p-3 bg-navy-950/5 rounded-2xl border border-navy-200/60 flex justify-center select-none">
+        <div className="overflow-x-auto p-2 sm:p-3 bg-gray-800 rounded-2xl border border-gray-700 flex justify-center select-none">
           <div 
-            className="grid gap-[2px] sm:gap-[3px] bg-navy-200/70 p-2 rounded-xl shadow-inner"
+            className="grid gap-[2px] sm:gap-[3px] bg-gray-700 p-2 rounded-xl shadow-inner"
             style={{
               gridTemplateColumns: `repeat(${GRID_COLS}, minmax(0, 1fr))`
             }}
           >
             {grid.map((row, rIdx) =>
               row.map((cell, cIdx) => {
-                let cellStyle = 'bg-white hover:bg-navy-50';
+                let cellStyle = 'bg-gray-600 hover:bg-gray-500';
                 let iconContent = null;
 
                 if (cell.isStart) {
@@ -1467,11 +1467,11 @@ const DijkstraVisualizer = () => {
                   cellStyle = 'bg-brand-rose text-white shadow-md ring-2 ring-rose-300';
                   iconContent = <Target className="w-3.5 h-3.5" />;
                 } else if (cell.isWall) {
-                  cellStyle = 'bg-navy-900 border-navy-950 shadow-inner scale-95 rounded-sm';
+                  cellStyle = 'bg-gray-900 border-gray-950 shadow-inner scale-95 rounded-sm';
                 } else if (cell.isPath) {
                   cellStyle = 'bg-amber-400 border border-amber-500 shadow-md scale-95 animate-pulse';
                 } else if (cell.isVisited) {
-                  cellStyle = 'bg-gradient-to-tr from-brand-purple/40 to-brand-blue/30 border border-brand-purple/20 transition-all duration-300';
+                  cellStyle = 'bg-gradient-to-tr from-brand-purple/60 to-brand-blue/50 border border-brand-purple/30 transition-all duration-300';
                 }
 
                 return (
@@ -1494,27 +1494,27 @@ const DijkstraVisualizer = () => {
         </div>
 
         {/* Live Step Status Note */}
-        <div className="p-3 bg-white rounded-xl border border-navy-200/80 text-xs text-navy-700 flex items-center gap-2">
+        <div className="p-3 bg-gray-800 rounded-xl border border-gray-700 text-xs text-gray-300 flex items-center gap-2">
           <Zap className="w-3.5 h-3.5 text-brand-purple shrink-0" />
           <span className="font-mono text-[11px] font-semibold">{statusMessage}</span>
         </div>
 
         {/* Canvas Legend */}
-        <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] font-semibold text-navy-600 border-t border-navy-100">
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-[11px] font-semibold text-gray-400 border-t border-gray-700">
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-brand-emerald flex items-center justify-center text-white"><MapPin className="w-2 h-2 fill-white" /></span> Start (4, 2)</span>
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-brand-rose flex items-center justify-center text-white"><Target className="w-2 h-2" /></span> Target (4, 19)</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-navy-900" /> Obstacle Wall (Drag to Draw)</span>
-          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-brand-purple/40" /> Visited Wavefront</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-gray-900" /> Obstacle Wall (Drag to Draw)</span>
+          <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-brand-purple/60" /> Visited Wavefront</span>
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-sm bg-amber-400" /> Optimal Shortest Path</span>
         </div>
 
         {/* Theoretical Insight Box */}
-        <div className="p-3.5 bg-gradient-to-r from-brand-purple/5 to-brand-blue/5 rounded-2xl border border-brand-purple/15 flex items-start gap-3 text-xs">
+        <div className="p-3.5 bg-gray-800 rounded-2xl border border-brand-purple/30 flex items-start gap-3 text-xs">
           <Info className="w-4 h-4 text-brand-purple shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <p className="font-bold text-navy-900">Why Dijkstra Guarantees the Shortest Path:</p>
-            <p className="text-navy-600 leading-relaxed">
-              Dijkstra operates on the <strong>Greedy Choice Property</strong>: at each step, it visits the unvisited node with the absolute smallest tentative distance from the source. Because all edge weights are non-negative ($\ge 0$), once a node is settled, no future path can ever reach it in fewer steps.
+            <p className="font-bold text-gray-100">Why Dijkstra Guarantees the Shortest Path:</p>
+            <p className="text-gray-400 leading-relaxed">
+              Dijkstra operates on the <strong className="text-gray-200">Greedy Choice Property</strong>: at each step, it visits the unvisited node with the absolute smallest tentative distance from the source. Because all edge weights are non-negative ($\ge 0$), once a node is settled, no future path can ever reach it in fewer steps.
             </p>
           </div>
         </div>
@@ -1711,25 +1711,25 @@ const HeapVisualizer = () => {
   ];
 
   return (
-    <div className="bg-white rounded-3xl border border-navy-200/80 shadow-soft-sm overflow-hidden">
+    <div className="bg-gray-900 rounded-3xl border border-gray-700 shadow-soft-sm overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-5 border-b border-navy-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-amber-50 to-orange-50">
+      <div className="px-6 py-5 border-b border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gradient-to-r from-gray-800 to-gray-900">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Binary className="w-5 h-5 text-amber-500" />
-            <h2 className="font-extrabold text-navy-900 text-lg">Min / Max Binary Heap</h2>
-            <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded border border-amber-200">Priority Queue</span>
+            <Binary className="w-5 h-5 text-amber-400" />
+            <h2 className="font-extrabold text-gray-100 text-lg">Min / Max Binary Heap</h2>
+            <span className="text-[10px] font-mono font-bold bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded border border-amber-500/30">Priority Queue</span>
           </div>
-          <p className="text-xs text-navy-500">Array + Binary Tree side-by-side · Heapify-Up on insert · Heapify-Down on extract</p>
+          <p className="text-xs text-gray-400">Array + Binary Tree side-by-side · Heapify-Up on insert · Heapify-Down on extract</p>
         </div>
 
         {/* Mode toggle */}
-        <div className="flex items-center gap-1 p-1 bg-navy-100 rounded-xl self-start sm:self-auto">
+        <div className="flex items-center gap-1 p-1 bg-gray-700 rounded-xl self-start sm:self-auto">
           {['min', 'max'].map(m => (
             <button
               key={m}
               onClick={() => { if (!running) { setMode(m); reset(m); } }}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === m ? 'bg-white shadow text-amber-600' : 'text-navy-500 hover:text-navy-800'}`}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${mode === m ? 'bg-gray-900 shadow text-amber-400' : 'text-gray-400 hover:text-gray-100'}`}
             >
               {m === 'min' ? '▼ Min-Heap' : '▲ Max-Heap'}
             </button>
@@ -1738,7 +1738,7 @@ const HeapVisualizer = () => {
       </div>
 
       {/* Controls */}
-      <div className="px-6 py-4 border-b border-navy-100 flex flex-wrap items-center gap-3">
+      <div className="px-6 py-4 border-b border-gray-700 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2 flex-1 min-w-[180px]">
           <input
             type="number"
@@ -1747,7 +1747,7 @@ const HeapVisualizer = () => {
             onKeyDown={e => e.key === 'Enter' && insert(inputVal)}
             placeholder="Enter integer…"
             disabled={running}
-            className="flex-1 px-3 py-2 rounded-xl border border-navy-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 bg-navy-50"
+            className="flex-1 px-3 py-2 rounded-xl border border-gray-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-400 disabled:opacity-50 bg-gray-800 text-gray-100 placeholder-gray-500"
           />
           <button
             onClick={() => insert(inputVal)}
@@ -1769,19 +1769,19 @@ const HeapVisualizer = () => {
         <button
           onClick={() => reset(mode)}
           disabled={running}
-          className="px-4 py-2 rounded-xl bg-navy-100 text-navy-700 text-xs font-bold hover:bg-navy-200 disabled:opacity-40 transition-all flex items-center gap-1.5"
+          className="px-4 py-2 rounded-xl bg-gray-700 text-gray-200 text-xs font-bold hover:bg-gray-600 disabled:opacity-40 transition-all flex items-center gap-1.5"
         >
           <RotateCcw className="w-3.5 h-3.5" /> Reset
         </button>
 
         {/* Speed */}
         <div className="flex items-center gap-2 ml-auto">
-          <Zap className="w-3.5 h-3.5 text-navy-400" />
-          <span className="text-xs text-navy-500 font-medium">Speed</span>
+          <Zap className="w-3.5 h-3.5 text-gray-400" />
+          <span className="text-xs text-gray-400 font-medium">Speed</span>
           <select
             value={speed}
             onChange={e => setSpeed(Number(e.target.value))}
-            className="text-xs rounded-lg border border-navy-200 px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
+            className="text-xs rounded-lg border border-gray-600 px-2 py-1.5 bg-gray-800 text-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400"
           >
             <option value={1000}>Slow</option>
             <option value={600}>Normal</option>
@@ -1792,9 +1792,9 @@ const HeapVisualizer = () => {
       </div>
 
       {/* Live Commentary */}
-      <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-2">
-        <Info className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-        <span className="text-xs text-amber-800 font-medium leading-relaxed">{log}</span>
+      <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2">
+        <Info className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+        <span className="text-xs text-amber-300 font-medium leading-relaxed">{log}</span>
       </div>
 
       {/* Legend */}
@@ -1802,7 +1802,7 @@ const HeapVisualizer = () => {
         {legendItems.map(({ color, label }) => (
           <div key={label} className="flex items-center gap-1.5">
             <span className={`w-3 h-3 rounded-sm ${color}`} />
-            <span className="text-[11px] text-navy-500">{label}</span>
+            <span className="text-[11px] text-gray-400">{label}</span>
           </div>
         ))}
       </div>
@@ -1811,20 +1811,20 @@ const HeapVisualizer = () => {
       <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* LEFT: Array Representation */}
-        <div className="bg-navy-50 rounded-2xl border border-navy-200/60 p-5">
+        <div className="bg-gray-800 rounded-2xl border border-gray-700 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-bold text-navy-700 uppercase tracking-wider">Array View</h3>
-            <span className="text-[10px] font-mono text-navy-400">parent(i) = ⌊(i−1)/2⌋</span>
+            <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Array View</h3>
+            <span className="text-[10px] font-mono text-gray-500">parent(i) = ⌊(i−1)/2⌋</span>
           </div>
 
           {heap.length === 0 ? (
-            <div className="flex items-center justify-center h-20 text-navy-400 text-sm italic">Heap is empty</div>
+            <div className="flex items-center justify-center h-20 text-gray-500 text-sm italic">Heap is empty</div>
           ) : (
             <div className="space-y-3">
               {/* Index labels row */}
               <div className="flex flex-wrap gap-2">
                 {heap.map((_, i) => (
-                  <div key={i} className="w-12 text-center text-[10px] font-mono text-navy-400">[{i}]</div>
+                  <div key={i} className="w-12 text-center text-[10px] font-mono text-gray-500">[{i}]</div>
                 ))}
               </div>
               {/* Value boxes row */}
@@ -1839,15 +1839,15 @@ const HeapVisualizer = () => {
                 ))}
               </div>
               {/* Parent-Child mapping hints */}
-              <div className="mt-3 text-[11px] text-navy-400 font-mono space-y-0.5">
+              <div className="mt-3 text-[11px] text-gray-500 font-mono space-y-0.5">
                 {heap.length > 1 && (
-                  <div>Root: heap[0] = <span className="text-navy-700 font-bold">{heap[0]}</span>
+                  <div className="text-gray-400">Root: heap[0] = <span className="text-gray-200 font-bold">{heap[0]}</span>
                     {' · '}Left child: heap[1]{heap[1] !== undefined ? ` = ${heap[1]}` : ''}
                     {heap[2] !== undefined ? ` · Right child: heap[2] = ${heap[2]}` : ''}
                   </div>
                 )}
                 {heap.length > 0 && (
-                  <div>Size: {heap.length} · {mode === 'min' ? 'Min' : 'Max'}: <span className="text-amber-600 font-bold">{heap[0]}</span> always at root</div>
+                  <div className="text-gray-400">Size: {heap.length} · {mode === 'min' ? 'Min' : 'Max'}: <span className="text-amber-400 font-bold">{heap[0]}</span> always at root</div>
                 )}
               </div>
             </div>
@@ -1855,14 +1855,14 @@ const HeapVisualizer = () => {
         </div>
 
         {/* RIGHT: Binary Tree SVG */}
-        <div className="bg-navy-50 rounded-2xl border border-navy-200/60 p-5">
+        <div className="bg-gray-800 rounded-2xl border border-gray-700 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-bold text-navy-700 uppercase tracking-wider">Binary Tree View</h3>
-            <span className="text-[10px] font-mono text-navy-400">children(i) = 2i+1, 2i+2</span>
+            <h3 className="text-xs font-bold text-gray-300 uppercase tracking-wider">Binary Tree View</h3>
+            <span className="text-[10px] font-mono text-gray-500">children(i) = 2i+1, 2i+2</span>
           </div>
 
           {heap.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-navy-400 text-sm italic">Heap is empty</div>
+            <div className="flex items-center justify-center h-40 text-gray-500 text-sm italic">Heap is empty</div>
           ) : (
             <svg viewBox="0 0 560 280" className="w-full h-auto" style={{ minHeight: 160 }}>
               {/* Draw edges first */}
@@ -1875,7 +1875,7 @@ const HeapVisualizer = () => {
                     key={`edge-${i}`}
                     x1={p.x} y1={p.y}
                     x2={x}  y2={y}
-                    stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"
+                    stroke="#6b7280" strokeWidth="1.5" strokeLinecap="round"
                   />
                 );
               })}
@@ -1893,7 +1893,7 @@ const HeapVisualizer = () => {
                     </text>
                     {/* index badge */}
                     <text x={x + 23} y={y - 13} textAnchor="middle" dominantBaseline="middle"
-                      fill="#94a3b8" fontSize="9" fontFamily="monospace"
+                      fill="#6b7280" fontSize="9" fontFamily="monospace"
                     >
                       [{i}]
                     </text>
@@ -1906,16 +1906,16 @@ const HeapVisualizer = () => {
       </div>
 
       {/* Complexity Footer */}
-      <div className="mx-6 mb-6 px-4 py-3 rounded-xl bg-navy-900 flex flex-wrap gap-4 items-center justify-between">
+      <div className="mx-6 mb-6 px-4 py-3 rounded-xl bg-gray-800 border border-gray-700 flex flex-wrap gap-4 items-center justify-between">
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-amber-400" />
-          <span className="text-xs font-bold text-white">Time Complexity</span>
+          <span className="text-xs font-bold text-gray-100">Time Complexity</span>
         </div>
         <div className="flex flex-wrap gap-4 text-xs font-mono">
-          <span className="text-amber-300">Insert (Heapify-Up): <span className="text-white font-bold">O(log n)</span></span>
-          <span className="text-amber-300">Extract Root (Heapify-Down): <span className="text-white font-bold">O(log n)</span></span>
-          <span className="text-amber-300">Build Heap: <span className="text-white font-bold">O(n)</span></span>
-          <span className="text-amber-300">Peek Root: <span className="text-white font-bold">O(1)</span></span>
+          <span className="text-amber-400">Insert (Heapify-Up): <span className="text-white font-bold">O(log n)</span></span>
+          <span className="text-amber-400">Extract Root (Heapify-Down): <span className="text-white font-bold">O(log n)</span></span>
+          <span className="text-amber-400">Build Heap: <span className="text-white font-bold">O(n)</span></span>
+          <span className="text-amber-400">Peek Root: <span className="text-white font-bold">O(1)</span></span>
         </div>
       </div>
     </div>

@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { AchievementsModal } from './components/AchievementsModal';
+import { LevelUpModal } from './components/LevelUpModal';
+import { PageBackground } from './components/PageBackground';
 
 // Pages
 import { LandingPage } from './pages/LandingPage';
@@ -17,7 +19,7 @@ import { AnalyticsPage } from './pages/AnalyticsPage';
 import { MockInterviewPage } from './pages/MockInterviewPage';
 
 const AppContent = () => {
-  const { isAuthenticated, loading, user, logout } = useAuth();
+  const { isAuthenticated, loading, user, logout, levelUpData, dismissLevelUp } = useAuth();
   const [activeTab, setActiveTab] = useState('landing');
   const [tabParams, setTabParams] = useState({});
   const [showAchievements, setShowAchievements] = useState(false);
@@ -53,12 +55,15 @@ const AppContent = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-navy-900 selection:bg-brand-purple-light selection:text-brand-purple-dark">
+    <div className="min-h-screen flex flex-col bg-[#F0EDFF] text-navy-900 selection:bg-brand-purple-light selection:text-brand-purple-dark relative overflow-x-hidden">
+      {/* Universal Lavender Organic Wave Background Style (Image 4) */}
+      <PageBackground />
+
       {!isInterviewActive && (
         <Navbar activeTab={activeTab} onTabChange={handleNavigate} onShowAchievements={() => setShowAchievements(true)} />
       )}
 
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         {activeTab === 'landing' && <LandingPage onNavigate={handleNavigate} />}
         {activeTab === 'auth' && <AuthPage onAuthSuccess={() => handleNavigate('dashboard')} />}
         {activeTab === 'dashboard' && <DashboardPage onNavigate={handleNavigate} />}
@@ -95,6 +100,14 @@ const AppContent = () => {
         isOpen={showAchievements}
         onClose={() => setShowAchievements(false)}
         user={user}
+      />
+
+      {/* Congratulations Level-Up Notification Modal rendered globally at root level */}
+      <LevelUpModal
+        isOpen={Boolean(levelUpData)}
+        onClose={dismissLevelUp}
+        levelData={levelUpData}
+        onOpenAchievements={() => setShowAchievements(true)}
       />
     </div>
   );

@@ -82,7 +82,7 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-navy-200/80 transition-all">
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-purple-200/60 transition-all">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16 gap-2 min-w-0">
           

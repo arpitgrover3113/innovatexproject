@@ -37,7 +37,7 @@ const defaultAdaptiveQuestion = {
 };
 
 export const AdaptivePracticePage = ({ initialTopic = 'recursion', onNavigate }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, addXp } = useAuth();
   const [topics, setTopics] = useState([]);
   const [selectedTopic, setSelectedTopic] = useState(initialTopic);
   const [currentQuestion, setCurrentQuestion] = useState(defaultAdaptiveQuestion);
@@ -109,10 +109,18 @@ export const AdaptivePracticePage = ({ initialTopic = 'recursion', onNavigate })
       setAdaptation(res.adaptation);
       setPendingNextQuestion(res.nextQuestion);
       setCurrentProgress(res.currentTopicProgress);
+
+      if (res.gamification?.xpGained > 0) {
+        addXp?.(res.gamification.xpGained, `Adaptive Quiz: ${currentQuestion.topicName || 'DSA'}`);
+      }
     } catch (err) {
       console.warn('Backend submission fallback:', err);
       const isCorrect = Number(selectedOption) === Number(currentQuestion.correctAnswer);
       const nextDiff = isCorrect ? (currentQuestion.difficulty === 'easy' ? 'medium' : 'hard') : 'easy';
+      if (isCorrect) {
+        const fallbackXp = currentQuestion.difficulty === 'hard' ? 180 : currentQuestion.difficulty === 'medium' ? 100 : 50;
+        addXp?.(fallbackXp, `Adaptive Quiz: ${currentQuestion.topicName || 'DSA'}`);
+      }
       setEvaluation({
         isCorrect,
         correctAnswer: currentQuestion.correctAnswer,

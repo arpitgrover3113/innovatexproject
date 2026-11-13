@@ -1,6 +1,7 @@
 import express from 'express';
 import { optionalAuth } from '../middleware/auth.js';
 import { generateInterviewerResponse, analyzeCodeSnippet } from '../services/interviewAIService.js';
+import { dbStore } from '../services/storage.js';
 
 const router = express.Router();
 
@@ -1615,23 +1616,50 @@ router.post('/message', optionalAuth, async (req, res) => {
 // EVALUATE INTERVIEW & GENERATE SCORECARD
 router.post('/evaluate', optionalAuth, async (req, res) => {
   try {
-    const { interviewId, finalCode, timeSpentSeconds = 600, tabSwitchCount = 0 } = req.body;
+    const { 
+      interviewId, 
+      questionId, 
+      finalCode, 
+      messages: incomingMessages, 
+      language: incomingLanguage, 
+      timeSpentSeconds = 600, 
+      tabSwitchCount = 0 
+    } = req.body;
+
     const session = activeInterviews.get(interviewId);
 
-    const question = session ? session.question : interviewQuestions[0];
-    const messages = session ? session.messages : [];
-    const code = finalCode || (session ? session.currentCode : '') || '';
+    const question = session
+      ? session.question
+      : (interviewQuestions.find(q => q.id === questionId) || interviewQuestions[0]);
+
+    const messages = (incomingMessages && Array.isArray(incomingMessages) && incomingMessages.length > 0)
+      ? incomingMessages
+      : (session && session.messages ? session.messages : []);
+
+    const language = incomingLanguage || (session && session.language) || 'python';
+    const code = finalCode !== undefined ? finalCode : ((session ? session.currentCode : '') || '');
 
     const candidateMessages = messages.filter(m => m.role === 'candidate');
-    const totalWords = candidateMessages.reduce((sum, m) => sum + m.content.split(' ').length, 0);
+    const totalWords = candidateMessages.reduce((sum, m) => sum + (m.content ? m.content.trim().split(/\s+/).filter(Boolean).length : 0), 0);
 
-    // Detailed code structural analysis
-    const codeAnalysis = analyzeCodeSnippet(code, session?.language || 'python');
-    const hasCodeWritten = !codeAnalysis.isStarterCode && (codeAnalysis.charCount > 35 || codeAnalysis.linesCount > 3);
-    const hasProperKeywords = codeAnalysis.constructs.length > 0 || /while|for|if|return|max|min|set|map|push|pop|append|dict/i.test(code);
+    // Detailed code structural analysis with question starterCode check
+    const codeAnalysis = analyzeCodeSnippet(code, language, question?.starterCode);
+
+    // Normalize comparison to detect unmodified starter code in any question/language
+    const normalize = (s) => (s || '').replace(/\r\n/g, '\n').replace(/\/\*[\s\S]*?\*\/|\/\/.*/g, '').replace(/#.*/g, '').replace(/\s+/g, '');
+    const cleanNorm = normalize(code.trim());
+    const isAnyStarter = codeAnalysis.isStarterCode || cleanNorm.length === 0 || interviewQuestions.some(q =>
+      q.starterCode && Object.values(q.starterCode).some(sc => normalize(sc) === cleanNorm)
+    );
+
+    const hasCodeWritten = !isAnyStarter && (codeAnalysis.charCount > 35 || codeAnalysis.linesCount > 3);
 
     // Check if the user made any attempt at all
-    const isZeroAttempt = candidateMessages.length === 0 && !hasCodeWritten;
+    const isZeroAttempt = 
+      (!hasCodeWritten && candidateMessages.length === 0) ||
+      (!hasCodeWritten && totalWords < 15) ||
+      (timeSpentSeconds < 30 && candidateMessages.length === 0) ||
+      (timeSpentSeconds < 45 && !hasCodeWritten && totalWords < 25);
 
     if (isZeroAttempt) {
       // Clean, honest evaluation for aborted/zero attempt screens
@@ -1681,7 +1709,7 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
           }
         ],
         strengths: [
-          'Initiated the FAANG technical screen environment.'
+          'Screen session initiated.'
         ],
         growthAreas: [
           'Engage with the Socratic interviewer: ask 1-2 clarifying questions about bounds before coding.',
@@ -1696,40 +1724,46 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
     }
 
     // Realistic evaluation heuristics based on candidate's actual participation
-    const hasClarified = candidateMessages.some(m => /empty|null|negative|edge|bound|duplicate|zero|size|ascii/i.test(m.content));
-    const hasComplexity = candidateMessages.some(m => /o\(|time|space|linear|logarithmic|quadratic/i.test(m.content));
+    const candidateText = candidateMessages.map(m => m.content).join(' ');
+    const hasClarified = candidateMessages.some(m => /empty|null|negative|edge|bound|duplicate|zero|size|ascii|constraint|range/i.test(m.content));
+    const hasApproach = candidateMessages.some(m => /approach|using|will|algorithm|logic|method|plan|idea|two pointer|hash|bfs|dfs|heap|dp/i.test(m.content));
+    const hasComplexity = /o\(|big-o|time complexity|space complexity|linear|logarithmic|quadratic|constant/i.test(candidateText + ' ' + code);
 
     // 1. Problem Solving (0.0 to 5.0)
-    let problemSolvingScore = 1.0;
+    let problemSolvingScore = 0.0;
     if (candidateMessages.length >= 1) problemSolvingScore += 1.0;
-    if (hasClarified) problemSolvingScore += 1.2;
+    if (hasClarified) problemSolvingScore += 1.5;
+    if (hasApproach) problemSolvingScore += 1.0;
     if (candidateMessages.length >= 3) problemSolvingScore += 0.8;
-    if (hasComplexity) problemSolvingScore += 0.8;
+    if (hasComplexity) problemSolvingScore += 0.7;
+    if (hasCodeWritten && problemSolvingScore < 1.0) problemSolvingScore = 1.0;
     problemSolvingScore = Math.min(5.0, Math.round(problemSolvingScore * 10) / 10);
 
     // 2. Communication Clarity (0.0 to 5.0)
-    let communicationScore = 1.0;
-    if (totalWords > 20) communicationScore += 1.0;
-    if (totalWords > 60) communicationScore += 1.0;
-    if (candidateMessages.length >= 3) communicationScore += 0.8;
-    if (totalWords > 120) communicationScore += 0.8;
+    let communicationScore = 0.0;
+    if (totalWords >= 15) communicationScore += 1.0;
+    if (totalWords >= 45) communicationScore += 1.5;
+    if (totalWords >= 90) communicationScore += 1.5;
+    if (candidateMessages.length >= 3) communicationScore += 1.0;
     communicationScore = Math.min(5.0, Math.round(communicationScore * 10) / 10);
 
     // 3. Algorithmic Optimization & Complexity (0.0 to 5.0)
-    let complexityScore = 1.0;
-    if (hasComplexity) complexityScore += 1.8;
-    if (/o\(n\)|o\(log n\)|o\(1\)/i.test(code + ' ' + candidateMessages.map(m => m.content).join(' '))) complexityScore += 1.2;
-    if (candidateMessages.length >= 3) complexityScore += 0.5;
+    let complexityScore = 0.0;
+    if (hasComplexity) complexityScore += 2.0;
+    if (/o\(n\)|o\(log n\)|o\(1\)|o\(n\s*\*\s*k\)|o\(n\^2\)/i.test(code + ' ' + candidateText)) complexityScore += 1.5;
+    if (/space|auxiliary|memory|o\(1\)\s*space/i.test(candidateText)) complexityScore += 1.5;
     complexityScore = Math.min(5.0, Math.round(complexityScore * 10) / 10);
 
     // 4. Code Quality & Edge Cases (0.0 to 5.0)
-    let codeQualityScore = 1.0;
-    if (hasCodeWritten) codeQualityScore += 1.4;
-    if (codeAnalysis.hasLoop) codeQualityScore += 0.6;
-    if (codeAnalysis.hasBaseCase) codeQualityScore += 0.6;
-    if (codeAnalysis.hasReturn) codeQualityScore += 0.5;
-    if (codeAnalysis.hasPointers || codeAnalysis.hasMapOrSet) codeQualityScore += 0.5;
-    if (hasClarified) codeQualityScore += 0.4;
+    let codeQualityScore = 0.0;
+    if (hasCodeWritten) {
+      codeQualityScore += 1.5;
+      if (codeAnalysis.hasLoop) codeQualityScore += 0.8;
+      if (codeAnalysis.hasBaseCase) codeQualityScore += 0.8;
+      if (codeAnalysis.hasReturn) codeQualityScore += 0.7;
+      if (codeAnalysis.hasPointers || codeAnalysis.hasMapOrSet) codeQualityScore += 0.7;
+      if (codeAnalysis.linesCount >= 8) codeQualityScore += 0.5;
+    }
     codeQualityScore = Math.min(5.0, Math.round(codeQualityScore * 10) / 10);
 
     // Overall Average Score (Percentage 0-100)
@@ -1739,13 +1773,13 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
     // Hire Verdict
     let verdict = 'NO HIRE';
     let verdictClass = 'rose';
-    let awardedXp = 75;
+    let awardedXp = 50;
 
-    if (overallPercentage >= 82) {
+    if (overallPercentage >= 80) {
       verdict = 'STRONG HIRE';
       verdictClass = 'emerald';
       awardedXp = 500;
-    } else if (overallPercentage >= 68) {
+    } else if (overallPercentage >= 65) {
       verdict = 'LEANING HIRE';
       verdictClass = 'blue';
       awardedXp = 350;
@@ -1753,13 +1787,21 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
       verdict = 'NEEDS PRACTICE';
       verdictClass = 'amber';
       awardedXp = 200;
+    } else if (overallPercentage > 0) {
+      verdict = 'NO HIRE';
+      verdictClass = 'rose';
+      awardedXp = 50;
+    } else {
+      verdict = 'NO ATTEMPT';
+      verdictClass = 'rose';
+      awardedXp = 0;
     }
 
     const strengths = [];
     const growthAreas = [];
 
     if (hasClarified) {
-      strengths.push('Proactively inquired about input bounds and edge cases before jumping into code.');
+      strengths.push('Proactively inquired about input bounds and edge cases upfront.');
     } else {
       growthAreas.push('Spend 60-90 seconds upfront asking about edge cases (e.g. empty inputs, duplicates, extreme values).');
     }
@@ -1770,16 +1812,22 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
       growthAreas.push('State both worst-case time complexity AND space complexity without waiting for interviewer prompt.');
     }
 
-    if (totalWords > 60) {
+    if (totalWords >= 50) {
       strengths.push('Good verbal communication — vocalized reasoning clearly during the screen.');
     } else {
       growthAreas.push('Practice continuous "thinking aloud" so the interviewer understands your thought progression.');
     }
 
-    if (hasCodeWritten) {
+    if (hasCodeWritten && codeQualityScore >= 2.5) {
       strengths.push('Wrote clean, structured implementation with proper control flow.');
+    } else if (!hasCodeWritten) {
+      growthAreas.push('Write and test a runnable implementation in the integrated code editor.');
     } else {
       growthAreas.push('Ensure complete implementation with boundary condition handling in the editor.');
+    }
+
+    if (strengths.length === 0) {
+      strengths.push('Engaged with the technical problem and initiated implementation.');
     }
 
     // Integrity assessment
@@ -1827,32 +1875,69 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
           pillar: 'Problem Solving & Intuition',
           score: problemSolvingScore,
           maxScore: 5.0,
-          description: 'Ability to deconstruct the problem, explore trade-offs, and formulate an optimal approach.'
+          description: hasClarified
+            ? 'Proactively asked clarifying questions and validated problem constraints.'
+            : candidateMessages.length > 0
+            ? 'Discussed approach but skipped clarifying edge case constraints upfront.'
+            : hasCodeWritten
+            ? 'Proceeded directly into implementation without verbal problem deconstruction.'
+            : 'No problem deconstruction or clarifying questions observed.'
         },
         {
           pillar: 'Communication Clarity',
           score: communicationScore,
           maxScore: 5.0,
-          description: 'Clarity of verbal reasoning, "thinking aloud", and receptive dialogue with the interviewer.'
+          description: totalWords >= 60
+            ? 'Strong verbal communication and clear articulation of thought process.'
+            : totalWords >= 15
+            ? 'Basic verbal responses provided; could benefit from more consistent thinking aloud.'
+            : 'No verbal dialogue or reasoning vocalized during the session.'
         },
         {
           pillar: 'Algorithmic Optimization',
           score: complexityScore,
           maxScore: 5.0,
-          description: 'Accuracy in identifying Big-O time and space complexity and avoiding brute-force traps.'
+          description: hasComplexity
+            ? 'Accurately articulated and defended Big-O time and space complexity.'
+            : 'Did not articulate Big-O time or space complexity during the screen.'
         },
         {
           pillar: 'Code Quality & Resilience',
           score: codeQualityScore,
           maxScore: 5.0,
-          description: 'Clean syntax, robust variable naming, and consideration of boundary conditions.'
+          description: hasCodeWritten
+            ? `Implemented code using ${codeAnalysis.constructs.length > 0 ? codeAnalysis.constructs.join(', ') : 'standard logic'}${codeAnalysis.hasBaseCase ? ' with boundary checks' : ''}.`
+            : 'No runnable code implementation was submitted in the editor.'
         }
       ],
       strengths,
       growthAreas,
-      seniorEngineerNotes: `Candidate tackled **${question.title}** under simulated 15-minute conditions. ${verdict === 'STRONG HIRE' ? 'Exhibited senior-level communication and structured coding fluency.' : verdict === 'LEANING HIRE' ? 'Solid foundational intuition with room for deeper complexity analysis.' : 'Shows potential; practice verbalizing algorithmic trade-offs and handling edge cases.'} Recommended next priority: review **${question.topic}** in LearnLoop to solidify interview mastery.`,
+      seniorEngineerNotes: `Candidate tackled **${question.title}** (${question.companyName} · ${question.difficulty}) under simulated 15-minute conditions. ` +
+        `Vocalized ${candidateMessages.length} response(s) with ${totalWords} total words spoken. Code implementation ${hasCodeWritten ? `contains ${codeAnalysis.linesCount} lines with ${codeAnalysis.constructs.length > 0 ? codeAnalysis.constructs.join(', ') : 'standard logic'}` : 'was not submitted'}. ` +
+        `${verdict === 'STRONG HIRE' ? 'Exhibited senior-level communication and structured coding fluency.' : verdict === 'LEANING HIRE' ? 'Solid foundational intuition with room for deeper complexity analysis.' : verdict === 'NEEDS PRACTICE' ? 'Shows developing potential; focus on vocalizing Big-O trade-offs and handling edge cases.' : 'Requires structured practice on FAANG-style problem deconstruction.'} Recommended next priority: review **${question.topic}** in LearnLoop to solidify interview mastery.`,
       recommendedTopic: question.topic
     };
+
+    if (awardedXp > 0 && req.user?._id) {
+      try {
+        const u = await dbStore.findUserById(req.user._id);
+        if (u) {
+          const oldLevel = u.level || Math.floor((u.xp || 1450) / 600) + 1;
+          u.xp = (u.xp || 1450) + awardedXp;
+          u.level = Math.floor(u.xp / 600) + 1;
+          if (u.level > oldLevel) {
+            scorecard.levelUp = {
+              level: u.level,
+              oldLevel,
+              totalXp: u.xp,
+              xpGained: awardedXp
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('Could not update user xp in dbStore:', e);
+      }
+    }
 
     res.json(scorecard);
   } catch (err) {

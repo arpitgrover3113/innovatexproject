@@ -3,7 +3,7 @@ import { Sparkles, Terminal, ShieldCheck, Heart } from 'lucide-react';
 
 export const Footer = () => {
   return (
-    <footer className="border-t border-navy-200/80 bg-white/70 backdrop-blur-sm py-10 mt-16">
+    <footer className="border-t border-purple-200/60 bg-white/60 backdrop-blur-sm py-10 mt-16 relative z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           

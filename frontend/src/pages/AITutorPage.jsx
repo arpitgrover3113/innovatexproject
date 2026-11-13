@@ -328,94 +328,136 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
   const toggleListening = () => {
     if (typeof window === 'undefined') return;
 
-    // If tutor is currently speaking, user tapping mic immediately stops tutor audio!
+    // Stop AI speaking first (user gesture)
     if (speakingIndex !== null || ('speechSynthesis' in window && window.speechSynthesis.speaking)) {
       stopSpeaking();
     }
-
-    // Prime speech synthesis on user gesture so subsequent speech response from AI is allowed by browser
     if ('speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.resume();
-      } catch (e) {}
+      try { window.speechSynthesis.resume(); } catch (e) {}
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setVoiceError('Speech recognition is not supported in this browser. Please open in Google Chrome or Microsoft Edge.');
+      setVoiceError('Speech recognition requires Chrome or Edge browser.');
       return;
     }
 
+    // Stop if already listening
     if (isListening && recognitionRef.current) {
-      try {
-        recognitionRef.current.abort();
-      } catch (e) {}
-      recognitionRef.current = null;
-      setIsListening(false);
+      interimTranscriptRef.current = '';
       setInterimTranscript('');
+      try { recognitionRef.current.stop(); } catch (e) {}
+      setIsListening(false);
+      recognitionRef.current = null;
       return;
     }
+
+    setVoiceError(null);
 
     try {
       const recognition = new SpeechRecognition();
+      // continuous=false → browser fires isFinal FAST (immediately after end-of-speech)
+      // This is FASTER than continuous=true which waits for a long pause
       recognition.continuous = false;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
+      recognition.maxAlternatives = 1;
+
+      // Store final result in a local closure var so onend can safely submit it
+      // without any state/ref race conditions
+      let capturedFinal = '';
+      let silenceTimer = null;
+
+      const submitVoiceText = (text) => {
+        if (!text || !text.trim()) return;
+        const clean = text.trim();
+        capturedFinal = '';
+        interimTranscriptRef.current = '';
+        setInterimTranscript('');
+        setInputMessage(clean);
+        setIsListening(false);
+        recognitionRef.current = null;
+        try { recognition.stop(); } catch (e) {}
+        handleSendMessage(clean, true);
+      };
 
       recognition.onstart = () => {
         setIsListening(true);
         setVoiceError(null);
         setInterimTranscript('');
+        interimTranscriptRef.current = '';
+        capturedFinal = '';
       };
 
       recognition.onresult = (event) => {
+        // Reset silence auto-submit timer on every new result
+        if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+
         let finalStr = '';
         let interimStr = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-          const res = event.results[i];
-          if (res.isFinal) {
-            finalStr += res[0].transcript;
-          } else {
-            interimStr += res[0].transcript;
-          }
+          if (event.results[i].isFinal) finalStr += event.results[i][0].transcript;
+          else interimStr += event.results[i][0].transcript;
         }
 
         if (interimStr) {
           interimTranscriptRef.current = interimStr;
           setInterimTranscript(interimStr);
+          // Safety net: if isFinal never fires after 2s of silence, auto-submit interim
+          silenceTimer = setTimeout(() => {
+            const toSubmit = interimTranscriptRef.current.trim();
+            if (toSubmit) submitVoiceText(toSubmit);
+          }, 2000);
         }
 
         if (finalStr && finalStr.trim()) {
-          const cleanFinal = finalStr.trim();
+          // Don't call abort/stop here — save to capturedFinal and let onend fire naturally
+          // This avoids the abort-inside-onresult race condition entirely
+          capturedFinal = finalStr.trim();
           interimTranscriptRef.current = '';
           setInterimTranscript('');
-          setInputMessage(cleanFinal);
-          setIsListening(false);
-          try { recognition.abort(); } catch (e) {}
-          recognitionRef.current = null;
-          // When asking via microphone, ALWAYS auto-speak the answer!
-          handleSendMessage(cleanFinal, true);
         }
       };
 
       recognition.onerror = (event) => {
+        if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
         setIsListening(false);
-        try { recognition.abort(); } catch (e) {}
         recognitionRef.current = null;
-        if (event.error === 'not-allowed') {
-          setVoiceError('Microphone permission blocked. Please allow mic access in your browser.');
+        const errorMessages = {
+          'not-allowed': 'Microphone access blocked. Allow mic permission in your browser settings.',
+          'no-speech': 'No speech detected. Please try speaking again.',
+          'network': 'Network error during voice capture. Check your connection.',
+          'audio-capture': 'No microphone found. Please connect a mic.',
+          'service-not-allowed': 'Speech recognition not allowed. Try refreshing the page.',
+        };
+        if (event.error !== 'aborted') {
+          setVoiceError(errorMessages[event.error] || `Voice error: ${event.error}. Please try again.`);
         }
       };
 
       recognition.onend = () => {
+        if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
         setIsListening(false);
         recognitionRef.current = null;
-        // If recognition ended with unsubmitted spoken words, keep them in input box
-        if (interimTranscriptRef.current && interimTranscriptRef.current.trim()) {
-          const salvage = interimTranscriptRef.current.trim();
+
+        // Submit the captured final result — this is the FAST, reliable path
+        if (capturedFinal) {
+          const clean = capturedFinal.trim();
+          capturedFinal = '';
           interimTranscriptRef.current = '';
           setInterimTranscript('');
+          setInputMessage(clean);
+          handleSendMessage(clean, true);
+          return;
+        }
+
+        // Fallback: auto-submit any salvaged interim words too (don't just dump in input box)
+        const salvage = interimTranscriptRef.current.trim();
+        interimTranscriptRef.current = '';
+        setInterimTranscript('');
+        if (salvage) {
           setInputMessage(salvage);
+          handleSendMessage(salvage, true);
         }
       };
 
@@ -423,6 +465,7 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
       recognition.start();
     } catch (err) {
       console.warn('Speech recognition start error:', err);
+      setVoiceError('Could not start voice recognition. Please try again.');
       setIsListening(false);
       recognitionRef.current = null;
     }
@@ -536,23 +579,59 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
 
     try {
       const res = await tutorApi.sendMessage(text, topicContextRef.current);
-      
-      const assistantMsg = {
+
+      const fullReply = res.reply || '';
+
+      // Turn off loading spinner BEFORE streaming so dots don't show alongside words
+      setLoading(false);
+
+      // --- Typewriter streaming effect: reveal words progressively ---
+      // Insert a placeholder message immediately so the user sees response starting right away
+      const targetIndex = messages.length + 1;
+      const baseMsgShape = {
         role: 'assistant',
-        content: res.reply,
+        content: '',
         timestamp: new Date().toISOString(),
         isFallback: res.isFallback,
-        provider: res.provider
+        provider: res.provider,
+        isStreaming: true
       };
+      setMessages(prev => [...prev, baseMsgShape]);
 
-      // Update messages state
-      const targetIndex = messages.length + 1;
-      setMessages(prev => [...prev, assistantMsg]);
+      // Stream words ~25ms apart (feels instant but smooth)
+      const words = fullReply.split(' ');
+      let streamed = '';
+      await new Promise((resolve) => {
+        let i = 0;
+        const tick = () => {
+          if (i >= words.length) {
+            // Final update: mark streaming done
+            setMessages(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { ...updated[updated.length - 1], content: fullReply, isStreaming: false };
+              return updated;
+            });
+            resolve();
+            return;
+          }
+          // Batch 3 words per tick for speed
+          const batch = words.slice(i, i + 3).join(' ');
+          streamed += (streamed ? ' ' : '') + batch;
+          i += 3;
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { ...updated[updated.length - 1], content: streamed };
+            return updated;
+          });
+          setTimeout(tick, 25);
+        };
+        tick();
+      });
 
       // Auto-speak when question was asked via voice or Voice Mode is active
       if (isVoiceModeRef.current || autoSpeak) {
         setTimeout(() => {
-          speakAssistantMessage(res.reply, targetIndex);
+          speakAssistantMessage(fullReply, targetIndex);
         }, 60);
       }
 

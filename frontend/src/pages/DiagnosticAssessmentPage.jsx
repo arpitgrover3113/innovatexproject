@@ -133,7 +133,7 @@ const fallbackDiagnostic = {
 };
 
 export const DiagnosticAssessmentPage = ({ onNavigate }) => {
-  const { isAuthenticated, guestLogin } = useAuth();
+  const { isAuthenticated, guestLogin, addXp } = useAuth();
   const [testData, setTestData] = useState(fallbackDiagnostic);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -267,6 +267,7 @@ export const DiagnosticAssessmentPage = ({ onNavigate }) => {
       setAssessmentResult(fallbackResults);
     } finally {
       setSubmitting(false);
+      addXp?.(200, 'Diagnostic Baseline Assessment');
       try {
         confetti({
           particleCount: 100,

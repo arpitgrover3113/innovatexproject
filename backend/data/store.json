@@ -151,11 +151,12 @@
           "Data Structures & Algorithms"
         ],
         "createdAt": "2026-11-11T10:59:42.521Z",
-        "totalQuestionsAnswered": 15,
-        "overallAccuracy": 79,
-        "xp": 2990,
-        "level": 5,
-        "streakDays": 2
+        "totalQuestionsAnswered": 24,
+        "overallAccuracy": 88,
+        "xp": 4835,
+        "level": 9,
+        "streakDays": 3,
+        "leetcodeUsername": "ganga_kaurr"
       }
     ],
     [
@@ -170,7 +171,8 @@
         "selectedSubjects": [
           "Data Structures & Algorithms"
         ],
-        "createdAt": "2026-11-11T10:59:42.521Z"
+        "createdAt": "2026-11-11T10:59:42.521Z",
+        "leetcodeUsername": null
       }
     ]
   ],
@@ -403,16 +405,16 @@
         "userId": "user_1794394782521_plwrf",
         "topicSlug": "recursion",
         "topicName": "Recursion",
-        "masteryScore": 88,
-        "totalAttempts": 13,
-        "correctAttempts": 9,
-        "recentAccuracy": 0,
+        "masteryScore": 100,
+        "totalAttempts": 22,
+        "correctAttempts": 18,
+        "recentAccuracy": 96,
         "lastDifficulty": "hard",
-        "consecutiveMistakes": 1,
-        "consecutiveSuccesses": 0,
+        "consecutiveMistakes": 0,
+        "consecutiveSuccesses": 9,
         "recentMisconceptions": [],
         "history": [],
-        "updatedAt": "2026-11-12T10:40:21.650Z"
+        "updatedAt": "2026-11-13T19:14:22.909Z"
       }
     ],
     [
@@ -7715,307 +7717,98 @@
             "role": "assistant",
             "content": "Hello! I am your LearnLoop AI tutor. How can I help you today? Ask me to explain any DSA concept, review your recent weak areas, or generate guided practice problems!",
             "suggestedNextStep": "Explain Recursion vs Iteration",
-            "timestamp": "2026-11-12T10:26:39.067Z"
+            "timestamp": "2026-11-13T18:19:43.172Z"
           },
           {
             "role": "user",
-            "content": "hi how are you doing",
-            "timestamp": "2026-11-12T10:26:44.494Z"
+            "content": "hello",
+            "timestamp": "2026-11-13T19:03:29.050Z"
           },
           {
             "role": "assistant",
-            "content": "I'm doing well, thank you for asking! I am ready to help you strengthen your understanding of **Recursion**.\n\nWould you like a conceptual breakdown of how the call stack works, or would you prefer a practice challenge to test your current mastery?",
-            "suggestedNextStep": "Explain the base case vs. recursive case in Recursion",
-            "timestamp": "2026-11-12T10:26:45.401Z"
-          },
-          {
-            "role": "user",
-            "content": "give me questions",
-            "timestamp": "2026-11-12T10:26:57.177Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following Python function:\n\n```python\ndef mystery(n):\n    if n == 0:\n        return 1\n    return n * mystery(n - 1)\n```\n\nWhat is the time complexity of this function in terms of `n`?\n\n* **Option A:** O(1)\n* **Option B:** O(log n)\n* **Option C:** O(n)\n* **Option D:** O(2^n)\n\n**Tutor Guidance**\nThink about how many times the function calls itself before reaching the base case. How does the total number of recursive calls scale as `n` increases?\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Explain the difference between time complexity and space complexity for recursion.",
-            "timestamp": "2026-11-12T10:26:57.995Z"
-          },
-          {
-            "role": "user",
-            "content": "how are you",
-            "timestamp": "2026-11-12T10:27:09.004Z"
-          },
-          {
-            "role": "assistant",
-            "content": "I am doing well, thank you! I am ready to continue helping you with **Recursion**.\n\nWould you like to answer the previous practice challenge about time complexity, or would you like a different question?",
-            "suggestedNextStep": "I think the answer is Option C",
-            "timestamp": "2026-11-12T10:27:09.565Z"
-          },
-          {
-            "role": "user",
-            "content": "give me questions",
-            "timestamp": "2026-11-12T10:27:22.984Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Strings\n\nConsider the following Python code snippet:\n\n```python\ns = \"hello\"\ns[0] = \"H\"\n```\n\nWhat happens when this code is executed?\n\n* **Option A:** The string becomes \"Hello\"\n* **Option B:** An `IndexError` is raised\n* **Option C:** A `TypeError` is raised because strings are immutable\n* **Option D:** The variable `s` now points to a new string \"Hello\"\n\n**Tutor Guidance**\nRecall the fundamental property of string objects in most standard languages regarding modification after creation. What happens when you try to change a single character within an existing string object?\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Option C",
-            "timestamp": "2026-11-12T10:27:23.799Z"
-          },
-          {
-            "role": "user",
-            "content": "give me questions",
-            "timestamp": "2026-11-12T10:27:46.025Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Sorting\n\nConsider an array of integers: `[5, 2, 4, 1, 3]`. We are using **Bubble Sort** to sort this array in ascending order.\n\nIn the **first pass** of the algorithm (starting from the left and comparing adjacent elements), which pair of elements is compared **last**?\n\n* **Option A:** (5, 2)\n* **Option B:** (4, 1)\n* **Option C:** (1, 3)\n* **Option D:** (2, 4)\n\n**Tutor Guidance**\nBubble Sort works by repeatedly swapping adjacent elements if they are in the wrong order. Think about how the \"largest\" element moves through the array during a single complete pass from index 0 to the end.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Give me a practice question on Sorting",
-            "timestamp": "2026-11-12T10:27:47.191Z"
-          },
-          {
-            "role": "user",
-            "content": "what do I study",
-            "timestamp": "2026-11-12T10:27:57.289Z"
-          },
-          {
-            "role": "assistant",
-            "content": "Based on your cognitive profile, here is your recommended study path:\n\n**Priority 1: Sorting (Current Mastery: 0%)**\nThis is your **Active Topic**. Since your mastery is at 0%, you need to build a strong foundation here first.\n*   **Focus:** Understand the mechanics of simple sorting algorithms (Bubble, Selection, Insertion).\n*   **Why:** These are the building blocks for more complex algorithms and are frequently asked in interviews.\n\n**Priority 2: Binary Search (Current Mastery: 0%)**\n*   **Focus:** Understand how to halve the search space and the pre-condition (the array must be sorted).\n*   **Why:** It is a fundamental algorithm for efficient data retrieval and often relies on your understanding of sorting.\n\n**Priority 3: Linked Lists (Current Mastery: 0%)**\n*   **Focus:** Understand nodes, pointers, and basic operations (insert, delete, traverse).\n*   **Why:** It is a core data structure that complements arrays and is essential for understanding memory management and more advanced structures like stacks and queues.\n\n**Leverage Your Strengths:**\n*   **Recursion (59%):** Use your strong understanding of recursion to help you understand recursive sorting algorithms (like Merge Sort or Quick Sort) later on.\n*   **Arrays (9%) & Strings (9%):** These are foundational. As you study Sorting, you will practice array manipulation, which will help strengthen these areas.\n\n**Recommendation:**\nLet's stick with **Sorting** for now. Would you like to continue with the Bubble Sort question I just gave you, or would you like a conceptual breakdown of how Bubble Sort works?",
-            "suggestedNextStep": "Give me a practice question on Sorting",
-            "timestamp": "2026-11-12T10:27:58.416Z"
-          },
-          {
-            "role": "user",
-            "content": "give me questions",
-            "timestamp": "2026-11-12T10:28:18.102Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Arrays\n\nConsider the following Python code snippet involving an array (list):\n\n```python\narr = [10, 20, 30, 40]\nindex = 2\nprint(arr[index])\n```\n\nWhat will be the output of this code?\n\n* **Option A:** 10\n* **Option B:** 20\n* **Option C:** 30\n* **Option D:** 40\n\n**Tutor Guidance**\nRemember that arrays are zero-indexed. This means the first element is at index 0, the second is at index 1, and so on. Where does index 2 point to in this specific list?\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Option C",
-            "timestamp": "2026-11-12T10:28:18.940Z"
-          },
-          {
-            "role": "user",
-            "content": "ask question",
-            "timestamp": "2026-11-12T10:28:34.210Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Trees\n\nConsider a **Binary Search Tree (BST)** with the property that for every node, all values in its left subtree are smaller, and all values in its right subtree are larger.\n\nYou insert the following sequence of values into an empty BST: `5, 3, 7, 2, 4`.\n\nWhat is the value of the **rightmost** leaf node in this tree?\n\n* **Option A:** 2\n* **Option B:** 3\n* **Option C:** 4\n* **Option D:** 7\n\n**Tutor Guidance**\nTrace the insertion path for each number. Remember, to find the rightmost leaf, you are essentially looking for the maximum value in the tree, as BSTs store larger values to the right.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Give me a practice question on Trees",
-            "timestamp": "2026-11-12T10:28:34.967Z"
-          },
-          {
-            "role": "user",
-            "content": "ask questions",
-            "timestamp": "2026-11-12T10:28:53.942Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Stacks and Queues\n\nConsider a standard **Stack** (LIFO - Last-In, First-Out) data structure. You perform the following operations in order on an initially empty stack:\n\n1. `push(1)`\n2. `push(2)`\n3. `pop()`\n4. `push(3)`\n5. `pop()`\n\nWhat value is returned by the final `pop()` operation?\n\n* **Option A:** 1\n* **Option B:** 2\n* **Option C:** 3\n* **Option D:** Error (Stack Underflow)\n\n**Tutor Guidance**\nThink about the \"Last-In, First-Out\" principle. The last item pushed is always the first one removed. Trace the state of the stack after each step to see which element is on top at the end.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Give me a practice question on Stacks and Queues",
-            "timestamp": "2026-11-12T10:28:54.941Z"
-          },
-          {
-            "role": "user",
-            "content": "thank you so much",
-            "timestamp": "2026-11-12T10:29:04.067Z"
-          },
-          {
-            "role": "assistant",
-            "content": "You are very welcome! I'm glad I could help.\n\nSince you are actively studying **Stacks and Queues**, would you like to:\n1.  **Get a conceptual breakdown** of the differences between Stacks and Queues?\n2.  **Tackle another practice challenge** to build your mastery?",
-            "suggestedNextStep": "Explain the difference between a Stack and a Queue",
-            "timestamp": "2026-11-12T10:29:04.868Z"
-          },
-          {
-            "role": "user",
-            "content": "hi how are you doing",
-            "timestamp": "2026-11-12T10:29:24.836Z"
-          },
-          {
-            "role": "assistant",
-            "content": "I'm doing well, thank you for asking! I'm ready to help you master **Stacks and Queues**.\n\nSince you're just starting out with this topic, would you like a quick conceptual breakdown of how they work, or shall we jump straight into a practice challenge to test your intuition?",
-            "suggestedNextStep": "Give me a practice challenge on Stacks and Queues",
-            "timestamp": "2026-11-12T10:29:25.664Z"
-          },
-          {
-            "role": "user",
-            "content": "hi how are you",
-            "timestamp": "2026-11-12T10:33:49.918Z"
-          },
-          {
-            "role": "assistant",
-            "content": "I am doing great, thank you for asking! I'm ready to help you dive deeper into **Recursion**.\n\nSince your mastery is currently at 59%, are you ready for a **conceptual breakdown** of how the call stack works, or would you prefer a **practice challenge** to test your understanding?",
-            "suggestedNextStep": "Explain the base case and recursive case simply",
-            "timestamp": "2026-11-12T10:33:50.597Z"
+            "content": "Hello! It's great to see you. Since you have achieved 100% mastery in Recursion, are you ready for a quick conceptual breakdown to reinforce your understanding, or would you prefer a practice challenge to keep your skills sharp?",
+            "suggestedNextStep": "Give me a practice challenge on Recursion",
+            "timestamp": "2026-11-13T19:03:29.543Z"
           },
           {
             "role": "user",
             "content": "give questions",
-            "timestamp": "2026-11-12T10:33:56.417Z"
+            "timestamp": "2026-11-13T19:03:35.427Z"
           },
           {
             "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following recursive function:\n\n```python\ndef mystery(n):\n    if n == 0:\n        return 1\n    else:\n        return n * mystery(n - 1)\n```\n\nWhat is the return value of `mystery(4)`?\n\n* **Option A:** 4\n* **Option B:** 10\n* **Option C:** 24\n* **Option D:** 1\n\n**Tutor Guidance**\nThink about the base case and how the multiplication accumulates as the call stack unwinds. What is $4 \\times 3 \\times 2 \\times 1$?\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Option C",
-            "timestamp": "2026-11-12T10:33:57.257Z"
+            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following recursive function that calculates the sum of the first `n` natural numbers:\n\n```python\ndef sum_n(n):\n    if n == 0:\n        return 0\n    return n + sum_n(n - 1)\n```\n\nIf you call `sum_n(3)`, what is the exact sequence of return values as the call stack unwinds?\n\n* **Option A:** 3, 2, 1, 0\n* **Option B:** 0, 1, 3, 6\n* **Option C:** 6, 3, 1, 0\n* **Option D:** 1, 3, 6, 0\n\n**Tutor Guidance**\nRemember that recursion has two phases: the \"descent\" (calls going deeper) and the \"unwinding\" (returns coming back up). The base case triggers the first return value. Think about how each `return` statement adds the current `n` to the result of the deeper call.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
+            "suggestedNextStep": "Explain the time complexity of this recursive sum function",
+            "timestamp": "2026-11-13T19:03:36.290Z"
           },
           {
             "role": "user",
-            "content": "give subjective coding questions",
-            "timestamp": "2026-11-12T10:34:14.977Z"
+            "content": "give questions",
+            "timestamp": "2026-11-13T19:03:54.654Z"
           },
           {
             "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Linked Lists\n\nConsider the following Python code snippet that attempts to reverse a singly linked list:\n\n```python\nclass Node:\n    def __init__(self, data):\n        self.data = data\n        self.next = None\n\ndef reverse_list(head):\n    prev = None\n    curr = head\n    while curr is not None:\n        next_temp = curr.next\n        curr.next = prev\n        prev = curr\n        curr = next_temp\n    return head # Return the original head\n```\n\nAssuming `head` points to a valid list with at least two nodes, what is the primary logical error in this function?\n\n* **Option A:** The variable `next_temp` is not initialized correctly, causing a `NoneType` error.\n* **Option B:** The function returns the original `head` node instead of the new head (which is `prev` after the loop).\n* **Option C:** The loop condition `while curr is not None` should be `while curr is not head`.\n* **Option D:** The assignment `curr.next = prev` should happen before `next_temp = curr.next`.\n\n**Tutor Guidance**\nTrace the pointers. When the loop finishes, where does `prev` point, and where does `head` still point? What should the caller receive to access the reversed list correctly?\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Give me a practice question on Linked Lists",
-            "timestamp": "2026-11-12T10:34:16.099Z"
-          },
-          {
-            "role": "user",
-            "content": "not give MCQs just give me a question from that I can code it",
-            "timestamp": "2026-11-12T10:34:34.127Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Linked Lists\n\n**Problem:** Implement a function `reverse_linked_list(head)` that takes the head node of a singly linked list and reverses it in-place.\n\n**Requirements:**\n1. You must modify the `next` pointers of the existing nodes.\n2. Do not create new nodes.\n3. Return the new head of the reversed list.\n\n**Example:**\nInput: `1 -> 2 -> 3 -> 4 -> None`\nOutput: `4 -> 3 -> 2 -> 1 -> None`\n\n**Hint:**\nThink about how you can iterate through the list while keeping track of three pointers: `prev`, `curr`, and `next_temp`. How do you update these pointers at each step to flip the direction of the link?\n\nWrite your code solution below.",
-            "suggestedNextStep": "Give me a practice question on Linked Lists",
-            "timestamp": "2026-11-12T10:34:35.007Z"
-          },
-          {
-            "role": "user",
-            "content": "depression",
-            "timestamp": "2026-11-12T10:34:58.701Z"
-          },
-          {
-            "role": "assistant",
-            "content": "I am an AI tutor focused on Computer Science and Data Structures & Algorithms. I cannot provide medical advice or support for mental health issues like depression. If you or someone you know is struggling, please reach out to a qualified mental health professional or a crisis helpline in your area.\n\nIf you are ready to continue studying, we can return to our active topic of **Stacks and Queues** or any other computer science subject you wish to explore.",
-            "suggestedNextStep": "Explain the difference between a Stack and a Queue",
-            "timestamp": "2026-11-12T10:34:59.395Z"
-          },
-          {
-            "role": "user",
-            "content": "give question",
-            "timestamp": "2026-11-12T10:35:06.502Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Stacks and Queues\n\n**Problem:** Implement a function `is_valid_parentheses(s: str) -> bool` using a **Stack**.\n\n**Requirements:**\n1. Given a string `s` containing only the characters `(`, `)`, `{`, `}`, `[`, and `]`, determine if the input string is valid.\n2. A string is valid if:\n   - Open brackets are closed by the same type of bracket.\n   - Open brackets are closed in the correct order.\n   - Every close bracket has a corresponding open bracket of the same type.\n3. You must use a stack data structure to solve this.\n\n**Example 1:**\nInput: `s = \"()\"`\nOutput: `true`\n\n**Example 2:**\nInput: `s = \"(]\"`\nOutput: `false`\n\n**Example 3:**\nInput: `s = \"{[]}\"`\nOutput: `true`\n\n**Tutor Guidance**\nThink about what happens when you encounter an opening bracket versus a closing bracket. When you see a closing bracket, what check must you perform against the top of the stack? What should you return if the stack is empty when you encounter a closing bracket?\n\nWrite your code solution below.",
-            "suggestedNextStep": "Give me a practice question on Stacks and Queues",
-            "timestamp": "2026-11-12T10:35:07.607Z"
-          },
-          {
-            "role": "user",
-            "content": "thank you so much",
-            "timestamp": "2026-11-12T10:35:15.406Z"
-          },
-          {
-            "role": "assistant",
-            "content": "You are very welcome! I am glad I could help.\n\nSince we are focusing on **Stacks and Queues**, are you ready to try another practice challenge to build your mastery, or would you like a conceptual breakdown of how stacks and queues differ in memory management?",
-            "suggestedNextStep": "Give me another Stacks and Queues problem",
-            "timestamp": "2026-11-12T10:35:16.111Z"
-          },
-          {
-            "role": "user",
-            "content": "hi hi",
-            "timestamp": "2026-11-12T10:35:28.468Z"
-          },
-          {
-            "role": "assistant",
-            "content": "Hey there! 👋 It's great to see you back.\n\nSince we are currently exploring **Recursion** (your active topic with 59% mastery), would you like a quick conceptual breakdown of how the call stack works, or shall I give you a fresh practice challenge to test your intuition?",
-            "suggestedNextStep": "Give me a recursion practice challenge",
-            "timestamp": "2026-11-12T10:35:29.111Z"
-          },
-          {
-            "role": "user",
-            "content": "hello hello",
-            "timestamp": "2026-11-12T10:51:50.445Z"
-          },
-          {
-            "role": "assistant",
-            "content": "Hello! It's great to connect with you again.\n\nSince we are focusing on **Recursion** (where you have a strong 88% mastery), would you like a conceptual breakdown of a specific recursive pattern, or shall I give you a fresh practice challenge to test your intuition?",
-            "suggestedNextStep": "Give me a Recursion practice challenge",
-            "timestamp": "2026-11-12T10:51:51.239Z"
-          },
-          {
-            "role": "user",
-            "content": "hi hi",
-            "timestamp": "2026-11-12T10:52:05.779Z"
-          },
-          {
-            "role": "assistant",
-            "content": "Hello! It’s great to see you again.\n\nSince we are focusing on **Recursion** (your active topic with 88% mastery), would you like a conceptual breakdown of a specific recursive pattern, or shall I give you a fresh practice challenge to test your intuition?",
-            "suggestedNextStep": "Give me a Recursion challenge",
-            "timestamp": "2026-11-12T10:52:06.392Z"
-          },
-          {
-            "role": "user",
-            "content": "give question",
-            "timestamp": "2026-11-12T10:52:12.372Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following Python function that calculates the nth Fibonacci number:\n\n```python\ndef fib(n):\n    if n <= 1:\n        return n\n    return fib(n - 1) + fib(n - 2)\n```\n\nIf we call `fib(4)`, how many times does the function `fib` execute its base case (`if n <= 1`)?\n\n* **Option A:** 2\n* **Option B:** 3\n* **Option C:** 4\n* **Option D:** 5\n\n**Tutor Guidance**\nTrace the recursion tree. The base case triggers when `n` is 0 or 1. Count every leaf node in the tree for `fib(4)` where the input is 0 or 1.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Option C",
-            "timestamp": "2026-11-12T10:52:13.352Z"
-          },
-          {
-            "role": "user",
-            "content": "hello",
-            "timestamp": "2026-11-12T10:52:18.202Z"
-          },
-          {
-            "role": "assistant",
-            "content": "Hello! It’s great to see you again.\n\nSince we are focusing on **Recursion** (your active topic with 88% mastery), would you like a conceptual breakdown of a specific recursive pattern, or shall I give you a fresh practice challenge to test your intuition?",
-            "suggestedNextStep": "Give me a practice question on Recursion",
-            "timestamp": "2026-11-12T10:52:19.047Z"
-          },
-          {
-            "role": "user",
-            "content": "Explain the fundamentals of Recursion",
-            "timestamp": "2026-11-12T10:52:56.228Z"
-          },
-          {
-            "role": "assistant",
-            "content": "Recursion is a problem-solving technique where a function calls itself to solve smaller instances of the same problem. It relies on two critical components: a **base case** (the condition that stops the recursion to prevent infinite loops) and a **recursive case** (the logic that breaks the problem down and calls the function again with modified parameters). Under the hood, each call adds a new frame to the call stack, storing local variables and the return address, until the base case is reached and the stack begins to unwind.",
-            "suggestedNextStep": "Give me a practice challenge on Recursion",
-            "timestamp": "2026-11-12T10:52:56.960Z"
-          },
-          {
-            "role": "user",
-            "content": "ask question",
-            "timestamp": "2026-11-12T13:54:51.672Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Recursion\n\nConsider the following recursive function that calculates the factorial of a number `n`:\n\n```python\ndef factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)\n```\n\nIf we call `factorial(3)`, what is the total number of function calls made (including the initial call)?\n\n* **Option A:** 3\n* **Option B:** 4\n* **Option C:** 5\n* **Option D:** 6\n\n**Tutor Guidance**\nCount every single invocation of the `factorial` function. Remember, the initial call `factorial(3)` counts as one, and it continues until it hits the base case.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
-            "suggestedNextStep": "Give me a practice question on Recursion",
-            "timestamp": "2026-11-12T13:54:52.512Z"
-          },
-          {
-            "role": "user",
-            "content": "ask question",
-            "timestamp": "2026-11-12T13:55:21.353Z"
-          },
-          {
-            "role": "assistant",
-            "content": "### 🎯 Practice Challenge: Strings\n\nConsider the following Python code snippet:\n\n```python\ns = \"hello\"\nt = s[1:4]\nprint(t)\n```\n\nWhat is the output of this code?\n\n* **Option A:** \"hel\"\n* **Option B:** \"ell\"\n* **Option C:** \"ell o\"\n* **Option D:** \"hello\"\n\n**Tutor Guidance**\nRemember how Python string slicing works: `s[start:stop]` includes the character at `start` but excludes the character at `stop`. Indices start at 0.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
+            "content": "### 🎯 Practice Challenge: Strings\n\nConsider the following Python code snippet:\n\n```python\ns = \"Hello\"\nt = s[1:4]\nprint(t)\n```\n\nWhat is the output of this code?\n\n* **Option A:** \"Hel\"\n* **Option B:** \"ell\"\n* **Option C:** \"llo\"\n* **Option D:** \"Hello\"\n\n**Tutor Guidance**\nRemember that Python string slicing uses the format `start:end`. The `start` index is inclusive, but the `end` index is exclusive. Indexing starts at 0.\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
             "suggestedNextStep": "Give me a practice question on Strings",
-            "timestamp": "2026-11-12T13:55:22.170Z"
+            "timestamp": "2026-11-13T19:03:55.275Z"
           },
           {
             "role": "user",
-            "content": "hello",
-            "timestamp": "2026-11-12T13:55:57.090Z"
+            "content": "give questions",
+            "timestamp": "2026-11-13T19:04:09.525Z"
           },
           {
             "role": "assistant",
-            "content": "Hello! It's great to see you back. Given your strong grasp of Recursion (88%), are you ready for a conceptual breakdown of a tricky recursive scenario, or would you prefer a new practice challenge to test your limits?",
-            "suggestedNextStep": "Give me a practice question on Recursion",
-            "timestamp": "2026-11-12T13:55:58.015Z"
+            "content": "### 🎯 Practice Challenge: Arrays\n\nConsider the following Python code snippet involving array indexing and mutation:\n\n```python\narr = [10, 20, 30, 40]\narr[1] = arr[0]\nprint(arr[2])\n```\n\nWhat is the output of this code?\n\n* **Option A:** 10\n* **Option B:** 20\n* **Option C:** 30\n* **Option D:** 40\n\n**Tutor Guidance**\nArrays store elements at specific indices. When you assign `arr[1] = arr[0]`, you are overwriting the value at index 1. However, the question asks for the value at index 2. Does changing index 1 affect the element stored at index 2?\n\nWhich option do you think is correct? Click an option above or type your reasoning!",
+            "suggestedNextStep": "Give me a practice question on Arrays",
+            "timestamp": "2026-11-13T19:04:10.247Z"
+          },
+          {
+            "role": "user",
+            "content": "give coding questions without MCQs",
+            "timestamp": "2026-11-13T19:04:17.847Z"
+          },
+          {
+            "role": "assistant",
+            "content": "### 🎯 Practice Challenge: Arrays\n\nWrite a function `find_max_subarray_sum` that takes a single array of integers (containing both positive and negative numbers) and returns the maximum sum of any contiguous subarray.\n\n**Example:**\nInput: `[-2, 1, -3, 4, -1, 2, 1, -5, 4]`\nOutput: `6` (The subarray `[4, -1, 2, 1]` has the largest sum.)\n\n**Tutor Guidance**\nYou can solve this in O(n) time using a single pass. Keep track of two variables: the maximum sum ending at the current position, and the global maximum sum seen so far. At each step, decide whether to extend the previous subarray or start a new one from the current element.\n\nWhich approach do you think is correct? Type your code or explain your logic!",
+            "suggestedNextStep": "Give me a practice question on Arrays",
+            "timestamp": "2026-11-13T19:04:18.595Z"
+          },
+          {
+            "role": "user",
+            "content": "thank",
+            "timestamp": "2026-11-13T19:04:27.022Z"
+          },
+          {
+            "role": "assistant",
+            "content": "You're welcome! I'm here to help you master Arrays.\n\nSince you're at 19% mastery, would you like to:\n1. Get a conceptual breakdown of how arrays work in memory?\n2. Try a specific coding challenge on Arrays (like finding the maximum subarray sum or reversing an array)?\n\nLet me know how you'd like to proceed!",
+            "suggestedNextStep": "Explain array memory layout",
+            "timestamp": "2026-11-13T19:04:27.573Z"
+          },
+          {
+            "role": "user",
+            "content": "how are you doing",
+            "timestamp": "2026-11-13T19:07:33.551Z"
+          },
+          {
+            "role": "assistant",
+            "content": "I'm doing great, thank you for asking! I'm ready to help you tackle your next challenge.\n\nSince you're actively studying **Recursion** (and have mastered it!), would you like a conceptual breakdown of a specific recursive pattern, or a fresh practice challenge to keep your skills sharp?",
+            "suggestedNextStep": "Give me a complex recursion problem",
+            "timestamp": "2026-11-13T19:07:34.077Z"
+          },
+          {
+            "role": "user",
+            "content": "what are you doing",
+            "timestamp": "2026-11-13T19:07:43.111Z"
+          },
+          {
+            "role": "assistant",
+            "content": "I am standing by to help you master **Recursion**!\n\nSince you have achieved 100% mastery in this topic, I can either:\n1. Provide a conceptual breakdown of advanced recursive patterns (like tail recursion or memoization).\n2. Give you a high-difficulty practice challenge to test your limits.\n\nWhich would you prefer?",
+            "suggestedNextStep": "Give me a hard recursion problem",
+            "timestamp": "2026-11-13T19:07:43.643Z"
           }
         ],
-        "updatedAt": "2026-11-12T13:55:58.015Z"
+        "updatedAt": "2026-11-13T19:07:43.643Z"
       }
     ]
   ],
