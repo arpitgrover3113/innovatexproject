@@ -33,18 +33,18 @@ import { MasteryBadge } from '../components/MasteryBadge';
 
 // ==========================================
 // 3D GRADUATION CAP WITH ORBITAL RING (PURE SVG)
-// Razor-sharp, perfectly seamless, matching reference image
+// Smooth 3D geometry matching user reference exactly
 // ==========================================
 const GraduationCap3D = () => (
-  <div className="relative w-64 h-56 sm:w-72 sm:h-64 lg:w-80 lg:h-72 flex items-center justify-center select-none pointer-events-none">
+  <div className="relative w-64 h-56 sm:w-72 sm:h-64 lg:w-84 lg:h-72 flex items-center justify-center select-none pointer-events-none">
     
-    {/* Soft ambient violet background glow */}
-    <div className="absolute w-44 h-44 rounded-full bg-gradient-to-tr from-purple-400/25 via-indigo-300/30 to-violet-400/25 blur-3xl" />
+    {/* Soft ambient violet background aura */}
+    <div className="absolute w-52 h-52 rounded-full bg-gradient-to-tr from-purple-400/20 via-indigo-300/30 to-violet-400/25 blur-3xl" />
 
     {/* SVG 3D Graduation Cap & Orbit */}
     <svg 
       viewBox="0 0 340 300" 
-      className="w-full h-full overflow-visible drop-shadow-[0_15px_30px_rgba(79,70,229,0.22)]"
+      className="w-full h-full overflow-visible drop-shadow-[0_18px_30px_rgba(79,70,229,0.25)]"
     >
       <defs>
         {/* Top Diamond Face Gradient */}
@@ -702,256 +702,289 @@ export const LandingPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-white text-navy-900 selection:bg-purple-200">
+    <div className="relative overflow-hidden bg-[#F0EDFF] text-navy-900 selection:bg-purple-200">
 
       {/* ============================================================
           SECTION 1: HERO — PIXEL-PERFECT REPLICATION OF IMAGE 2
       ============================================================ */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#F7F5FF] via-[#FAF9FF] to-white pt-8 pb-14 sm:pt-12 sm:pb-20">
-        
-        {/* Left Side Organic Flowing Wave Curves (Exact to Image 2) */}
-        <div className="absolute left-0 top-0 bottom-0 w-[340px] lg:w-[420px] pointer-events-none select-none opacity-80 z-0">
-          <svg className="w-full h-full" viewBox="0 0 420 850" fill="none" preserveAspectRatio="none">
+      <section className="relative w-full overflow-hidden bg-[#F0EDFF] pt-8 pb-14 sm:pt-12 sm:pb-20">
+
+        {/* ── BACKGROUND LAYER 1: Left organic lavender wave blob ── */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0">
+          <svg className="w-full h-full" viewBox="0 0 1440 700" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="auroraG1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#DDD6FE" stopOpacity="0.85" />
-                <stop offset="55%" stopColor="#EDE9FE" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+              {/* Outer left blob */}
+              <linearGradient id="blobOuter" x1="0" y1="0" x2="600" y2="700" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="1" />
+                <stop offset="40%" stopColor="#DDD6FE" stopOpacity="0.85" />
+                <stop offset="75%" stopColor="#EDE9FE" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
               </linearGradient>
-              <linearGradient id="auroraG2" x1="0%" y1="100%" x2="100%" y2="0%">
+              {/* Inner left blob (darker, narrower — depth layer) */}
+              <linearGradient id="blobInner" x1="0" y1="0" x2="400" y2="700" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#A78BFA" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#C4B5FD" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#EDE9FE" stopOpacity="0" />
+              </linearGradient>
+              {/* Bright light-catch edge */}
+              <linearGradient id="blobEdge" x1="0" y1="0" x2="80" y2="700" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#E9D5FF" stopOpacity="1" />
+                <stop offset="100%" stopColor="#C4B5FD" stopOpacity="0.3" />
+              </linearGradient>
+              {/* Right bottom swell */}
+              <radialGradient id="rightSwell" cx="85%" cy="90%" r="45%" fx="85%" fy="90%">
                 <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.65" />
-                <stop offset="50%" stopColor="#E0E7FF" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-              </linearGradient>
+                <stop offset="45%" stopColor="#DDD6FE" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </radialGradient>
+              {/* Top right soft glow */}
+              <radialGradient id="topRightGlow" cx="90%" cy="10%" r="35%">
+                <stop offset="0%" stopColor="#E9D5FF" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </radialGradient>
+              {/* Soft blur filter for depth */}
+              <filter id="softBlur">
+                <feGaussianBlur stdDeviation="18" />
+              </filter>
+              <filter id="medBlur">
+                <feGaussianBlur stdDeviation="8" />
+              </filter>
             </defs>
-            <path d="M-50 0 C 180 130 300 320 130 520 C 30 640 -30 730 -50 850 Z" fill="url(#auroraG1)" />
-            <path d="M-50 0 C 110 90 210 260 90 460 C 0 570 -40 690 -50 850 Z" fill="url(#auroraG2)" />
+
+            {/* Full background base tint */}
+            <rect width="1440" height="700" fill="#EEE9FF" />
+
+            {/* Centre atmospheric glow */}
+            <ellipse cx="720" cy="350" rx="600" ry="300" fill="white" fillOpacity="0.35" filter="url(#softBlur)" />
+
+            {/* RIGHT: Soft swell from bottom-right corner */}
+            <ellipse cx="1300" cy="650" rx="520" ry="380" fill="url(#rightSwell)" filter="url(#softBlur)" />
+
+            {/* TOP-RIGHT: subtle warm glow */}
+            <ellipse cx="1350" cy="80" rx="300" ry="200" fill="url(#topRightGlow)" filter="url(#softBlur)" />
+
+            {/* LEFT: OUTER organic blob — full height, wide coverage */}
+            <path
+              d="M 0 0
+                 C 180 30 420 160 380 340
+                 C 340 500 160 600 0 700
+                 Z"
+              fill="url(#blobOuter)"
+            />
+
+            {/* LEFT: INNER depth blob — slightly narrower, more saturated */}
+            <path
+              d="M 0 0
+                 C 100 50 280 190 240 370
+                 C 200 520 60 630 0 700
+                 Z"
+              fill="url(#blobInner)"
+            />
+
+            {/* LEFT: Bright caught-light edge strip */}
+            <path
+              d="M 0 0
+                 C 40 80 80 220 60 380
+                 C 40 510 10 620 0 700
+                 L 0 0 Z"
+              fill="url(#blobEdge)"
+              filter="url(#medBlur)"
+            />
           </svg>
         </div>
 
-        {/* Ambient floating sparkle stars (Image 2) */}
-        <div className="absolute top-12 left-[23%] text-purple-400 font-bold text-sm pointer-events-none select-none">✦</div>
-        <div className="absolute top-44 left-[14%] text-purple-300 font-bold text-xs pointer-events-none select-none">✦</div>
-        <div className="absolute top-32 right-[22%] text-purple-300 font-bold text-xs pointer-events-none select-none">✦</div>
-        <div className="absolute top-64 right-[12%] text-indigo-400 font-bold text-sm pointer-events-none select-none">✦</div>
+        {/* ── BACKGROUND LAYER 2: Soft ambient glow orbs ── */}
+        <div className="absolute top-8 left-[18%] w-72 h-72 rounded-full bg-purple-300/20 blur-3xl pointer-events-none z-0" />
+        <div className="absolute bottom-10 left-[12%] w-64 h-64 rounded-full bg-indigo-300/15 blur-3xl pointer-events-none z-0" />
+        <div className="absolute bottom-0 right-[5%] w-[500px] h-[380px] rounded-full bg-violet-300/20 blur-3xl pointer-events-none z-0" />
 
-        {/* Main Canvas: Visible at ALL desktop & laptop resolutions (from 768px onwards) */}
-        <div className="relative max-w-[1360px] mx-auto px-4 sm:px-6 w-full z-10 min-h-[580px] sm:min-h-[640px] flex items-center justify-center">
+        {/* ── SPARKLE STARS ── */}
+        <div className="absolute top-10 left-[22%] text-purple-500 font-bold text-base pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute top-[45%] left-[8%] text-purple-400 font-bold text-xs pointer-events-none select-none z-10 opacity-60">✦</div>
+        <div className="absolute top-24 right-[22%] text-purple-400 font-bold text-xs pointer-events-none select-none z-10 opacity-60">✦</div>
+        <div className="absolute top-[55%] right-[10%] text-indigo-500 font-bold text-sm pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute top-[30%] right-[28%] text-purple-300 font-bold text-[10px] pointer-events-none select-none z-10 opacity-50">✦</div>
 
-          {/* --------------------------------------------------------
-              1. TOP-LEFT CARD: Your Accuracy Improved by 24% + Wave
-          -------------------------------------------------------- */}
+        {/* ── MAIN CONTENT WRAPPER ── */}
+        <div className="relative max-w-[1360px] mx-auto px-4 sm:px-6 w-full z-10 min-h-[600px] sm:min-h-[660px] flex items-center justify-center">
+
+          {/* ── TOP-LEFT CARD: Accuracy ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="hidden md:block absolute top-4 lg:top-8 left-2 sm:left-4 lg:left-8 z-20 w-52 lg:w-60 p-3.5 lg:p-4 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_15px_35px_rgba(124,58,237,0.08)] transform -rotate-6 hover:rotate-0 transition-transform duration-300 select-none"
+            initial={{ opacity: 0, scale: 0.88, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.15 }}
+            className="hidden md:block absolute top-6 lg:top-10 left-2 sm:left-6 lg:left-10 z-20 w-52 lg:w-60 p-3.5 lg:p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-white/80 shadow-[0_8px_32px_rgba(109,40,217,0.12)] transform -rotate-6 select-none"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 shrink-0">
-                <div className="flex items-end gap-1 h-5">
-                  <span className="w-1.5 h-3 bg-emerald-500 rounded-full" />
-                  <span className="w-1.5 h-4 bg-emerald-500 rounded-full" />
-                  <span className="w-1.5 h-5 bg-emerald-600 rounded-full" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                <div className="flex items-end gap-0.5 h-5">
+                  <span className="w-1.5 h-2.5 bg-emerald-400 rounded-sm" />
+                  <span className="w-1.5 h-3.5 bg-emerald-500 rounded-sm" />
+                  <span className="w-1.5 h-5 bg-emerald-600 rounded-sm" />
                 </div>
               </div>
               <div>
-                <div className="text-[11px] font-medium text-slate-500">Your accuracy</div>
-                <div className="text-xs font-bold text-slate-900">
-                  improved by <span className="text-emerald-600 font-extrabold text-sm">24% ↗</span>
+                <div className="text-[10px] font-medium text-slate-400 leading-tight">Your accuracy</div>
+                <div className="text-xs font-bold text-slate-800 leading-tight">
+                  improved by <span className="text-emerald-500 font-extrabold text-sm">24% ↗</span>
                 </div>
               </div>
             </div>
-            {/* Green wavy graph sparkline (Image 2) */}
-            <svg className="w-full h-8 mt-2.5 overflow-visible" viewBox="0 0 160 30" fill="none">
-              <path 
-                d="M 5 22 Q 25 10 45 20 T 85 18 T 125 10 T 155 6" 
-                stroke="#10B981" 
-                strokeWidth="2.8" 
-                strokeLinecap="round" 
-              />
+            <svg className="w-full h-7 mt-3 overflow-visible" viewBox="0 0 160 28" fill="none">
+              <path d="M 5 20 Q 30 8 50 18 T 90 15 T 130 7 T 155 4" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" fill="none" />
             </svg>
           </motion.div>
 
-          {/* --------------------------------------------------------
-              2. BOTTOM-LEFT CARD: 12 Day Learning Streak + Wave
-          -------------------------------------------------------- */}
+          {/* ── BOTTOM-LEFT CARD: Learning Streak ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="hidden md:block absolute bottom-4 lg:bottom-8 left-2 sm:left-4 lg:left-12 z-20 w-48 lg:w-56 p-3.5 lg:p-4 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_15px_35px_rgba(124,58,237,0.08)] transform -rotate-3 hover:rotate-0 transition-transform duration-300 select-none"
+            initial={{ opacity: 0, scale: 0.88, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.25 }}
+            className="hidden md:block absolute bottom-6 lg:bottom-10 left-2 sm:left-6 lg:left-14 z-20 w-46 lg:w-52 p-3.5 rounded-2xl bg-white/90 backdrop-blur-sm border border-white/80 shadow-[0_8px_32px_rgba(109,40,217,0.12)] transform rotate-3 select-none"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-orange-500 shrink-0 shadow-xs">
-                <Flame className="w-5 h-5 fill-orange-500 text-orange-500" />
+              <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
+                <Flame className="w-5 h-5 fill-orange-400 text-orange-500" />
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-900">12 day</div>
-                <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1">
-                  <span>learning streak</span>
-                  <span>🔥</span>
+                <div className="text-sm font-extrabold text-slate-800 leading-tight">12 day</div>
+                <div className="text-xs font-semibold text-slate-700 flex items-center gap-1 leading-tight">
+                  learning streak <span>🔥</span>
                 </div>
               </div>
             </div>
-            {/* Purple wavy graph sparkline (Image 2) */}
-            <svg className="w-full h-8 mt-2.5 overflow-visible" viewBox="0 0 160 30" fill="none">
-              <path 
-                d="M 5 18 Q 30 26 55 14 T 95 20 T 130 8 T 155 14" 
-                stroke="#8B5CF6" 
-                strokeWidth="2.8" 
-                strokeLinecap="round" 
-              />
+            <svg className="w-full h-7 mt-3 overflow-visible" viewBox="0 0 160 28" fill="none">
+              <path d="M 5 18 Q 35 24 60 12 T 100 18 T 135 7 T 155 12" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" fill="none" />
             </svg>
           </motion.div>
 
-          {/* --------------------------------------------------------
-              3. CENTERED HERO TEXT CONTENT
-          -------------------------------------------------------- */}
-          <div className="max-w-xl sm:max-w-2xl mx-auto text-center flex flex-col items-center py-6">
-            
-            {/* Announcement Pill: Centered */}
+          {/* ── CENTERED HERO TEXT ── */}
+          <div className="max-w-2xl sm:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto text-center flex flex-col items-center py-8">
+
+            {/* Pill */}
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
               onClick={() => onNavigate('diagnostic')}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-purple-600 border border-purple-200/90 shadow-[0_2px_12px_rgba(124,58,237,0.08)] mb-6 sm:mb-8 hover:bg-purple-50/50 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-white/80 text-purple-700 border border-purple-200/70 shadow-sm mb-7 hover:bg-white transition-all cursor-pointer backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-purple-500" />
               <span>LearnLoop AI · Adaptive Cognitive Learning Engine</span>
               <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
             </motion.div>
 
-            {/* Headline: Centered with 3-line breakdown, burst sketch & curved underline */}
+            {/* Headline — 3 lines matching reference: line1 black, line2+3 purple, underline under "matters." */}
             <motion.h1
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-[64px] font-extrabold text-[#0B0F19] tracking-tight leading-[1.12] mb-6"
+              transition={{ duration: 0.5, delay: 0.08 }}
+              className="text-[32px] sm:text-[42px] lg:text-[50px] xl:text-[56px] font-extrabold tracking-tight leading-[1.16] mb-6"
             >
-              <span className="relative inline-block">
-                Stop studying everything.
-                {/* 3 Radiating Burst Sketch lines on top right of "everything." (Image 2) */}
-                <svg 
-                  className="absolute -top-3.5 -right-7 w-7 h-7 text-purple-600 hidden sm:block pointer-events-none" 
-                  viewBox="0 0 28 28" 
-                  fill="none"
-                >
-                  <path d="M4 22L1 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M12 20L17 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                  <path d="M18 24L25 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                </svg>
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-[#6366F1] via-[#7C3AED] to-[#4F46E5] bg-clip-text text-transparent">
+              {/* Line 1 — black */}
+              <span className="block text-[#09090B]">Stop studying everything.</span>
+              {/* Line 2 — purple gradient */}
+              <span className="block bg-gradient-to-r from-[#6366F1] via-[#7C3AED] to-[#5B21B6] bg-clip-text text-transparent">
                 Start mastering what
-              </span>{' '}
-              <span className="relative inline-block bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] bg-clip-text text-transparent">
+              </span>
+              {/* Line 3 — purple gradient + swoosh underline */}
+              <span className="relative inline-block bg-gradient-to-r from-[#7C3AED] to-[#5B21B6] bg-clip-text text-transparent">
                 matters.
-                {/* Hand-drawn smooth curved swoosh underline (Image 2) */}
-                <svg 
-                  className="absolute -bottom-2.5 left-0 w-full h-4 text-[#7C3AED] pointer-events-none overflow-visible" 
-                  viewBox="0 0 190 14" 
-                  fill="none" 
+                {/* Hand-drawn curved swoosh underline — matching Image 2 */}
+                <svg
+                  className="absolute left-0 w-full pointer-events-none overflow-visible"
+                  viewBox="0 0 240 18"
+                  fill="none"
                   preserveAspectRatio="none"
+                  style={{ bottom: '-12px', height: '16px' }}
                 >
-                  <path 
-                    d="M 3 8 C 55 16 135 15 186 4" 
-                    stroke="currentColor" 
-                    strokeWidth="4" 
-                    strokeLinecap="round" 
+                  <path
+                    d="M 3 12 C 65 22 172 20 237 5"
+                    stroke="#7C3AED"
+                    strokeWidth="4.5"
+                    strokeLinecap="round"
                   />
                 </svg>
               </span>
             </motion.h1>
 
-            {/* Subtitle Description */}
+            {/* Subtitle */}
             <motion.p
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed mb-8 font-normal"
+              transition={{ duration: 0.5, delay: 0.18 }}
+              className="text-sm sm:text-base lg:text-[16px] text-slate-600 max-w-lg mx-auto leading-relaxed mb-9"
             >
-              Your personal AI learning companion that understands your strengths, identifies your weaknesses, and builds a dynamic learning path around you.
+              Your personal AI learning companion{' '}
+              <span className="font-semibold text-slate-700">that understands your strengths,</span>{' '}
+              identifies your weaknesses, and builds a dynamic learning path around you.
             </motion.p>
 
-            {/* Action Buttons */}
+            {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.28 }}
               className="flex flex-wrap items-center justify-center gap-4"
             >
               <button
                 onClick={handleStartLearning}
-                className="group flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-sm text-white bg-gradient-to-r from-[#6366F1] via-[#7C3AED] to-[#4F46E5] hover:from-[#4F46E5] hover:to-[#4338CA] shadow-[0_10px_28px_rgba(99,102,241,0.4)] hover:shadow-[0_14px_35px_rgba(99,102,241,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                className="group flex items-center gap-2.5 px-8 py-3.5 rounded-full font-bold text-sm text-white bg-gradient-to-r from-[#6366F1] to-[#7C3AED] hover:from-[#5558E8] hover:to-[#6D28D9] shadow-[0_8px_26px_rgba(99,102,241,0.45)] hover:shadow-[0_12px_32px_rgba(99,102,241,0.55)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200"
               >
-                <span>Start Learning</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Start Learning <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
-
               <button
                 onClick={handleExploreFeatures}
-                className="flex items-center gap-2 px-6 py-3.5 rounded-full font-bold text-sm text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 hover:border-purple-300 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-all"
+                className="flex items-center gap-2.5 px-7 py-3.5 rounded-full font-bold text-sm text-slate-700 bg-white/90 hover:bg-white border border-white/70 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-200"
               >
-                <Play className="w-3.5 h-3.5 fill-slate-800 text-slate-800" />
-                <span>Explore Features</span>
+                <Play className="w-3.5 h-3.5 fill-slate-700" /> Explore Features
               </button>
             </motion.div>
-
           </div>
 
-          {/* --------------------------------------------------------
-              4. TOP-RIGHT CARD: Next Up: Graph Algorithms + Bar
-          -------------------------------------------------------- */}
+          {/* ── TOP-RIGHT CARD: Next Up ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="hidden md:block absolute top-4 lg:top-8 right-2 sm:right-4 lg:right-8 z-20 w-56 lg:w-64 p-3.5 lg:p-4 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_15px_35px_rgba(124,58,237,0.08)] transform rotate-6 hover:rotate-0 transition-transform duration-300 select-none"
+            initial={{ opacity: 0, scale: 0.88, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.35 }}
+            className="hidden md:block absolute top-6 lg:top-10 right-2 sm:right-6 lg:right-10 z-20 w-52 lg:w-60 p-3.5 lg:p-4 rounded-2xl bg-white/90 backdrop-blur-sm border border-white/80 shadow-[0_8px_32px_rgba(109,40,217,0.12)] transform rotate-6 select-none"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600 shrink-0">
-                <Sparkles className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4.5 h-4.5 text-purple-600" />
               </div>
               <div>
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NEXT UP:</div>
-                <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1">
-                  <span>Graph Algorithms</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-purple-600" />
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Next up:</div>
+                <div className="text-xs font-extrabold text-slate-800 flex items-center gap-1">
+                  Graph Algorithms <ArrowRight className="w-3 h-3 text-purple-500" />
                 </div>
               </div>
             </div>
-            {/* Purple progress bar capsule (Image 2) */}
-            <div className="w-full h-2.5 bg-purple-100/70 rounded-full overflow-hidden mt-3.5 p-0.5">
-              <div className="w-[68%] h-full bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600 rounded-full" />
+            <div className="mt-3.5 w-full h-2 bg-purple-100 rounded-full overflow-hidden">
+              <div className="w-[68%] h-full bg-gradient-to-r from-[#6366F1] to-[#7C3AED] rounded-full" />
             </div>
           </motion.div>
 
-          {/* --------------------------------------------------------
-              5. BOTTOM-RIGHT: 3D Graduation Cap with Orbital Ring
-          -------------------------------------------------------- */}
+          {/* ── BOTTOM-RIGHT: Graduation Cap ── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="hidden md:block absolute bottom-0 right-2 sm:right-4 lg:right-6 z-20"
+            initial={{ opacity: 0, scale: 0.82, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.4 }}
+            className="hidden md:block absolute bottom-0 right-0 sm:right-2 lg:right-4 z-20"
           >
             <GraduationCap3D />
           </motion.div>
 
         </div>
 
-        {/* Mobile strip (< 768px screens only) */}
+        {/* Mobile strip */}
         <div className="md:hidden mt-8 px-4 flex flex-col items-center gap-4">
           <div className="w-full flex justify-center py-2">
             <GraduationCap3D />
           </div>
-
           <div className="flex flex-wrap justify-center gap-3 w-full">
-            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-purple-100 shadow-sm">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/80 border border-purple-100 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div className="text-left">
@@ -959,9 +992,8 @@ export const LandingPage = ({ onNavigate }) => {
                 <div className="text-xs font-bold text-slate-900">improved by <span className="text-emerald-600 font-extrabold">24% ↗</span></div>
               </div>
             </div>
-
-            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-purple-100 shadow-sm">
-              <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center font-bold">
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/80 border border-purple-100 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
                 <Flame className="w-4 h-4 fill-orange-500" />
               </div>
               <div className="text-left">
@@ -977,8 +1009,65 @@ export const LandingPage = ({ onNavigate }) => {
       {/* ============================================================
           SECTION 2: LIVE INTERACTIVE PLAYGROUND
       ============================================================ */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative bg-white">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative w-full overflow-hidden bg-[#F0EDFF] py-24 px-4 sm:px-6 lg:px-8">
+        
+        {/* ── BACKGROUND LAYER: Organic lavender wave blobs + glows (Matching Hero) ── */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0">
+          <svg className="w-full h-full" viewBox="0 0 1440 800" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="pgroundBlobRight" x1="1440" y1="0" x2="900" y2="800" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.9" />
+                <stop offset="45%" stopColor="#DDD6FE" stopOpacity="0.7" />
+                <stop offset="85%" stopColor="#EDE9FE" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="pgroundBlobLeft" x1="0" y1="400" x2="500" y2="800" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.75" />
+                <stop offset="50%" stopColor="#DDD6FE" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </linearGradient>
+              <filter id="pgroundBlur">
+                <feGaussianBlur stdDeviation="24" />
+              </filter>
+            </defs>
+
+            {/* Base tint */}
+            <rect width="1440" height="800" fill="#F0EDFF" />
+
+            {/* Central atmospheric soft glow */}
+            <ellipse cx="720" cy="400" rx="550" ry="280" fill="white" fillOpacity="0.45" filter="url(#pgroundBlur)" />
+
+            {/* RIGHT SIDE: Cascading organic ribbon wave */}
+            <path
+              d="M 1440 0
+                 C 1260 80 1100 240 1140 460
+                 C 1180 620 1320 720 1440 800
+                 Z"
+              fill="url(#pgroundBlobRight)"
+            />
+
+            {/* LEFT BOTTOM: Soft organic wave swell */}
+            <path
+              d="M 0 350
+                 C 160 380 320 520 280 680
+                 C 250 760 120 790 0 800
+                 Z"
+              fill="url(#pgroundBlobLeft)"
+            />
+          </svg>
+        </div>
+
+        {/* ── Soft ambient glow orbs ── */}
+        <div className="absolute top-16 right-[12%] w-80 h-80 rounded-full bg-purple-300/25 blur-3xl pointer-events-none z-0" />
+        <div className="absolute bottom-12 left-[10%] w-96 h-96 rounded-full bg-indigo-300/20 blur-3xl pointer-events-none z-0" />
+
+        {/* ── Sparkle stars ── */}
+        <div className="absolute top-12 left-[15%] text-purple-400 font-bold text-sm pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute top-28 right-[18%] text-purple-500 font-bold text-base pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute bottom-20 right-[8%] text-indigo-400 font-bold text-xs pointer-events-none select-none z-10 opacity-60">✦</div>
+        <div className="absolute bottom-16 left-[22%] text-purple-300 font-bold text-sm pointer-events-none select-none z-10 opacity-60">✦</div>
+
+        <div className="relative max-w-6xl mx-auto z-10">
           
           {/* Section Heading */}
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -1077,13 +1166,71 @@ export const LandingPage = ({ onNavigate }) => {
       {/* ============================================================
           SECTION 3: THE INTELLIGENT LEARNING LOOP
       ============================================================ */}
-      <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#F7F5FF] via-[#FAF9FF] to-white relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent" />
+      <section id="how-it-works" className="relative w-full overflow-hidden bg-[#F0EDFF] py-24 px-4 sm:px-6 lg:px-8">
+        
+        {/* Subtle glowing horizontal divider */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-purple-300/80 to-transparent z-10" />
 
-        <div className="max-w-6xl mx-auto">
+        {/* ── BACKGROUND LAYER: Organic lavender wave blobs + glows (Matching Hero) ── */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0">
+          <svg className="w-full h-full" viewBox="0 0 1440 850" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="loopBlobLeft" x1="0" y1="0" x2="550" y2="850" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.9" />
+                <stop offset="45%" stopColor="#DDD6FE" stopOpacity="0.75" />
+                <stop offset="85%" stopColor="#EDE9FE" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="loopBlobRight" x1="1440" y1="300" x2="950" y2="850" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.7" />
+                <stop offset="50%" stopColor="#DDD6FE" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </linearGradient>
+              <filter id="loopBlur">
+                <feGaussianBlur stdDeviation="22" />
+              </filter>
+            </defs>
+
+            {/* Base tint */}
+            <rect width="1440" height="850" fill="#F0EDFF" />
+
+            {/* Central atmospheric soft glow */}
+            <ellipse cx="720" cy="420" rx="600" ry="320" fill="white" fillOpacity="0.45" filter="url(#loopBlur)" />
+
+            {/* LEFT SIDE: Flowing organic ribbon wave */}
+            <path
+              d="M 0 0
+                 C 200 60 380 220 340 450
+                 C 300 620 140 730 0 850
+                 Z"
+              fill="url(#loopBlobLeft)"
+            />
+
+            {/* RIGHT BOTTOM: Soft lavender horizon swell */}
+            <path
+              d="M 1440 280
+                 C 1280 320 1120 480 1160 660
+                 C 1190 760 1310 820 1440 850
+                 Z"
+              fill="url(#loopBlobRight)"
+            />
+          </svg>
+        </div>
+
+        {/* ── Soft ambient glow orbs ── */}
+        <div className="absolute top-16 left-[14%] w-80 h-80 rounded-full bg-purple-300/25 blur-3xl pointer-events-none z-0" />
+        <div className="absolute bottom-12 right-[12%] w-96 h-96 rounded-full bg-indigo-300/20 blur-3xl pointer-events-none z-0" />
+
+        {/* ── Sparkle stars ── */}
+        <div className="absolute top-14 left-[20%] text-purple-500 font-bold text-base pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute top-24 right-[16%] text-purple-400 font-bold text-xs pointer-events-none select-none z-10 opacity-60">✦</div>
+        <div className="absolute bottom-16 left-[10%] text-indigo-400 font-bold text-sm pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute bottom-24 right-[25%] text-purple-300 font-bold text-xs pointer-events-none select-none z-10 opacity-60">✦</div>
+
+        <div className="relative max-w-6xl mx-auto z-10">
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-purple uppercase tracking-wider bg-purple-50 px-3.5 py-1.5 rounded-full border border-purple-200 shadow-xs mb-3">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-purple uppercase tracking-wider bg-white/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-purple-200/90 shadow-sm mb-3">
               ✦ The Intelligent Learning Loop
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-950 tracking-tight">
@@ -1147,7 +1294,7 @@ export const LandingPage = ({ onNavigate }) => {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: idx * 0.1 }}
                   onClick={() => onNavigate(stepItem.nav)}
-                  className={`group relative p-6 rounded-3xl bg-white border border-purple-100/90 shadow-[0_4px_20px_rgba(124,58,237,0.05)] hover:shadow-[0_12px_35px_rgba(124,58,237,0.12)] hover:-translate-y-1 ${stepItem.borderHover} transition-all cursor-pointer flex flex-col justify-between`}
+                  className={`group relative p-6 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100/90 shadow-[0_8px_30px_rgba(124,58,237,0.08)] hover:shadow-[0_16px_40px_rgba(124,58,237,0.16)] hover:-translate-y-1 ${stepItem.borderHover} transition-all cursor-pointer flex flex-col justify-between`}
                 >
                   <div>
                     <div className="flex items-center justify-between mb-5">
@@ -1182,12 +1329,72 @@ export const LandingPage = ({ onNavigate }) => {
       {/* ============================================================
           SECTION 4: TECHNICAL FEATURES
       ============================================================ */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white relative">
-        <div className="max-w-6xl mx-auto">
+      <section className="relative w-full overflow-hidden bg-[#F0EDFF] py-24 px-4 sm:px-6 lg:px-8">
+        
+        {/* Subtle glowing horizontal divider */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-purple-300/80 to-transparent z-10" />
+
+        {/* ── BACKGROUND LAYER: Organic lavender wave blobs + glows (Matching Hero) ── */}
+        <div className="absolute inset-0 pointer-events-none select-none z-0">
+          <svg className="w-full h-full" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="techBlobRight" x1="1440" y1="0" x2="880" y2="900" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.85" />
+                <stop offset="50%" stopColor="#DDD6FE" stopOpacity="0.7" />
+                <stop offset="85%" stopColor="#EDE9FE" stopOpacity="0.35" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="techBlobLeft" x1="0" y1="200" x2="520" y2="900" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.75" />
+                <stop offset="50%" stopColor="#DDD6FE" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#F5F3FF" stopOpacity="0" />
+              </linearGradient>
+              <filter id="techBlur">
+                <feGaussianBlur stdDeviation="22" />
+              </filter>
+            </defs>
+
+            {/* Base tint */}
+            <rect width="1440" height="900" fill="#F0EDFF" />
+
+            {/* Central atmospheric soft glow */}
+            <ellipse cx="720" cy="450" rx="600" ry="340" fill="white" fillOpacity="0.45" filter="url(#techBlur)" />
+
+            {/* RIGHT SIDE: Sweeping organic ribbon wave */}
+            <path
+              d="M 1440 0
+                 C 1250 100 1080 300 1120 540
+                 C 1160 720 1300 820 1440 900
+                 Z"
+              fill="url(#techBlobRight)"
+            />
+
+            {/* LEFT BOTTOM: Soft lavender wave swell */}
+            <path
+              d="M 0 180
+                 C 180 220 340 400 300 620
+                 C 260 760 120 840 0 900
+                 Z"
+              fill="url(#techBlobLeft)"
+            />
+          </svg>
+        </div>
+
+        {/* ── Soft ambient glow orbs ── */}
+        <div className="absolute top-16 right-[14%] w-80 h-80 rounded-full bg-purple-300/25 blur-3xl pointer-events-none z-0" />
+        <div className="absolute bottom-16 left-[12%] w-96 h-96 rounded-full bg-indigo-300/20 blur-3xl pointer-events-none z-0" />
+
+        {/* ── Sparkle stars ── */}
+        <div className="absolute top-12 left-[18%] text-purple-400 font-bold text-sm pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute top-28 right-[16%] text-purple-500 font-bold text-base pointer-events-none select-none z-10 opacity-70">✦</div>
+        <div className="absolute bottom-24 right-[10%] text-indigo-400 font-bold text-xs pointer-events-none select-none z-10 opacity-60">✦</div>
+        <div className="absolute bottom-20 left-[24%] text-purple-300 font-bold text-sm pointer-events-none select-none z-10 opacity-60">✦</div>
+
+        <div className="relative max-w-6xl mx-auto z-10">
           
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-purple uppercase tracking-wider bg-purple-50 px-3.5 py-1.5 rounded-full border border-purple-200 shadow-xs mb-3">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-purple uppercase tracking-wider bg-white/80 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-purple-200/90 shadow-sm mb-3">
               ✦ Engineered for Competitive Learning
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-navy-950 tracking-tight">
@@ -1207,7 +1414,7 @@ export const LandingPage = ({ onNavigate }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0 }}
-              className="p-7 rounded-3xl bg-white border border-purple-100 shadow-[0_4px_25px_rgba(124,58,237,0.06)] hover:shadow-[0_14px_40px_rgba(124,58,237,0.12)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-6"
+              className="p-7 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_8px_30px_rgba(124,58,237,0.08)] hover:shadow-[0_16px_40px_rgba(124,58,237,0.16)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-6"
             >
               <div>
                 <div className="flex items-center justify-between mb-5">
@@ -1247,7 +1454,7 @@ export const LandingPage = ({ onNavigate }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-7 rounded-3xl bg-white border border-purple-100 shadow-[0_4px_25px_rgba(124,58,237,0.06)] hover:shadow-[0_14px_40px_rgba(124,58,237,0.12)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-6"
+              className="p-7 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_8px_30px_rgba(124,58,237,0.08)] hover:shadow-[0_16px_40px_rgba(124,58,237,0.16)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-6"
             >
               <div>
                 <div className="flex items-center justify-between mb-5">
@@ -1295,7 +1502,7 @@ export const LandingPage = ({ onNavigate }) => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-7 rounded-3xl bg-white border border-purple-100 shadow-[0_4px_25px_rgba(124,58,237,0.06)] hover:shadow-[0_14px_40px_rgba(124,58,237,0.12)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-6"
+              className="p-7 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_8px_30px_rgba(124,58,237,0.08)] hover:shadow-[0_16px_40px_rgba(124,58,237,0.16)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-6"
             >
               <div>
                 <div className="flex items-center justify-between mb-5">
