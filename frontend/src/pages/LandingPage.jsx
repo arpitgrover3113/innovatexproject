@@ -26,116 +26,37 @@ import {
   Flame,
   Star,
   GitBranch,
-  ArrowUpRight,
-  Sparkle
+  ArrowUpRight
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MasteryBadge } from '../components/MasteryBadge';
+import capImg from '../assets/graduation_cap_3d.png';
 
 // ==========================================
-// 3D GRADUATION CAP SVG COMPONENT
+// 3D GRADUATION CAP WITH ORBITAL RING
+// EXACT MATCH TO IMAGE 2
 // ==========================================
-const GraduationCap3D = () => (
-  <div className="relative w-64 h-64 sm:w-80 sm:h-80 flex items-center justify-center select-none">
-    {/* Ambient Glows */}
-    <div className="absolute w-56 h-56 rounded-full bg-gradient-to-tr from-purple-400/20 via-indigo-300/30 to-violet-400/20 blur-3xl animate-pulse" />
-    <div className="absolute w-40 h-40 rounded-full bg-purple-500/15 blur-2xl" />
+const GraduationCapMockup = () => (
+  <div className="relative w-64 h-56 sm:w-72 sm:h-64 lg:w-80 lg:h-72 flex items-center justify-center select-none pointer-events-none">
+    {/* Soft ambient violet glow */}
+    <div className="absolute w-48 h-48 rounded-full bg-gradient-to-tr from-purple-400/20 via-indigo-300/25 to-violet-400/20 blur-2xl" />
 
-    {/* Platform shadow */}
-    <div className="absolute bottom-6 w-48 h-10 bg-purple-900/15 rounded-full blur-xl transform scale-y-50" />
+    {/* Exact 3D Rendered Cap Asset with Orbital Ring from Reference Image */}
+    <img 
+      src={capImg} 
+      alt="3D Graduation Cap" 
+      className="w-full h-auto object-contain mix-blend-multiply relative z-10 drop-shadow-[0_20px_25px_rgba(99,102,241,0.2)]" 
+    />
 
-    {/* SVG Cap */}
-    <svg viewBox="0 0 320 280" className="w-full h-full drop-shadow-[0_25px_35px_rgba(99,102,241,0.25)]">
-      <defs>
-        <linearGradient id="capTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7C3AED" />
-          <stop offset="50%" stopColor="#6366F1" />
-          <stop offset="100%" stopColor="#4F46E5" />
-        </linearGradient>
-        <linearGradient id="capEdgeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#A78BFA" />
-          <stop offset="100%" stopColor="#4338CA" />
-        </linearGradient>
-        <linearGradient id="capBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4338CA" />
-          <stop offset="60%" stopColor="#312E81" />
-          <stop offset="100%" stopColor="#1E1B4B" />
-        </linearGradient>
-        <linearGradient id="tasselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FDE047" />
-          <stop offset="50%" stopColor="#F59E0B" />
-          <stop offset="100%" stopColor="#D97706" />
-        </linearGradient>
-        <linearGradient id="goldButtonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FEF08A" />
-          <stop offset="100%" stopColor="#D97706" />
-        </linearGradient>
-        <filter id="shadow3D" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#312E81" floodOpacity="0.3" />
-        </filter>
-      </defs>
-
-      {/* Skull Cap Base (under the rhomboid) */}
-      <path
-        d="M 100 135 Q 160 175 220 135 L 210 180 Q 160 215 110 180 Z"
-        fill="url(#capBaseGrad)"
-        filter="url(#shadow3D)"
-      />
-      {/* Lower rim band */}
-      <path
-        d="M 110 180 Q 160 215 210 180 L 208 188 Q 160 222 112 188 Z"
-        fill="#1E1B4B"
-        opacity="0.7"
-      />
-
-      {/* Cap Top Rhombus (3D tilted perspective) */}
-      {/* Edge Thickness Layer for 3D Depth */}
-      <polygon
-        points="160,58 290,118 290,126 160,166 30,126 30,118"
-        fill="url(#capEdgeGrad)"
-      />
-      {/* Top Diamond Surface */}
-      <polygon
-        points="160,55 290,115 160,160 30,115"
-        fill="url(#capTopGrad)"
-      />
-      {/* Specular highlight on top surface */}
-      <polygon
-        points="160,56 220,84 160,110 100,84"
-        fill="#FFFFFF"
-        opacity="0.12"
-      />
-
-      {/* Golden Button in Center */}
-      <ellipse cx="160" cy="115" rx="7" ry="4.5" fill="url(#goldButtonGrad)" />
-
-      {/* Tassel String (Swinging to the right and down) */}
-      <path
-        d="M 160 115 C 200 112 245 125 248 165 C 249 180 246 195 244 210"
-        fill="none"
-        stroke="url(#tasselGrad)"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-      {/* Tassel Ring / Clip */}
-      <ellipse cx="244" cy="210" rx="3.5" ry="2" fill="#FDE047" />
-
-      {/* Tassel Fringe / Brush */}
-      <path
-        d="M 241 211 L 236 248 Q 244 252 252 248 L 247 211 Z"
-        fill="url(#tasselGrad)"
-        filter="url(#shadow3D)"
-      />
-      {/* Tassel strands */}
-      <line x1="240" y1="216" x2="238" y2="246" stroke="#FEF08A" strokeWidth="1" opacity="0.6" />
-      <line x1="244" y1="216" x2="244" y2="249" stroke="#FEF08A" strokeWidth="1" opacity="0.8" />
-      <line x1="248" y1="216" x2="250" y2="246" stroke="#FEF08A" strokeWidth="1" opacity="0.6" />
-    </svg>
+    {/* Sparkle star next to cap */}
+    <div className="absolute -right-1 bottom-14 text-purple-600 font-bold text-xl animate-pulse select-none">
+      ✦
+    </div>
   </div>
 );
 
 // ==========================================
-// MINI INTERACTIVE HERO PLAYGROUND COMPONENTS
+// MINI INTERACTIVE PLAYGROUND (DIJKSTRA & SORTING)
 // ==========================================
 const MINI_ROWS = 7;
 const MINI_COLS = 15;
@@ -298,7 +219,6 @@ const MiniDijkstra = () => {
     setIsRunning(false);
   };
 
-  // Dijkstra C++ code for the right panel matching reference mockup
   const dijkstraCode = [
     { num: 1, text: 'vector<vector<pair<int, int>>> adj(n);', color: 'text-sky-300' },
     { num: 2, text: 'priority_queue<pair<int, int>, ...', color: 'text-indigo-300' },
@@ -317,7 +237,6 @@ const MiniDijkstra = () => {
     <div className="flex flex-col lg:flex-row h-full">
       {/* Left: Dijkstra Grid Visualizer */}
       <div className="flex-1 p-5 sm:p-6 flex flex-col justify-between space-y-4">
-        {/* Action Controls Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-2">
             <button
@@ -364,7 +283,7 @@ const MiniDijkstra = () => {
           </div>
         </div>
 
-        {/* Dijkstra Interactive Grid */}
+        {/* Dijkstra Grid */}
         <div className="overflow-x-auto py-2 flex justify-center select-none">
           <div
             className="grid gap-1.5 p-3 rounded-2xl bg-black/30 border border-white/10 shadow-inner"
@@ -395,7 +314,6 @@ const MiniDijkstra = () => {
           </div>
         </div>
 
-        {/* Status prompt */}
         <div className="flex items-center gap-2 text-xs text-slate-400 font-mono pt-1">
           <span className="text-purple-400">💡</span>
           <span>{status}</span>
@@ -482,7 +400,6 @@ const MiniSorting = () => {
             if (cancelRef.current) return;
             setComparing([j, j + 1]); comparisons++;
             setStats(s => ({ ...s, comparisons }));
-            setStatus(`Comparing arr[${j}] (${arr[j]}) & arr[${j + 1}] (${arr[j + 1]})`);
             await delay(stepDelay);
             if (arr[j] > arr[j + 1]) {
               setSwapping([j, j + 1]); swaps++;
@@ -503,7 +420,6 @@ const MiniSorting = () => {
             if (cancelRef.current) return;
             setComparing([minIdx, j]); comparisons++;
             setStats(s => ({ ...s, comparisons }));
-            setStatus(`Scanning: comparing ${arr[j]} with current minimum ${arr[minIdx]}`);
             await delay(stepDelay);
             if (arr[j] < arr[minIdx]) minIdx = j;
           }
@@ -520,7 +436,6 @@ const MiniSorting = () => {
         const n = arr.length; const settled = [0]; setSortedIndices([...settled]);
         for (let i = 1; i < n; i++) {
           let key = arr[i]; let j = i - 1;
-          setStatus(`Inserting key ${key} into sorted left partition`);
           while (j >= 0 && arr[j] > key) {
             if (cancelRef.current) return;
             setComparing([j, j + 1]); comparisons++;
@@ -546,7 +461,6 @@ const MiniSorting = () => {
         }
         async function partition(low, high) {
           const pivot = arr[high];
-          setStatus(`Pivot selected: ${pivot} at index ${high}`);
           let i = low - 1;
           for (let j = low; j < high; j++) {
             if (cancelRef.current) return;
@@ -641,6 +555,7 @@ const MiniSorting = () => {
 
 // ==========================================
 // MAIN REDESIGNED LANDING PAGE
+// EXACT REPLICATION OF USER'S REFERENCE IMAGE
 // ==========================================
 export const LandingPage = ({ onNavigate }) => {
   const { isAuthenticated } = useAuth();
@@ -653,198 +568,276 @@ export const LandingPage = ({ onNavigate }) => {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-[#F7F5FF] via-[#FAF9FF] to-white text-navy-900 selection:bg-purple-200">
+    <div className="relative overflow-hidden bg-white text-navy-900 selection:bg-purple-200">
 
       {/* ============================================================
-          SECTION 1: HERO
+          SECTION 1: HERO — PIXEL-PERFECT REPLICATION OF IMAGE 2
       ============================================================ */}
-      <section className="relative min-h-[90vh] flex flex-col justify-center overflow-hidden pt-12 pb-20 sm:pb-24">
-        {/* Soft Lavender & Purple Aurora Blobs */}
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-purple-200/40 rounded-full blur-[120px] pointer-events-none -translate-y-1/3" />
-        <div className="absolute top-1/3 left-10 w-[500px] h-[500px] bg-indigo-200/35 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-violet-100/60 rounded-full blur-[90px] pointer-events-none" />
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#F7F5FF] via-[#FAF9FF] to-white pt-8 pb-14 sm:pt-12 sm:pb-20">
+        
+        {/* Left Side Organic Flowing Wave Curves (Exact to Image 2) */}
+        <div className="absolute left-0 top-0 bottom-0 w-[340px] lg:w-[420px] pointer-events-none select-none opacity-80 z-0">
+          <svg className="w-full h-full" viewBox="0 0 420 850" fill="none" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="auroraG1" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#DDD6FE" stopOpacity="0.85" />
+                <stop offset="55%" stopColor="#EDE9FE" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id="auroraG2" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.65" />
+                <stop offset="50%" stopColor="#E0E7FF" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <path d="M-50 0 C 180 130 300 320 130 520 C 30 640 -30 730 -50 850 Z" fill="url(#auroraG1)" />
+            <path d="M-50 0 C 110 90 210 260 90 460 C 0 570 -40 690 -50 850 Z" fill="url(#auroraG2)" />
+          </svg>
+        </div>
 
-        {/* Ambient Decorative Stars */}
-        <div className="absolute top-14 left-[12%] text-purple-400/40 pointer-events-none animate-pulse">✦</div>
-        <div className="absolute top-28 left-[24%] text-indigo-400/30 pointer-events-none text-xs">✦</div>
-        <div className="absolute top-44 left-[5%] text-purple-300/40 pointer-events-none text-sm">✦</div>
-        <div className="absolute top-20 right-[15%] text-purple-400/40 pointer-events-none text-sm">✦</div>
-        <div className="absolute top-52 right-[6%] text-indigo-400/30 pointer-events-none">✦</div>
-        <div className="absolute bottom-20 left-[20%] text-purple-400/30 pointer-events-none text-xs">✦</div>
+        {/* Ambient floating sparkle stars (Image 2) */}
+        <div className="absolute top-12 left-[23%] text-purple-400 font-bold text-sm pointer-events-none select-none">✦</div>
+        <div className="absolute top-44 left-[14%] text-purple-300 font-bold text-xs pointer-events-none select-none">✦</div>
+        <div className="absolute top-32 right-[22%] text-purple-300 font-bold text-xs pointer-events-none select-none">✦</div>
+        <div className="absolute top-64 right-[12%] text-indigo-400 font-bold text-sm pointer-events-none select-none">✦</div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+        {/* Main Canvas: Visible at ALL desktop & laptop resolutions (from 768px onwards) */}
+        <div className="relative max-w-[1360px] mx-auto px-4 sm:px-6 w-full z-10 min-h-[580px] sm:min-h-[640px] flex items-center justify-center">
 
-            {/* Left Column: Headlines & CTAs */}
-            <div className="lg:col-span-7 flex flex-col items-start z-10">
-              
-              {/* Announcement Pill */}
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white/80 text-brand-purple border border-purple-200/70 shadow-[0_2px_10px_rgba(124,58,237,0.06)] backdrop-blur-md mb-8 hover:bg-white transition-all cursor-pointer"
-                onClick={() => onNavigate('diagnostic')}
-              >
-                <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
-                <span>LearnLoop AI · Adaptive Cognitive Learning Engine</span>
-                <ChevronRight className="w-3.5 h-3.5 text-brand-purple/70" />
-              </motion.div>
-
-              {/* Main Headline */}
-              <motion.h1
-                initial={{ opacity: 0, y: 18 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="text-4xl sm:text-6xl lg:text-[68px] font-extrabold text-navy-950 tracking-tight leading-[1.08] mb-6"
-              >
-                Stop studying everything.{' '}
-                <br className="hidden sm:inline" />
-                <span className="relative inline-block bg-gradient-to-r from-brand-purple via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  Start mastering what
-                </span>{' '}
-                <span className="relative inline-block bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  matters.
-                  {/* Decorative curved SVG underline under 'matters.' */}
-                  <svg 
-                    className="absolute -bottom-2 left-0 w-full h-3 text-purple-500 overflow-visible" 
-                    viewBox="0 0 160 12" 
-                    fill="none" 
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path 
-                      d="M2 9C40 2 120 2 158 8" 
-                      stroke="currentColor" 
-                      strokeWidth="3.5" 
-                      strokeLinecap="round" 
-                    />
-                  </svg>
-                </span>
-              </motion.h1>
-
-              {/* Subtitle Description */}
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-base sm:text-lg text-navy-600 max-w-xl leading-relaxed mb-10 font-normal"
-              >
-                Your personal AI learning companion that understands your strengths, identifies your weaknesses, and builds a dynamic learning path around you.
-              </motion.p>
-
-              {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="flex flex-wrap items-center gap-4"
-              >
-                <button
-                  onClick={handleStartLearning}
-                  className="group flex items-center gap-2 px-7 py-3.5 rounded-2xl font-bold text-sm text-white bg-gradient-to-r from-brand-purple to-indigo-600 hover:from-purple-600 hover:to-indigo-500 shadow-[0_10px_25px_rgba(99,102,241,0.35)] hover:shadow-[0_12px_30px_rgba(99,102,241,0.45)] hover:-translate-y-0.5 active:translate-y-0 transition-all"
-                >
-                  <span>Start Learning</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </button>
-
-                <button
-                  onClick={handleExploreFeatures}
-                  className="flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold text-sm text-navy-700 bg-white/80 hover:bg-white border border-purple-200/80 hover:border-purple-300 shadow-[0_4px_15px_rgba(0,0,0,0.03)] backdrop-blur-sm transition-all"
-                >
-                  <Play className="w-3.5 h-3.5 fill-navy-700 text-navy-700" />
-                  <span>Explore Features</span>
-                </button>
-              </motion.div>
-
-              {/* Floating Streak Card (bottom-left alignment) */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="mt-10 inline-flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 border border-purple-100 shadow-[0_10px_30px_rgba(124,58,237,0.08)] backdrop-blur-md"
-              >
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-sm shadow-orange-500/30">
-                  <Flame className="w-5 h-5 fill-white" />
+          {/* --------------------------------------------------------
+              1. TOP-LEFT CARD: Your Accuracy Improved by 24% + Wave
+          -------------------------------------------------------- */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="hidden md:block absolute top-4 lg:top-8 left-2 sm:left-4 lg:left-8 z-20 w-52 lg:w-60 p-3.5 lg:p-4 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_15px_35px_rgba(124,58,237,0.08)] transform -rotate-6 hover:rotate-0 transition-transform duration-300 select-none"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600 shrink-0">
+                <div className="flex items-end gap-1 h-5">
+                  <span className="w-1.5 h-3 bg-emerald-500 rounded-full" />
+                  <span className="w-1.5 h-4 bg-emerald-500 rounded-full" />
+                  <span className="w-1.5 h-5 bg-emerald-600 rounded-full" />
                 </div>
-                <div>
-                  <div className="text-sm font-extrabold text-navy-950 flex items-center gap-1">
-                    <span>12 day learning streak</span>
-                    <span>🔥</span>
-                  </div>
-                  <div className="text-xs text-navy-500 font-medium">Consistent daily progress</div>
+              </div>
+              <div>
+                <div className="text-[11px] font-medium text-slate-500">Your accuracy</div>
+                <div className="text-xs font-bold text-slate-900">
+                  improved by <span className="text-emerald-600 font-extrabold text-sm">24% ↗</span>
                 </div>
-              </motion.div>
+              </div>
             </div>
+            {/* Green wavy graph sparkline (Image 2) */}
+            <svg className="w-full h-8 mt-2.5 overflow-visible" viewBox="0 0 160 30" fill="none">
+              <path 
+                d="M 5 22 Q 25 10 45 20 T 85 18 T 125 10 T 155 6" 
+                stroke="#10B981" 
+                strokeWidth="2.8" 
+                strokeLinecap="round" 
+              />
+            </svg>
+          </motion.div>
 
-            {/* Right Column: Graduation Cap Centerpiece with Floating Analytics Cards */}
-            <div className="lg:col-span-5 relative flex items-center justify-center min-h-[420px] lg:min-h-[480px]">
-              
-              {/* 3D Graduation Cap Centerpiece */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="relative z-10"
-              >
-                <GraduationCap3D />
-              </motion.div>
-
-              {/* Floating Card: Accuracy Improved (+24%) */}
-              <motion.div
-                initial={{ opacity: 0, y: -25, x: -20 }}
-                animate={{ opacity: 1, y: 0, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="absolute top-2 left-0 sm:-left-6 z-20 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 border border-emerald-100 shadow-[0_12px_35px_rgba(16,185,129,0.12)] backdrop-blur-md"
-              >
-                <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-emerald-600">
-                  <TrendingUp className="w-5 h-5" />
+          {/* --------------------------------------------------------
+              2. BOTTOM-LEFT CARD: 12 Day Learning Streak + Wave
+          -------------------------------------------------------- */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="hidden md:block absolute bottom-4 lg:bottom-8 left-2 sm:left-4 lg:left-12 z-20 w-48 lg:w-56 p-3.5 lg:p-4 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_15px_35px_rgba(124,58,237,0.08)] transform -rotate-3 hover:rotate-0 transition-transform duration-300 select-none"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200/60 flex items-center justify-center text-orange-500 shrink-0 shadow-xs">
+                <Flame className="w-5 h-5 fill-orange-500 text-orange-500" />
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-900">12 day</div>
+                <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1">
+                  <span>learning streak</span>
+                  <span>🔥</span>
                 </div>
-                <div>
-                  <div className="text-xs font-semibold text-navy-600">Your accuracy</div>
-                  <div className="text-sm font-bold text-navy-900">
-                    improved by <span className="text-emerald-600 font-extrabold text-base">24% ↗</span>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Floating Card: Next Up Recommendation */}
-              <motion.div
-                initial={{ opacity: 0, y: -20, x: 20 }}
-                animate={{ opacity: 1, y: 0, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="absolute top-6 right-0 sm:-right-4 z-20 flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/95 border border-purple-100 shadow-[0_12px_35px_rgba(99,102,241,0.12)] backdrop-blur-md"
-              >
-                <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200/60 flex items-center justify-center text-brand-purple">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-purple-600">Next Up:</div>
-                  <div className="text-xs font-extrabold text-navy-950 flex items-center gap-1">
-                    <span>Graph Algorithms</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-brand-purple" />
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Floating Badge: Verified Mastery */}
-              <motion.div
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.7 }}
-                className="absolute bottom-6 right-2 sm:right-6 z-20 flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/95 border border-amber-100 shadow-[0_8px_25px_rgba(245,158,11,0.12)] backdrop-blur-md"
-              >
-                <div className="flex gap-0.5">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <span className="text-xs font-bold text-navy-900">Mastery Calibrated</span>
-              </motion.div>
-
+              </div>
             </div>
+            {/* Purple wavy graph sparkline (Image 2) */}
+            <svg className="w-full h-8 mt-2.5 overflow-visible" viewBox="0 0 160 30" fill="none">
+              <path 
+                d="M 5 18 Q 30 26 55 14 T 95 20 T 130 8 T 155 14" 
+                stroke="#8B5CF6" 
+                strokeWidth="2.8" 
+                strokeLinecap="round" 
+              />
+            </svg>
+          </motion.div>
+
+          {/* --------------------------------------------------------
+              3. CENTERED HERO TEXT CONTENT
+          -------------------------------------------------------- */}
+          <div className="max-w-xl sm:max-w-2xl mx-auto text-center flex flex-col items-center py-6">
+            
+            {/* Announcement Pill: Centered */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              onClick={() => onNavigate('diagnostic')}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-white text-purple-600 border border-purple-200/90 shadow-[0_2px_12px_rgba(124,58,237,0.08)] mb-6 sm:mb-8 hover:bg-purple-50/50 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
+              <span>LearnLoop AI · Adaptive Cognitive Learning Engine</span>
+              <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
+            </motion.div>
+
+            {/* Headline: Centered with 3-line breakdown, burst sketch & curved underline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-4xl sm:text-5xl lg:text-[64px] font-extrabold text-[#0B0F19] tracking-tight leading-[1.12] mb-6"
+            >
+              <span className="relative inline-block">
+                Stop studying everything.
+                {/* 3 Radiating Burst Sketch lines on top right of "everything." (Image 2) */}
+                <svg 
+                  className="absolute -top-3.5 -right-7 w-7 h-7 text-purple-600 hidden sm:block pointer-events-none" 
+                  viewBox="0 0 28 28" 
+                  fill="none"
+                >
+                  <path d="M4 22L1 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M12 20L17 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                  <path d="M18 24L25 21" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+              </span>
+              <br />
+              <span className="bg-gradient-to-r from-[#6366F1] via-[#7C3AED] to-[#4F46E5] bg-clip-text text-transparent">
+                Start mastering what
+              </span>{' '}
+              <span className="relative inline-block bg-gradient-to-r from-[#7C3AED] to-[#4F46E5] bg-clip-text text-transparent">
+                matters.
+                {/* Hand-drawn smooth curved swoosh underline (Image 2) */}
+                <svg 
+                  className="absolute -bottom-2.5 left-0 w-full h-4 text-[#7C3AED] pointer-events-none overflow-visible" 
+                  viewBox="0 0 190 14" 
+                  fill="none" 
+                  preserveAspectRatio="none"
+                >
+                  <path 
+                    d="M 3 8 C 55 16 135 15 186 4" 
+                    stroke="currentColor" 
+                    strokeWidth="4" 
+                    strokeLinecap="round" 
+                  />
+                </svg>
+              </span>
+            </motion.h1>
+
+            {/* Subtitle Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-xl mx-auto leading-relaxed mb-8 font-normal"
+            >
+              Your personal AI learning companion that understands your strengths, identifies your weaknesses, and builds a dynamic learning path around you.
+            </motion.p>
+
+            {/* Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex flex-wrap items-center justify-center gap-4"
+            >
+              <button
+                onClick={handleStartLearning}
+                className="group flex items-center gap-2 px-8 py-3.5 rounded-full font-bold text-sm text-white bg-gradient-to-r from-[#6366F1] via-[#7C3AED] to-[#4F46E5] hover:from-[#4F46E5] hover:to-[#4338CA] shadow-[0_10px_28px_rgba(99,102,241,0.4)] hover:shadow-[0_14px_35px_rgba(99,102,241,0.5)] hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              >
+                <span>Start Learning</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              <button
+                onClick={handleExploreFeatures}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-full font-bold text-sm text-slate-800 bg-white hover:bg-slate-50 border border-slate-200 hover:border-purple-300 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-all"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-800 text-slate-800" />
+                <span>Explore Features</span>
+              </button>
+            </motion.div>
 
           </div>
+
+          {/* --------------------------------------------------------
+              4. TOP-RIGHT CARD: Next Up: Graph Algorithms + Bar
+          -------------------------------------------------------- */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="hidden md:block absolute top-4 lg:top-8 right-2 sm:right-4 lg:right-8 z-20 w-56 lg:w-64 p-3.5 lg:p-4 rounded-3xl bg-white/95 backdrop-blur-md border border-purple-100 shadow-[0_15px_35px_rgba(124,58,237,0.08)] transform rotate-6 hover:rotate-0 transition-transform duration-300 select-none"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-purple-50 border border-purple-200/60 flex items-center justify-center text-purple-600 shrink-0">
+                <Sparkles className="w-5 h-5 text-purple-600" />
+              </div>
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">NEXT UP:</div>
+                <div className="text-xs font-extrabold text-slate-900 flex items-center gap-1">
+                  <span>Graph Algorithms</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-purple-600" />
+                </div>
+              </div>
+            </div>
+            {/* Purple progress bar capsule (Image 2) */}
+            <div className="w-full h-2.5 bg-purple-100/70 rounded-full overflow-hidden mt-3.5 p-0.5">
+              <div className="w-[68%] h-full bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600 rounded-full" />
+            </div>
+          </motion.div>
+
+          {/* --------------------------------------------------------
+              5. BOTTOM-RIGHT: 3D Graduation Cap with Orbital Ring
+          -------------------------------------------------------- */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="hidden md:block absolute bottom-0 right-2 sm:right-4 lg:right-6 z-20"
+          >
+            <GraduationCapMockup />
+          </motion.div>
+
         </div>
+
+        {/* Mobile strip (< 768px screens only) */}
+        <div className="md:hidden mt-8 px-4 flex flex-col items-center gap-4">
+          <div className="w-full flex justify-center py-2">
+            <GraduationCapMockup />
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-3 w-full">
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-purple-100 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+              <div className="text-left">
+                <div className="text-[10px] text-slate-500 font-medium">Your accuracy</div>
+                <div className="text-xs font-bold text-slate-900">improved by <span className="text-emerald-600 font-extrabold">24% ↗</span></div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white border border-purple-100 shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center font-bold">
+                <Flame className="w-4 h-4 fill-orange-500" />
+              </div>
+              <div className="text-left">
+                <div className="text-xs font-bold text-slate-900">12 day streak 🔥</div>
+                <div className="text-[10px] text-slate-500">Daily practice active</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </section>
 
       {/* ============================================================
@@ -951,7 +944,6 @@ export const LandingPage = ({ onNavigate }) => {
           SECTION 3: THE INTELLIGENT LEARNING LOOP
       ============================================================ */}
       <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#F7F5FF] via-[#FAF9FF] to-white relative overflow-hidden">
-        {/* Subtle separator glow line */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-purple-300 to-transparent" />
 
         <div className="max-w-6xl mx-auto">
@@ -1024,7 +1016,6 @@ export const LandingPage = ({ onNavigate }) => {
                   className={`group relative p-6 rounded-3xl bg-white border border-purple-100/90 shadow-[0_4px_20px_rgba(124,58,237,0.05)] hover:shadow-[0_12px_35px_rgba(124,58,237,0.12)] hover:-translate-y-1 ${stepItem.borderHover} transition-all cursor-pointer flex flex-col justify-between`}
                 >
                   <div>
-                    {/* Top Header: Icon & Step Badge */}
                     <div className="flex items-center justify-between mb-5">
                       <div className={`w-12 h-12 rounded-2xl ${stepItem.iconBg} flex items-center justify-center font-bold shadow-xs group-hover:scale-105 transition-transform`}>
                         <Icon className="w-6 h-6" />
@@ -1034,18 +1025,15 @@ export const LandingPage = ({ onNavigate }) => {
                       </span>
                     </div>
 
-                    {/* Step Title */}
                     <h3 className="text-lg font-bold text-navy-950 group-hover:text-brand-purple transition-colors mb-2">
                       {stepItem.title}
                     </h3>
 
-                    {/* Step Description */}
                     <p className="text-xs text-navy-600 leading-relaxed font-normal">
                       {stepItem.desc}
                     </p>
                   </div>
 
-                  {/* Bottom Link with Arrow */}
                   <div className="mt-6 pt-4 border-t border-purple-50 flex items-center justify-between text-xs font-bold text-brand-purple">
                     <span>{stepItem.linkText}</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -1102,7 +1090,6 @@ export const LandingPage = ({ onNavigate }) => {
                 </p>
               </div>
 
-              {/* Micro Formula Display matching reference mockup */}
               <div className="bg-[#FAF9FF] p-4 rounded-2xl border border-purple-100 space-y-2.5">
                 <div className="flex items-center justify-between text-[11px] font-mono">
                   <span className="text-navy-500 font-semibold">Mastery Formula:</span>
@@ -1143,7 +1130,6 @@ export const LandingPage = ({ onNavigate }) => {
                 </p>
               </div>
 
-              {/* Micro DAG Visual matching reference mockup */}
               <div className="bg-[#FAF9FF] p-4 rounded-2xl border border-purple-100 space-y-2.5">
                 <div className="flex items-center justify-between text-[11px] font-mono">
                   <span className="text-navy-500 font-semibold">Prerequisite Chain:</span>
@@ -1192,7 +1178,6 @@ export const LandingPage = ({ onNavigate }) => {
                 </p>
               </div>
 
-              {/* Micro Architecture Stack Widget matching reference mockup */}
               <div className="bg-[#FAF9FF] p-4 rounded-2xl border border-purple-100 space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-mono">
                   <span className="text-navy-500 font-semibold">Inference Stack:</span>
