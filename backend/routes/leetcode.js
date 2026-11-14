@@ -63,7 +63,7 @@ router.post('/log-submission', async (req, res) => {
       memoryPercentile: Number(memoryPercentile) || 70,
       status: status || 'Accepted',
       awardedXp: xpReward,
-      syncedVia: 'LearnLoop Companion Chrome Extension'
+      syncedVia: 'Solveo Companion Chrome Extension'
     });
 
     console.log(`[LeetCode Log] Recorded ${submissionRecord.title} (${difficulty}) for ${userId} in ${formatted}`);
@@ -72,7 +72,7 @@ router.post('/log-submission', async (req, res) => {
       success: true,
       submission: submissionRecord,
       awardedXp: xpReward,
-      message: `Successfully synced ${submissionRecord.title} to LearnLoop (+${xpReward} XP)!`
+      message: `Successfully synced ${submissionRecord.title} to Solveo (+${xpReward} XP)!`
     });
   } catch (err) {
     console.error('Failed to log LeetCode submission:', err);
@@ -150,7 +150,7 @@ router.post('/link-handle', async (req, res) => {
     res.json({
       success: true,
       leetcodeUsername: cleanUsername,
-      message: `Linked LeetCode handle @${cleanUsername} to your LearnLoop profile!`
+      message: `Linked LeetCode handle @${cleanUsername} to your Solveo profile!`
     });
   } catch (err) {
     console.error('Failed to link LeetCode handle:', err);

@@ -48,7 +48,7 @@ const AppContent = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center gap-3 text-navy-800">
           <div className="w-4 h-4 rounded-full bg-brand-purple animate-ping" />
-          <span className="text-xs font-bold tracking-wider uppercase">Initializing LearnLoop AI...</span>
+          <span className="text-xs font-bold tracking-wider uppercase">Initializing Solveo...</span>
         </div>
       </div>
     );

@@ -94,7 +94,7 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
       setEditingHandle(false);
       const prof = await leetcodeApi.getProfile(clean).catch(() => null);
       if (prof) setProfile(prof);
-      showNotification(`Linked @${clean} to LearnLoop!`);
+      showNotification(`Linked @${clean} to Solveo!`);
     } catch (err) {
       console.error('Failed to link handle:', err);
     } finally {
@@ -116,7 +116,7 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
         setUser(prev => prev ? ({ ...prev, leetcodeUsername: null }) : prev);
       }
       setShowDisconnectModal(false);
-      showNotification('LeetCode handle disconnected from your LearnLoop profile.');
+      showNotification('LeetCode handle disconnected from your Solveo profile.');
     } catch (err) {
       console.error('Failed to disconnect handle:', err);
     } finally {
@@ -288,7 +288,7 @@ export const LeetCodeTrackerCard = ({ onNavigate }) => {
             LeetCode Profile, Heatmap & Activity Sync
           </h3>
           <p className="text-xs text-navy-500">
-            Directly connected to your official LeetCode account. Seamlessly syncs your solved questions, global ranking, submission heatmap, and recent activity into LearnLoop.
+            Directly connected to your official LeetCode account. Seamlessly syncs your solved questions, global ranking, submission heatmap, and recent activity into Solveo.
           </p>
         </div>
 

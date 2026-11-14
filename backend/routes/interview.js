@@ -1914,7 +1914,7 @@ router.post('/evaluate', optionalAuth, async (req, res) => {
       growthAreas,
       seniorEngineerNotes: `Candidate tackled **${question.title}** (${question.companyName} · ${question.difficulty}) under simulated 15-minute conditions. ` +
         `Vocalized ${candidateMessages.length} response(s) with ${totalWords} total words spoken. Code implementation ${hasCodeWritten ? `contains ${codeAnalysis.linesCount} lines with ${codeAnalysis.constructs.length > 0 ? codeAnalysis.constructs.join(', ') : 'standard logic'}` : 'was not submitted'}. ` +
-        `${verdict === 'STRONG HIRE' ? 'Exhibited senior-level communication and structured coding fluency.' : verdict === 'LEANING HIRE' ? 'Solid foundational intuition with room for deeper complexity analysis.' : verdict === 'NEEDS PRACTICE' ? 'Shows developing potential; focus on vocalizing Big-O trade-offs and handling edge cases.' : 'Requires structured practice on FAANG-style problem deconstruction.'} Recommended next priority: review **${question.topic}** in LearnLoop to solidify interview mastery.`,
+        `${verdict === 'STRONG HIRE' ? 'Exhibited senior-level communication and structured coding fluency.' : verdict === 'LEANING HIRE' ? 'Solid foundational intuition with room for deeper complexity analysis.' : verdict === 'NEEDS PRACTICE' ? 'Shows developing potential; focus on vocalizing Big-O trade-offs and handling edge cases.' : 'Requires structured practice on FAANG-style problem deconstruction.'} Recommended next priority: review **${question.topic}** in Solveo to solidify interview mastery.`,
       recommendedTopic: question.topic
     };
 

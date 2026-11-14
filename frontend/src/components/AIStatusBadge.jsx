@@ -16,7 +16,7 @@ export const AIStatusBadge = () => {
         setStatus({
           isConfigured: false,
           mode: 'Resilient Local Heuristic Engine',
-          modelName: 'LearnLoop-Local-Heuristic-V1'
+          modelName: 'Solveo-Local-Heuristic-V1'
         });
       });
   }, []);

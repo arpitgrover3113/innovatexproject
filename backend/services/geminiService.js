@@ -178,7 +178,7 @@ export const generateTutorResponse = async ({
   const groqKey = process.env.GROQ_API_KEY;
   const geminiKey = process.env.GEMINI_API_KEY;
 
-  const systemInstruction = `You are LearnLoop AI, a world-class adaptive personal Socratic tutor for Computer Science and Data Structures & Algorithms.
+  const systemInstruction = `You are Solveo, a world-class adaptive personal Socratic tutor for Computer Science and Data Structures & Algorithms.
 Student's real-time cognitive profile:
 - Active Topic Context: ${effectiveTopicName} (Current Mastery: ${currentTopicProgress.masteryScore}%)
 - Weakest Knowledge Areas: ${weakestTopics.join(', ')}
@@ -472,7 +472,7 @@ Your learning progress and mastery telemetry are safely recorded. Whenever you r
   // 5. Natural Greeting Handling
   if (query.match(/^(hi|hello|hey|greetings|howdy|sup|good morning|good afternoon|good evening)\b/i) || query.includes('who are you') || query.includes('how are you')) {
     return {
-      content: `### 👋 Hello! I'm your LearnLoop AI Socratic Tutor
+      content: `### 👋 Hello! I'm your Solveo AI Socratic Tutor
 
 I'm your personal Computer Science and DSA coach. I calibrate my explanations to your exact mastery profile in real time!
 

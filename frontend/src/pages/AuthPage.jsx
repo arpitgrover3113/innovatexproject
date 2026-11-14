@@ -59,7 +59,7 @@ export const AuthPage = ({ onAuthSuccess }) => {
             <Sparkles className="w-6 h-6" />
           </div>
           <h2 className="text-2xl font-extrabold text-navy-900 tracking-tight">
-            {isRegister ? 'Create your LearnLoop account' : 'Welcome back to LearnLoop'}
+            {isRegister ? 'Create your Solveo account' : 'Welcome back to Solveo'}
           </h2>
           <p className="text-xs text-navy-500 mt-1">
             {isRegister 
@@ -209,7 +209,7 @@ export const AuthPage = ({ onAuthSuccess }) => {
             </p>
           ) : (
             <p>
-              New to LearnLoop?{' '}
+              New to Solveo?{' '}
               <button
                 type="button"
                 onClick={() => setIsRegister(true)}

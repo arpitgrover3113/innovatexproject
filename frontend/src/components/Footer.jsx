@@ -13,9 +13,9 @@ export const Footer = () => {
             </div>
             <div>
               <span className="text-sm font-bold text-navy-900">
-                LearnLoop<span className="text-brand-purple">.ai</span>
+                Solveo<span className="text-brand-purple">.</span>
               </span>
-              <p className="text-xs text-navy-400">Intelligent Adaptive Learning Platform</p>
+              <p className="text-xs text-navy-400">Your space to become a better problem-solver.</p>
             </div>
           </div>
 

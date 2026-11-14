@@ -664,7 +664,7 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
       setMessages([
         {
           role: 'assistant',
-          content: `Hello! I am your LearnLoop AI tutor. I have your mastery profile loaded for **${topicContext}**. Ask me to break down concepts, diagnose mistakes, or guide you through practice problems!`,
+          content: `Hello! I am your Solveo AI tutor. I have your mastery profile loaded for **${topicContext}**. Ask me to break down concepts, diagnose mistakes, or guide you through practice problems!`,
           timestamp: new Date().toISOString()
         }
       ]);
@@ -840,7 +840,7 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
                   }`}>
                     {!isUser && (
                       <div className="flex items-center justify-between pb-1.5 border-b border-navy-200/40 text-[11px] text-navy-500 font-medium">
-                        <span className="font-semibold text-brand-purple">LearnLoop Socratic Tutor</span>
+                        <span className="font-semibold text-brand-purple">Solveo Socratic Tutor</span>
                         <button
                           onClick={() => toggleSpeak(msg.content, idx)}
                           title="Read explanation aloud"
@@ -1052,7 +1052,7 @@ export const AITutorPage = ({ initialTopicContext = 'Recursion', onNavigate }) =
               </div>
 
               <div className="p-3.5 rounded-2xl bg-navy-50 border border-navy-200/80 text-xs text-navy-600 leading-relaxed">
-                LearnLoop includes a built-in <strong>Resilient Pedagogical Knowledge Engine</strong> with deep coverage across 50+ DSA topics (AVL trees, Red-Black trees, Dijkstra, etc.). You can also connect a live Google Gemini or Groq key for unrestricted reasoning.
+                Solveo includes a built-in <strong>Resilient Pedagogical Knowledge Engine</strong> with deep coverage across 50+ DSA topics (AVL trees, Red-Black trees, Dijkstra, etc.). You can also connect a live Google Gemini or Groq key for unrestricted reasoning.
               </div>
 
               <div className="space-y-3.5 text-xs">

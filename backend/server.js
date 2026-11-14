@@ -49,7 +49,7 @@ app.get('/api/health', (req, res) => {
   const dbStatus = getDbStatus();
   res.json({
     status: 'healthy',
-    platform: 'LearnLoop AI Intelligent Adaptive Learning Platform',
+    platform: 'Solveo Intelligent Adaptive Learning Platform',
     version: '1.0.0-hackathon',
     timestamp: new Date().toISOString(),
     database: dbStatus,
@@ -100,7 +100,7 @@ const startServer = async () => {
     // 3. Start Express HTTP Listener
     const server = app.listen(PORT, () => {
       console.log(`=======================================================`);
-      console.log(`🚀 LearnLoop AI Backend listening on http://localhost:${PORT}`);
+      console.log(`🚀 Solveo Backend listening on http://localhost:${PORT}`);
       console.log(`⚡ Health Check: http://localhost:${PORT}/api/health`);
       console.log(`🧠 AI Tutor Engine: Groq Cloud LPU (openai/gpt-oss-120b) ACTIVE`);
       console.log(`🎯 Demo User: alex@learnloop.ai (Password: password123)`);

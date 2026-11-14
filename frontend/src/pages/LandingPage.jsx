@@ -870,7 +870,7 @@ export const LandingPage = ({ onNavigate }) => {
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold bg-white/80 text-purple-700 border border-purple-200/70 shadow-sm mb-7 hover:bg-white transition-all cursor-pointer backdrop-blur-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-purple-500" />
-              <span>LearnLoop AI · Adaptive Cognitive Learning Engine</span>
+              <span>Solveo · Your space to become a better problem-solver.</span>
               <ChevronRight className="w-3.5 h-3.5 text-purple-400" />
             </motion.div>
 
@@ -915,8 +915,8 @@ export const LandingPage = ({ onNavigate }) => {
               transition={{ duration: 0.5, delay: 0.18 }}
               className="text-sm sm:text-base lg:text-[16px] text-slate-600 max-w-lg mx-auto leading-relaxed mb-9"
             >
-              Your personal AI learning companion{' '}
-              <span className="font-semibold text-slate-700">that understands your strengths,</span>{' '}
+              Your space to become a better problem-solver.{' '}
+              <span className="font-semibold text-slate-700">Understands your strengths,</span>{' '}
               identifies your weaknesses, and builds a dynamic learning path around you.
             </motion.p>
 
@@ -1237,7 +1237,7 @@ export const LandingPage = ({ onNavigate }) => {
               Four steps from knowledge gaps to total mastery.
             </h2>
             <p className="text-navy-600 mt-3 text-base leading-relaxed">
-              Traditional platforms present rigid linear video playlists, LearnLoop continuously adapts to your cognitive velocity.
+              Traditional platforms present rigid linear video playlists, Solveo continuously adapts to your cognitive velocity.
             </p>
           </div>
 
@@ -1467,7 +1467,7 @@ export const LandingPage = ({ onNavigate }) => {
                 </div>
                 <h3 className="text-lg font-bold text-navy-950 mb-2">Topological Prerequisite Ordering</h3>
                 <p className="text-xs text-navy-600 leading-relaxed font-normal">
-                  If Recursion is weak, LearnLoop locks advanced Dynamic Programming and prioritizes call-stack mastery first, preventing cognitive overload.
+                  If Recursion is weak, Solveo locks advanced Dynamic Programming and prioritizes call-stack mastery first, preventing cognitive overload.
                 </p>
               </div>
 

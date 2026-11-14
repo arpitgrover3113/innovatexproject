@@ -97,7 +97,7 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
             </div>
             <div>
               <span className="text-lg font-bold tracking-tight text-navy-900 group-hover:text-brand-purple transition-colors">
-                LearnLoop<span className="text-brand-purple">.ai</span>
+                Solveo<span className="text-brand-purple">.</span>
               </span>
               <span className="hidden sm:inline-block ml-2 text-[10px] font-semibold uppercase tracking-wider text-navy-400 bg-navy-100 px-1.5 py-0.5 rounded">
                 PS 03 · EdTech
@@ -204,7 +204,7 @@ export const Navbar = ({ activeTab, onTabChange, onShowAchievements }) => {
 
                   <button
                     onClick={logout}
-                    title="Sign Out of LearnLoop"
+                    title="Sign Out of Solveo"
                     className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-rose-500 hover:bg-rose-600 transition-all shadow-soft-xs shrink-0"
                   >
                     <LogOut className="w-3.5 h-3.5 text-white" />
