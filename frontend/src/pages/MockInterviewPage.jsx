@@ -249,6 +249,7 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
   const proctorMode = true;
   const [showStartDisclaimer, setShowStartDisclaimer] = useState(false);
   const [showZeroAttemptDisclaimer, setShowZeroAttemptDisclaimer] = useState(false);
+  const [showEndConfirmation, setShowEndConfirmation] = useState(false);
   const [pendingStartConfig, setPendingStartConfig] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
@@ -744,6 +745,7 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
   // Perform interview evaluation and generate scorecard
   const executeEndInterview = async () => {
     setShowZeroAttemptDisclaimer(false);
+    setShowEndConfirmation(false);
     stopSpeaking();
     setIsTimerRunning(false);
     setEvaluating(true);
@@ -774,17 +776,20 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
     }
   };
 
-  // End interview: triggers disclaimer if unattempted, or evaluates immediately if attempted/forced
+  // End interview: triggers zero-attempt disclaimer if unattempted, or confirmation disclaimer if attempted
   const handleEndInterview = async (force = false) => {
     stopSpeaking();
 
-    // If candidate has not attempted anything and this is not a forced countdown expiry, show disclaimer modal
+    // If candidate has not attempted anything and this is not a forced countdown expiry, show 0% disclaimer modal
     if (!force) {
       const hasAttempted = checkIfAttempted();
       if (!hasAttempted) {
         setShowZeroAttemptDisclaimer(true);
         return;
       }
+      // Candidate HAS attempted: show confirmation disclaimer modal before grading
+      setShowEndConfirmation(true);
+      return;
     }
 
     await executeEndInterview();
@@ -1609,6 +1614,96 @@ export const MockInterviewPage = ({ onNavigate, onInterviewActiveChange }) => {
                   className="w-full sm:w-auto px-4 py-3.5 rounded-xl border border-rose-300 hover:bg-rose-50 text-rose-600 font-bold text-xs transition-colors cursor-pointer"
                 >
                   <span>End Anyway & Receive 0%</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* End Assessment Confirmation Disclaimer Modal (After Attempting) */}
+      <AnimatePresence>
+        {showEndConfirmation && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-md">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-brand-purple/30 shadow-2xl space-y-5"
+            >
+              {/* Header */}
+              <div className="flex items-start justify-between border-b border-navy-200/60 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-brand-purple/10 text-brand-purple flex items-center justify-center shrink-0 border border-brand-purple/20">
+                    <Award className="w-6 h-6 text-brand-purple" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-purple bg-brand-purple/10 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                      Final Submission Check
+                    </span>
+                    <h3 className="text-lg font-black text-navy-900">
+                      Are you sure you want to end?
+                    </h3>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowEndConfirmation(false)}
+                  className="p-1.5 rounded-xl hover:bg-navy-100 text-navy-400 hover:text-navy-700 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Status / Activity Recap Box */}
+              <div className="p-4 rounded-2xl bg-purple-50/70 border border-purple-200/70 space-y-2">
+                <div className="flex items-center gap-2 text-purple-900 font-extrabold text-xs">
+                  <AlertCircle className="w-4 h-4 text-brand-purple shrink-0" />
+                  <span>Your session will be locked and graded</span>
+                </div>
+                <p className="text-[11px] text-purple-800 leading-relaxed">
+                  Once ended, your dialogue with the interviewer and code implementation will be finalized. The AI hiring committee will evaluate your problem-solving, communication clarity, algorithmic optimization, and code quality to generate your official scorecard.
+                </p>
+              </div>
+
+              {/* Telemetry Summary */}
+              <div className="grid grid-cols-3 gap-2.5 text-center">
+                <div className="p-3 bg-navy-50/70 rounded-xl border border-navy-200/60">
+                  <span className="text-[10px] text-navy-400 font-medium block">Time Remaining</span>
+                  <span className="text-xs font-mono font-bold text-navy-800">{formatTime(timeLeft)}</span>
+                </div>
+                <div className="p-3 bg-navy-50/70 rounded-xl border border-navy-200/60">
+                  <span className="text-[10px] text-navy-400 font-medium block">Code Lines</span>
+                  <span className="text-xs font-mono font-bold text-navy-800">
+                    {code ? code.trim().split('\n').length : 0} lines
+                  </span>
+                </div>
+                <div className="p-3 bg-navy-50/70 rounded-xl border border-navy-200/60">
+                  <span className="text-[10px] text-navy-400 font-medium block">Responses</span>
+                  <span className="text-xs font-mono font-bold text-navy-800">
+                    {messages.filter(m => m.role === 'user').length} answers
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowEndConfirmation(false)}
+                  className="w-full sm:flex-1 py-3.5 rounded-xl border border-navy-200 hover:bg-navy-50 text-navy-700 font-bold text-xs transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <Play className="w-3.5 h-3.5 text-navy-500" />
+                  <span>Return & Keep Working</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={executeEndInterview}
+                  className="w-full sm:flex-1 py-3.5 rounded-xl bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-extrabold text-xs shadow-soft-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Award className="w-4 h-4" />
+                  <span>Yes, End & Grade</span>
                 </button>
               </div>
             </motion.div>
