@@ -1,7 +1,8 @@
 // Centralized API Client with Direct Backend Connection & JWT Auth
-const API_BASE = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:5001/api'
-  : '/api';
+const API_BASE = (import.meta.env && import.meta.env.VITE_API_URL)
+  || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:5001/api'
+    : '/api');
 
 export const getAuthToken = () => {
   return localStorage.getItem('learnloop_token');
